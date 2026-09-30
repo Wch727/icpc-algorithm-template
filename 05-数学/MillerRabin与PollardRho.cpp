@@ -1,3 +1,9 @@
+// 适用：大整数素性判断和质因数分解；实际接口是正的有符号 ll。
+// 参数：n<=LLONG_MAX；分解入口 factor 要 n>=1，pollard_rho 只接受合数。
+// 关键：n-1=d*2^s，强伪素数测试不断平方；固定七个底数覆盖接口可表示范围。
+// 随机：Rho 返回的是任意非平凡因子，不保证素数，继续递归分解。
+// 易错：qmul 用 __int128 防乘法溢出，但 qmul(x,x,n)+c 在接近 ll 上界时仍可能溢出。
+// 复杂度：七底数素性判定 O(log n) 次模乘；Rho 期望约 O(n^(1/4))，无确定时间上界。
 #include<bits/stdc++.h>
 using namespace std;
 typedef long long ll;
@@ -5,11 +11,13 @@ typedef unsigned long long ull;
 typedef __int128 lll;
 
 // O(log^3 n)，Miller-Rabin 素性判定，确定性基组覆盖 64 位
+// O(1)，计算非负 a*b mod mod；mod>0，先扩为 __int128。
 ll qmul(ll a,ll b,ll mod)
 {
     return (ll)((lll)a*b%mod);
 }
 
+// O(log n)，模 mod 快速幂；n 是非负指数。
 ll qpow(ll a,ll n,ll mod)
 {
     ll res=1%mod;
@@ -23,6 +31,7 @@ ll qpow(ll a,ll n,ll mod)
     return res;
 }
 
+// O(log n) 次宽整数模乘，返回 n 是否为素数；底数为 n 的倍数时跳过。
 bool miller_rabin(ll n)
 {
     if(n<2)return false;
@@ -51,6 +60,7 @@ bool miller_rabin(ll n)
 }
 
 // O(n^(1/4))，Pollard-Rho 找 n 的一个非平凡因子，n 必须是合数
+// 期望约 O(n^(1/4))，找合数 n 的因子；批量积减少 gcd 次数，d==n 表示本轮失败。
 ll pollard_rho(ll n)
 {
     if(n%2==0)return 2;
@@ -83,11 +93,14 @@ ll pollard_rho(ll n)
 }
 
 // O(n^(1/4) log n)，递归分解出全部素因子（不排序、含重数）
+// 随机递归分解，v 为追加输出而非覆盖；n=1 不追加，重复因子保留，结果需自行排序。
 void factor(ll n,vector<ll> &v)
 {
     if(n==1)return;
     if(miller_rabin(n)){v.push_back(n);return;}
     ll d=pollard_rho(n);
+    // 随机递归分解，v 为追加输出而非覆盖；n=1 不追加，重复因子保留，结果需自行排序。
     factor(d,v);
+    // 随机递归分解，v 为追加输出而非覆盖；n=1 不追加，重复因子保留，结果需自行排序。
     factor(n/d,v);
 }

@@ -1,3 +1,9 @@
+// 适用：批量求 phi/mu/约数个数，数据上界能放入数组时一次 O(n) 预处理。
+// 下标：数值范围 1..n，1<=n<N；prime[1..cnt] 为升序素数，1 不是素数。
+// 关键：合数只由最小质因子筛一次，遇 i%prime[j]==0 后必须 break。
+// 状态：dmin[i] 为最小质因子指数；加同一因子时约数个数仅替换该指数贡献。
+// 易错：重复 get_prime 前清 vis、prime 与相关表，单改 cnt 不足以重新筛。
+// 结论：phi(1)=mu(1)=d(1)=1；mu=0 表示有平方因子，试除参考版是 O(sqrt x)。
 #include<bits/stdc++.h>
 using namespace std;
 typedef long long ll;
@@ -12,6 +18,7 @@ int d[N];// 约数个数
 int dmin[N];// 最小质因子在该数中的指数
 
 // O(n)，线性筛同时求 phi / mu / d
+// O(n)，n 为最大查询值；同因子与新因子两种递推不能混用。
 void get_prime(int n)
 {
     cnt=0;
@@ -49,6 +56,7 @@ void get_prime(int n)
 }
 
 // O(sqrt n)，单个数的欧拉函数，对拍用
+// O(sqrt x)，x>=1，试除并去重因子，先除后乘避免一部分溢出。
 int phi_naive(int x)
 {
     int r=x;
@@ -63,6 +71,7 @@ int phi_naive(int x)
 }
 
 // O(sqrt n)，约数个数，对拍用
+// O(sqrt x)，x>=1，约数成对计数；平方根只计一次。
 int d_naive(int x)
 {
     int r=0;
@@ -72,6 +81,7 @@ int d_naive(int x)
 }
 
 // O(sqrt n)，莫比乌斯函数，对拍用
+// O(sqrt x)，x>=1，重复质因子立即返回 0，否则每个不同因子翻一次符号。
 int mu_naive(int x)
 {
     if(x==1)return 1;

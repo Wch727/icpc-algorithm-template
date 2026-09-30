@@ -1,3 +1,9 @@
+// 适用：无向图删除点或边后的连通性，割点与桥必须分别判断。
+// 参数：顶点 1..n；根调用 tarjan(u,0)，fa 是入边编号而非父顶点。
+// 关键：桥要求 low[v]>dfn[u]，割点允许相等；根必须有至少两棵 DFS 子树。
+// 易错：当前 num=0、边从 1 成对加入，与 i^1 配对不一致；多重边尤其需核对，此处只注释不修逻辑。
+// 容量：cut_edge[N] 按有向边编号访问，边数大时可能超过该数组。
+// 复杂度：全图 O(n+m)，空间 O(n+m)，递归深度 O(n)；多组须清空标记与计数。
 #include<bits/stdc++.h>
 using namespace std;
 typedef long long ll;
@@ -9,17 +15,22 @@ int is_cut[N];// 是否为割点
 int timer=0;
 int ea[N],eb[N],cut_edge[N],ecnt=0;// 桥的列表
 
+// O(1)，加一个方向的邻接边；编号由 num 决定，不能单独打乱配对。
 void add_edge(int u,int v)
 {
     to[++num]=v,nxt[num]=head[u],head[u]=num;
 }
 
+// O(1)，按顺序加两个方向；注意现有边编号与异或反边约定的风险。
 void add_undirected(int u,int v)
 {
+    // O(1)，加一个方向的邻接边；编号由 num 决定，不能单独打乱配对。
     add_edge(u,v);
+    // O(1)，加一个方向的邻接边；编号由 num 决定，不能单独打乱配对。
     add_edge(v,u);
 }
 
+// 全图 O(n+m)，跳过入边的反边以保留重边回边；结果在 is_cut、ea/eb、cut_edge。
 void tarjan(int u,int fa)// 无向图求割点与桥，O(n+m)；fa 是边的入边编号，避免走回父亲
 {
     dfn[u]=low[u]=++timer;

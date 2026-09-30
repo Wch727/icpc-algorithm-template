@@ -1,3 +1,9 @@
+// 适用：无权树精确距离点对计数；统计无序且两端不同的点对。
+// 参数：顶点 1..n，n>=1，k 是边数距离；输入必须为连通树。
+// 状态：vis 表示已删除重心，cnt[d] 是此前子树到当前重心距离为 d 的点数。
+// 关键：每棵子树先查询、后入桶，避免把同一子树内部点对错误算作过重心路径。
+// 易错：used 仅清本轮触及的桶，递归前必须清净；答案最多 n*(n-1)/2，用 ll。
+// 复杂度：总 O(n log n)、空间 O(n)；重心递归深度 O(log n)，子树遍历用显式队列。
 #include<bits/stdc++.h>
 using namespace std;
 typedef long long ll;
@@ -8,11 +14,14 @@ struct Centroid
     int n,k;
     vector<vector<int> > adj;
     vector<int> fa,sz,vis,cnt;
+    // O(n) 初始化；n 是树大小，k 是目标距离，邻接和标记均按顶点编号。
     Centroid(int n,int k):n(n),k(k),adj(n+1),fa(n+1),sz(n+1),vis(n+1),cnt(n+1){}
+    // 摊还 O(1)，加无向树边 u-v；不要加入自环或额外环。
     void add_edge(int u,int v)
     {
         adj[u].push_back(v),adj[v].push_back(u);
     }
+    // O(当前连通块大小)，rt 是未删除块内点；逆序求 sz，同时计父侧 tot-sz[u]。
     int center(int rt)
     {
         vector<int> q(1,rt);
@@ -30,6 +39,7 @@ struct Centroid
         }
         return c;
     }
+    // 本块 O(块大小)，连同递归 O(块大小*log(块大小))；rt 是当前块入口，返回其点对数。
     ll solve(int rt)
     {
         int c=center(rt);
@@ -58,6 +68,7 @@ struct Centroid
         for(int v:adj[c])if(!vis[v])ans+=solve(v);
         return ans;
     }
+    // O(n log n)，清重心标记后从 1 开始；k<=0 或 k>=n 没有无序异点对。
     ll run()
     {
         if(k<=0||k>=n)return 0;

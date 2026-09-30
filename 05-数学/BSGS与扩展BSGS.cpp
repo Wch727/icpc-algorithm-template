@@ -1,8 +1,15 @@
+// 适用：求最小 x>=0 使 a^x=b (mod p)，无解返回 -1。
+// 参数：a,b 是底数与目标余数，p>=1；p=1 返回 0，约定 a^0=1。
+// 关键：指数写成 i*m+j，baby 表保留相同余数的最小 j，按 i 递增取最小解。
+// 扩展：逐次消去 gcd(a,p)，记录已消去的指数 cnt；b 不能被公因子整除即无解。
+// 易错：模乘用 __int128，但 (a%p+p) 等归一化加法仍须不溢出 ll。
+// 复杂度：排序版 O(sqrt(p)*log p) 时间、O(sqrt(p)) 空间；大模数内存是瓶颈。
 #include<bits/stdc++.h>
 using namespace std;
 typedef long long ll;
 typedef __int128 lll;
 
+// O(log n)，模 p 快速幂；n>=0，乘法先扩为 __int128。
 ll qpow(ll a,ll n,ll p)
 {
     ll ans=1%p;
@@ -10,6 +17,7 @@ ll qpow(ll a,ll n,ll p)
     return ans;
 }
 
+// O(log min(a,b))，返回 gcd，引用 x/y 输出 ax+by=gcd 的系数。
 ll exgcd(ll a,ll b,ll &x,ll &y)
 {
     if(!b){x=1,y=0;return a;}
@@ -18,14 +26,17 @@ ll exgcd(ll a,ll b,ll &x,ll &y)
     return g;
 }
 
+// O(log p)，返回 a 的最小非负逆元；调用者须保证 gcd(a,p)=1。
 ll inv_mod(ll a,ll p)
 {
     ll x,y;
+    // O(log min(a,b))，返回 gcd，引用 x/y 输出 ax+by=gcd 的系数。
     exgcd(a,p,x,y);
     return (x%p+p)%p;
 }
 
 // O(sqrt(p) log p)，互素离散对数，返回最小非负指数
+// O(sqrt(p)*log p)，仅处理底数与模数互素的离散对数；baby 表排序去重保留最小指数。
 ll bsgs(ll a,ll b,ll p)
 {
     assert(p>=1);
@@ -49,6 +60,7 @@ ll bsgs(ll a,ll b,ll p)
 }
 
 // 消去公因子后做 BSGS，p>=1，约定 a^0=1
+// 消公因子 O(log p) 次后做 BSGS；mul 保存被消部分，最终指数加 cnt。
 ll exbsgs(ll a,ll b,ll p)
 {
     assert(p>=1);

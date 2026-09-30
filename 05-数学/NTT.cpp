@@ -1,3 +1,9 @@
+// 适用：模 998244353 的整数卷积；没有 FFT 的浮点舍入误差。
+// 下标：多项式系数 0..n-1/0..m-1；数组长度是项数而非次数。
+// 长度：n,m>=1；补零长度 len 为 2 的幂，必须 <=N 且整除 mod-1。
+// 关键：蝶形把两半的偶奇贡献合并；逆变换使用逆单位根并乘长度逆元。
+// 易错：输入须先归一到 [0,mod)；负系数直接传入会留下负余数。
+// 复杂度：卷积 O(L log L)、空间 O(L)，L 是补零长度；静态缓冲不能并发共享。
 #include<bits/stdc++.h>
 using namespace std;
 typedef long long ll;
@@ -7,6 +13,7 @@ const ll mod=998244353;// 常用 NTT 模数，原根 3，mod-1=119*2^23
 const ll g=3;
 
 // O(log n)，快速幂
+// O(log n)，a 为底数、n 为非负指数；此处模数约 1e9，ll 模乘安全。
 ll qpow(ll a,ll n,ll mod)
 {
     ll res=1;
@@ -22,6 +29,7 @@ ll qpow(ll a,ll n,ll mod)
 
 // O(n log n)，NTT 迭代版 in-place；inv=0 正变换，inv=1 逆变换
 // n 必须是 2 的幂且 n | (mod-1)，len 传实际长度
+// O(n log n)，a[0..n-1] 原地变换，inv=0/1 表示正/逆；位反转保证迭代合并顺序。
 void ntt(ll a[],int n,int inv)
 {
     // 位反转置换
@@ -56,21 +64,26 @@ void ntt(ll a[],int n,int inv)
 }
 
 // O(n log n)，多项式乘法，结果为 a[0..n-1] * b[0..m-1] 的系数
+// O(L log L)，输出 c[0..clen-1]；clen 引用返回 n+m-1，c 至少有这些槽。
 void poly_mul(ll a[],int n,ll b[],int m,ll c[],int &clen)
 {
     int len=1;
     while(len<n+m-1)len<<=1;
     static ll x[N],y[N];
     for(int i=0;i<len;i++)x[i]=(i<n?a[i]:0),y[i]=(i<m?b[i]:0);
+    // O(n log n)，a[0..n-1] 原地变换，inv=0/1 表示正/逆；位反转保证迭代合并顺序。
     ntt(x,len,0);
+    // O(n log n)，a[0..n-1] 原地变换，inv=0/1 表示正/逆；位反转保证迭代合并顺序。
     ntt(y,len,0);
     for(int i=0;i<len;i++)x[i]=x[i]*y[i]%mod;
+    // O(n log n)，a[0..n-1] 原地变换，inv=0/1 表示正/逆；位反转保证迭代合并顺序。
     ntt(x,len,1);
     clen=n+m-1;
     for(int i=0;i<clen;i++)c[i]=x[i];
 }
 
 // O(n^2)，暴力卷积，对拍基准
+// O(n*m)，按次数相加卷积，输出与 poly_mul 相同；小规模可用来核对结果。
 void mul_naive(ll a[],int n,ll b[],int m,ll c[],int &clen)
 {
     clen=n+m-1;

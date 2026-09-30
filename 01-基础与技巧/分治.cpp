@@ -1,3 +1,5 @@
+// 适用：独立子区间递归求解，再补跨区间贡献；a[1..n] 为默认输入。
+// 乘法取模前仍会溢出，需保证 ll 乘积可容纳；负底数的余数未自动归一化。
 #include<bits/stdc++.h>
 using namespace std;
 typedef long long ll;
@@ -10,6 +12,7 @@ ll n,a[N],tmp[N];
 
 // ---- 快速幂（分治思想：a^n 拆成 a^(n/2) 平方）----
 // 递归版最能体现分治：n 为偶 -> a^(n/2)^2；n 为奇 -> 再乘一个 a
+// O(log b) 时间及递归空间，求 a^b mod mod；b>=0、mod>0，半次幂只能递归一次。
 ll qpow(ll a,ll b,ll mod)
 {
     if(mod==1)return 0;
@@ -21,6 +24,7 @@ ll qpow(ll a,ll b,ll mod)
 }
 
 // 迭代版（二进制拆分 b 的每一位），赛场上更快更常用
+// O(log b) 时间、O(1) 空间；a 为底数、b 为非负指数、mod 为正模数。
 ll qpow_iter(ll a,ll b,ll mod)
 {
     if(mod==1)return 0;
@@ -38,6 +42,7 @@ ll qpow_iter(ll a,ll b,ll mod)
 // ---- 归并思想：排序 + 统计逆序对 ----
 // merge_sort(l,r) 返回 [l,r] 内的逆序对数量，同时把区间排好序
 // 关键：只有「跨左右」的逆序对需要在合并时数，左右内部由递归负责
+// O((r-l+1) log(r-l+1))，原地排序闭区间 [l,r] 并返回逆序对；tmp 为合并缓冲。
 ll merge_sort(int l,int r)
 {
     if(l>=r)return 0;
@@ -58,6 +63,7 @@ ll merge_sort(int l,int r)
 // ---- 最大子段和（分治）----
 // 跨中点的答案 = 左半边最大后缀和 + 右半边最大前缀和
 // 不能只递归两边，因为最优子段可能横跨 mid
+// O((r-l+1) log(r-l+1))，求非空闭区间 [l,r] 的最大非空子段和，要求 l<=r。
 ll max_sub(int l,int r)
 {
     if(l==r)return a[l];// 边界：单个元素就是它自己

@@ -1,9 +1,16 @@
+// 适用：多个余数条件合并，普通 CRT 要模数两两互素，扩展版无需互素。
+// 下标：a/m 的有效范围 1..n，n>=1；所有模数为正，a[i] 为对应余数。
+// 结论：可行解按总模数或 lcm 周期重复，返回最小非负代表。
+// 关键：扩展合并要求 gcd(m1,m2) 整除 a2-a1，再解出模 m2/g 的增量。
+// 易错：总乘积、lcm、a1+m1*x 的存储都必须在 ll 范围内；__int128 中间值不代表最终赋值安全。
+// 复杂度：n 次欧几里得合并约 O(n log M)，数组版空间 O(n)。
 #include<bits/stdc++.h>
 using namespace std;
 typedef long long ll;
 const int N=100005;
 
 // O(log)，扩展欧几里得
+// O(log min(a,b))，x/y 引用返回裴蜀系数；模数使用正数。
 ll exgcd(ll a,ll b,ll &x,ll &y)
 {
     if(!b){x=1,y=0;return a;}
@@ -16,6 +23,7 @@ ll exgcd(ll a,ll b,ll &x,ll &y)
 // 模数两两互质版 CRT：x === a[i] (mod m[i])，返回最小非负解
 // 用前缀积 p[i]=m[1..i]、后缀积 s[i]=m[i..n] 把 M/m[i] 控制在 1e18 内
 // 总模数乘积应 <= 1e18，否则解可能溢出
+// O(n log M)，合并 1..n 条互素同余；前后缀需 n+1 槽，输入乘积须可存。
 ll crt(int n,ll a[],ll m[])
 {
     static ll p[N],s[N];
@@ -38,6 +46,7 @@ ll crt(int n,ll a[],ll m[])
 // 扩展 CRT（模数不必互质）：合并 x === a1 (mod m1) 与 x === a2 (mod m2)
 // 返回是否可合并；可合并时 a1 为新余数、m1 为新模数，均取最小非负
 // O(log)
+// O(log min(m1,m2))，成功时原地更新 a1/m1；失败返回 false，m1 是 lcm 周期。
 bool crt_merge(ll &a1,ll &m1,ll a2,ll m2)
 {
     ll x,y;
@@ -54,6 +63,7 @@ bool crt_merge(ll &a1,ll &m1,ll a2,ll m2)
 }
 
 // O(n log)，扩展 CRT 数组版，无解返回 -1（要求 lcm 不超过 9e18）
+// O(n log M)，输入模数可不互素，返回最小非负解或 -1；n 必须非零。
 ll crt_ex(int n,ll a[],ll m[])
 {
     ll ra=a[1],rm=m[1];
