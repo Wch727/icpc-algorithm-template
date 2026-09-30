@@ -1,5 +1,7 @@
-# 算法库自检脚本：对每个模板文件做「编译 -> 运行 -> 风格检查」
-# 用法: pwsh -File .\自检.ps1            # 全部检查
+# 算法库自检（新架构）：模板只编译，测试编译+运行+查 FAIL
+#   0X-*/*.cpp              -> 纯模板，用 g++ -c 检查能否独立编译
+#   测试/0X-*/*_test.cpp    -> 测试与对拍，编译 + 运行 + 检查输出里的 FAIL/FAILED
+# 用法: pwsh -File .\自检.ps1            # 全部
 #       pwsh -File .\自检.ps1 04-图论    # 只查某个目录
 param([string]$Only = '')
 
@@ -9,60 +11,75 @@ $gxx  = 'C:\mingw64\bin\g++.exe'
 $bin  = Join-Path $root 'bin'
 New-Item -ItemType Directory -Force -Path $bin | Out-Null
 
-$dirs = Get-ChildItem -Path $root -Directory |
-        Where-Object { $_.Name -match '^\d\d-' -and ($Only -eq '' -or $_.Name -eq $Only) } |
-        Sort-Object Name
-
-$files = foreach ($d in $dirs) { Get-ChildItem -Path $d.FullName -Recurse -File -Filter *.cpp }
-
-$rows = @()
-foreach ($f in $files) {
-    $rel  = $f.FullName.Substring($root.Length + 1)
-    $exe  = Join-Path $bin '_chk.exe'
-    Remove-Item $exe -Force -ErrorAction SilentlyContinue
-
-    # --- 编译 ---
-    $cout = & $gxx $f.FullName -std=c++2b -O2 -Wall -o $exe 2>&1 | Out-String
-    if (-not (Test-Path $exe)) {
-        $rows += [pscustomobject]@{ 文件 = $rel; 编译 = 'FAIL'; 运行 = '-'; 风格 = ''; 备注 = ($cout -split "`n" | Select-Object -First 1) }
-        continue
-    }
-
-    # --- 运行（5 秒超时，喂空输入）---
-    $run = 'OK'; $note = ''
-    try {
-        $psi = New-Object System.Diagnostics.ProcessStartInfo
-        $psi.FileName = $exe
-        $psi.RedirectStandardInput = $true
-        $psi.RedirectStandardOutput = $true
-        $psi.RedirectStandardError = $true
-        $psi.UseShellExecute = $false
-        $p = [System.Diagnostics.Process]::Start($psi)
-        $p.StandardInput.Close()
-        if (-not $p.WaitForExit(15000)) { $p.Kill(); $run = 'TIMEOUT' }
-        else {
-            $o = $p.StandardOutput.ReadToEnd()
-            $e = $p.StandardError.ReadToEnd()
-            if ($p.ExitCode -ne 0) { $run = "RE($($p.ExitCode))" }
-            $note = (($o + $e) -replace '\s+', ' ').Trim()
-            if ($note.Length -gt 60) { $note = $note.Substring(0, 60) + '...' }
-        }
-    } catch { $run = 'RUNFAIL' }
-
-    # --- 风格检查 ---
-    $src = Get-Content $f.FullName -Raw -Encoding UTF8
+function Style-Check($path) {
+    $src = Get-Content $path -Raw -Encoding UTF8
     $bad = @()
     if ($src -notmatch '#include\s*<bits/stdc\+\+\.h>') { $bad += '无bits头' }
     if ($src -notmatch 'using namespace std;')            { $bad += '无using' }
-    if ($src -notmatch 'return 0;')                       { $bad += '无return0' }
     if ($src -match "(?m)^\t")                            { $bad += '有Tab缩进' }
     if ($src -match 'std::')                              { $bad += '有std::' }
-    $style = if ($bad.Count -eq 0) { 'OK' } else { $bad -join ',' }
-
-    $rows += [pscustomobject]@{ 文件 = $rel; 编译 = 'OK'; 运行 = $run; 风格 = $style; 备注 = $note }
-    Remove-Item $exe -Force -ErrorAction SilentlyContinue
+    if ($bad.Count -eq 0) { return 'OK' } else { return ($bad -join ',') }
 }
 
-$rows | Format-Table -AutoSize | Out-String -Width 200 | Write-Host
-$fail = $rows | Where-Object { $_.编译 -ne 'OK' -or $_.运行 -ne 'OK' -or $_.风格 -ne 'OK' }
-Write-Host ("总计 {0} 个文件，异常 {1} 个" -f $rows.Count, $fail.Count)
+$rows = @()
+
+# ---------- A. 纯模板：只编译 ----------
+$dirs = Get-ChildItem $root -Directory | Where-Object { $_.Name -match '^\d\d-' -and ($Only -eq '' -or $_.Name -eq $Only) } | Sort-Object Name
+foreach ($d in $dirs) {
+    foreach ($f in Get-ChildItem $d.FullName -File -Filter *.cpp) {
+        $obj = Join-Path $bin '_tpl.o'
+        Remove-Item $obj -Force -ErrorAction SilentlyContinue
+        $out = & $gxx -c $f.FullName -std=c++2b -O2 -Wall -o $obj 2>&1 | Out-String
+        $comp = if (Test-Path $obj) { 'OK' } else { 'FAIL' }
+        Remove-Item $obj -Force -ErrorAction SilentlyContinue
+        $note = if ($comp -eq 'OK') { '' } else { (($out -split "`n" | Where-Object { $_ -match 'error' } | Select-Object -First 1) -replace '\s+', ' ').Trim() }
+        if ($note.Length -gt 70) { $note = $note.Substring(0, 70) + '...' }
+        $rows += [pscustomobject]@{ 类型 = '模板'; 文件 = "$($d.Name)\$($f.Name)"; 编译 = $comp; 运行 = '-'; 风格 = (Style-Check $f.FullName); 备注 = $note }
+    }
+}
+
+# ---------- B. 测试：编译 + 运行 ----------
+$tdir = Join-Path $root '测试'
+if (Test-Path $tdir) {
+    $tgroups = Get-ChildItem $tdir -Directory | Where-Object { $Only -eq '' -or $_.Name -eq $Only } | Sort-Object Name
+    $i = 0
+    foreach ($g in $tgroups) {
+        foreach ($f in Get-ChildItem $g.FullName -File -Filter *.cpp) {
+            $i++
+            $exe = Join-Path $bin ('_test{0}.exe' -f $i)
+            Remove-Item $exe -Force -ErrorAction SilentlyContinue
+            $out = & $gxx $f.FullName -std=c++2b -O2 -Wall -o $exe 2>&1 | Out-String
+            if (-not (Test-Path $exe)) {
+                $note = (($out -split "`n" | Where-Object { $_ -match 'error' } | Select-Object -First 1) -replace '\s+', ' ').Trim()
+                if ($note.Length -gt 70) { $note = $note.Substring(0, 70) + '...' }
+                $rows += [pscustomobject]@{ 类型 = '测试'; 文件 = "$($g.Name)\$($f.Name)"; 编译 = 'FAIL'; 运行 = '-'; 风格 = '-'; 备注 = $note }
+                continue
+            }
+            $run = 'OK'; $note = ''
+            try {
+                $psi = New-Object System.Diagnostics.ProcessStartInfo
+                $psi.FileName = $exe
+                $psi.RedirectStandardInput = $true; $psi.RedirectStandardOutput = $true; $psi.RedirectStandardError = $true
+                $psi.UseShellExecute = $false
+                $p = [System.Diagnostics.Process]::Start($psi)
+                $p.StandardInput.Close()
+                if (-not $p.WaitForExit(15000)) { $p.Kill(); $run = 'TIMEOUT' }
+                else {
+                    $all = $p.StandardOutput.ReadToEnd() + $p.StandardError.ReadToEnd()
+                    if ($p.ExitCode -ne 0) { $run = "RE($($p.ExitCode))" }
+                    elseif ($all -match 'FAILED|\bFAIL\b|失败\s*[1-9]|不通过|答案错误') { $run = 'FAILED-OUT' }
+                    $note = ($all -replace '\s+', ' ').Trim()
+                    if ($note.Length -gt 70) { $note = $note.Substring(0, 70) + '...' }
+                }
+            } catch { $run = 'RUNFAIL' }
+            $rows += [pscustomobject]@{ 类型 = '测试'; 文件 = "$($g.Name)\$($f.Name)"; 编译 = 'OK'; 运行 = $run; 风格 = '-'; 备注 = $note }
+            Remove-Item $exe -Force -ErrorAction SilentlyContinue
+        }
+    }
+}
+
+$bad = { $_.编译 -ne 'OK' -or ($_.类型 -eq '测试' -and $_.运行 -ne 'OK') -or ($_.类型 -eq '模板' -and $_.风格 -ne 'OK') }
+$rows | Where-Object $bad | Format-Table -AutoSize | Out-String -Width 200 | Write-Host
+$fail = $rows | Where-Object $bad
+Write-Host ("模板 {0} 个 + 测试 {1} 个，异常 {2} 个" -f `
+    ($rows | Where-Object { $_.类型 -eq '模板' }).Count, ($rows | Where-Object { $_.类型 -eq '测试' }).Count, $fail.Count)

@@ -20,36 +20,55 @@ void add_edge(int u,int v)
 }
 
 struct MergeSeg{
-    int ls[MAXNODE],rs[MAXNODE],sum[MAXNODE],tot;
+    int ls[MAXNODE],rs[MAXNODE],sum[MAXNODE],cnt[MAXNODE],tot;//cnt 是这段里被占用的叶子数
     void init(){tot=0;}
     int new_node()
     {
         ++tot;
-        ls[tot]=rs[tot]=sum[tot]=0;
+        ls[tot]=rs[tot]=sum[tot]=cnt[tot]=0;
         return tot;
     }
     // 在位置 pos 插入 cnt 个（叶子），返回根，O(log n)
-    int insert(int p,int l,int r,int pos,int cnt)
+    int insert(int p,int l,int r,int pos,int c)
     {
         if(!p)p=new_node();
-        if(l==r){sum[p]+=cnt;return p;}
+        if(l==r)
+        {
+            if(sum[p]==0)cnt[p]=1;//这个叶子原来没有颜色，现在有了，占用数 +1
+            sum[p]+=c;
+            return p;
+        }
         int mid=(l+r)>>1;
-        if(pos<=mid)ls[p]=insert(ls[p],l,mid,pos,cnt);
-        else rs[p]=insert(rs[p],mid+1,r,pos,cnt);
+        if(pos<=mid)ls[p]=insert(ls[p],l,mid,pos,c);
+        else rs[p]=insert(rs[p],mid+1,r,pos,c);
         sum[p]=sum[ls[p]]+sum[rs[p]];
+        cnt[p]=cnt[ls[p]]+cnt[rs[p]];
         return p;
     }
-    // 把 b 合并进 a，返回合并后的根，均摊 O(log n)
+    // 把 b 合并进 a，返回合并后的根，均摊 O(log n)；要求 a、b 表示的颜色集合不交
+    // cnt 是「这段里被占用的叶子数（不同颜色数）」
+    // 关键：递归会把子树的 cnt 改掉，所以先把 ca、cb 和两个儿子的原值存下来，
+    //       再用「合并前两边之和 - 合并后的交集叶子数」推出共有几种颜色
     int merge(int a,int b)
     {
         if(!a||!b)return a|b;       // 有一边空，直接接过去；b 空则只剩 a
-        ls[a]=merge(ls[a],ls[b]);
-        rs[a]=merge(rs[a],rs[b]);
-        sum[a]=sum[ls[a]]+sum[rs[a]];
+        int ca=cnt[a],cb=cnt[b];
+        int la=ls[a],lb=ls[b],ra=rs[a],rb=rs[b];
+        if(!la&&!lb&&!ra&&!rb)      // 两个都是叶子结点（同一个颜色），并成一个
+        {
+            sum[a]+=sum[b],cnt[a]=1;
+            return a;
+        }
+        int cla=cnt[la],clb=cnt[lb],cra=cnt[ra],crb=cnt[rb];
+        int mla=merge(la,lb),mra=merge(ra,rb);
+        ls[a]=mla,rs[a]=mra;
+        int dup=(cla+clb-cnt[mla])+(cra+crb-cnt[mra]);//两边都有的颜色数
+        sum[a]=sum[mla]+sum[mra];
+        cnt[a]=ca+cb-dup;
         return a;
     }
-    // 不同的颜色数 = 权值线段树里 sum>0 的叶子个数 = 根上的 sum（每个叶子最多是 1）
-    int count_distinct(int a){return sum[a];}
+    // 不同颜色数 = 权值线段树里 sum>0 的叶子个数，直接返回维护好的 cnt
+    int count_distinct(int a){return cnt[a];}
 }seg;
 
 int ans[N];//每个子树内不同颜色数
@@ -69,100 +88,7 @@ void dfs(int u,int fa)
     ans[u]=seg.count_distinct(root[u]);
 }
 
-// 暴力：对每个点搜一遍子树，用桶统计颜色
-int vis[N];
-int bhead[N],bto[N<<1],bnxt[N<<1],btot;
-void badd(int u,int v){bto[++btot]=v,bnxt[btot]=bhead[u],bhead[u]=btot;}
-
-int main()
-{
-    srand(20240513);
-
-    // 1. 小样例：链 1-2-3-4-5，颜色 1 2 1 3 2
-    //    子树颜色集：{1,2,3}=3、{2,1,3}=3、{1,3,2}=3、{3,2}=2、{2}=1
-    n=5;
-    int ini[]={0,1,2,1,3,2};
-    for(int i=1;i<=n;i++)col[i]=ini[i];
-    tot_edge=0;
-    for(int i=1;i<=n;i++)head[i]=0;
-    for(int i=1;i<n;i++)add_edge(i,i+1),add_edge(i+1,i);
-    seg.init();
-    dfs(1,0);
-    printf("小样例(链): ans[1..5] =");
-    for(int i=1;i<=n;i++)printf(" %d",ans[i]);
-    printf("  (应为 3 3 3 2 1)\n");
-
-    // 2. 对拍：随机树 + 随机颜色，与暴力 dfs 比较
-    bool ok=true;
-    for(int T=1;T<=30&&ok;T++)
-    {
-        n=rand()%60+1;
-        int C=rand()%5+1;
-        for(int i=1;i<=n;i++)col[i]=rand()%C+1;
-        tot_edge=0,btot=0;
-        for(int i=1;i<=n;i++)head[i]=0,bhead[i]=0;
-        for(int i=2;i<=n;i++)      // 随机父结点，保证是棵树
-        {
-            int fa=rand()%(i-1)+1;
-            add_edge(fa,i),add_edge(i,fa);
-            badd(fa,i),badd(i,fa);
-        }
-        seg.init();
-        dfs(1,0);
-        // 暴力：每个点向下搜子树
-        for(int r=1;r<=n;r++)
-        {
-            for(int i=1;i<=C;i++)vis[i]=0;
-            int cnt=0;
-            vector<int> st;st.push_back(r);
-            vector<int> par(n+1,0);
-            while(!st.empty())
-            {
-                int u=st.back();st.pop_back();
-                if(!vis[col[u]])vis[col[u]]=1,cnt++;
-                for(int e=bhead[u];e;e=bnxt[e])
-                {
-                    int v=bto[e];
-                    if(v==par[u])continue;
-                    par[v]=u;
-                    st.push_back(v);
-                }
-            }
-            if(cnt!=ans[r])
-            {
-                printf("第 %d 轮错: 点 %d got=%d want=%d\n",T,r,ans[r],cnt);
-                ok=false;
-                break;
-            }
-        }
-        printf("线段树合并第 %d 轮 %s (结点数=%d)\n",T,ok?"passed":"FAILED",seg.tot);
-    }
-
-    // 3. 菊花图：根挂 n-1 个叶子，每个叶子一种颜色 -> 根答案是 n-1
-    n=8;
-    for(int i=1;i<=n;i++)col[i]=i;
-    tot_edge=0;
-    for(int i=1;i<=n;i++)head[i]=0;
-    for(int i=2;i<=n;i++)add_edge(1,i),add_edge(i,1);
-    seg.init();
-    dfs(1,0);
-    printf("菊花图: ans[1]=%d (应=%d) ans[2]=%d (应=1)\n",ans[1],n-1,ans[2]);
-
-    // 4. 规模测试：n=100000 的随机树，全是 1 种颜色 -> 所有答案都是 1
-    n=100000;
-    for(int i=1;i<=n;i++)col[i]=1;
-    tot_edge=0;
-    for(int i=1;i<=n;i++)head[i]=0;
-    for(int i=2;i<=n;i++)
-    {
-        int fa=(int)(rand()%(i-1))+1;
-        add_edge(fa,i),add_edge(i,fa);
-    }
-    seg.init();
-    dfs(1,0);
-    int bad=0;
-    for(int i=1;i<=n;i++)if(ans[i]!=1)bad++;
-    printf("规模: n=100000 单色 -> 错 %d 个, 结点数 %d\n",bad,seg.tot);
-    printf("结果: %s\n",(ok&&bad==0)?"OK":"FAILED");
-    return 0;
-}
+// 暴力：先把子树里的点全部标记出来（从 r 出发只往儿子走），再数颜色
+// 只往儿子走，就不会顺着无向边爬回父亲或跑出子树
+int vis[N],mark[N];
+vector<int> son[N];

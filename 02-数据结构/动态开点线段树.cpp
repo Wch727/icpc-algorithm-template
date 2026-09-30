@@ -18,7 +18,8 @@ struct DynSeg{
     {
         lo=lo_,hi=hi_;
         t.clear();
-        t.push_back(Node{0,0,0,0});//哨兵
+        t.push_back(Node{0,0,0,0});//哨兵 t[0]，空结点
+        t.push_back(Node{0,0,0,0});//根 t[1]，整棵树一开始只有一个根
     }
     int new_node()
     {
@@ -26,13 +27,14 @@ struct DynSeg{
         return (int)t.size()-1;
     }
     // p 的标记发给两个儿子，儿子不存在就建出来
+    // 注意：t 是 vector，push_back 会重新分配内存，不能提前把 t[p] 取成引用
     void push_down(int p,ll l,ll r)
     {
         if(t[p].lazy==0||l==r)return;
         ll v=t[p].lazy,mid=(l+r)>>1;
         if(!t[p].ls)t[p].ls=new_node();
         if(!t[p].rs)t[p].rs=new_node();
-        int L=t[p].ls,R=t[p].rs;
+        int L=t[p].ls,R=t[p].rs;        // 建完点之后再取，下标不会失效
         t[L].lazy+=v,t[L].sum+=v*(mid-l+1);
         t[R].lazy+=v,t[R].sum+=v*(r-mid);
         t[p].lazy=0;
@@ -84,89 +86,3 @@ struct DynSeg{
 
 const ll V=1000000000;//值域 1..1e9
 const int XN=4005;    // 对拍用到的坐标个数
-
-int rnd(int l,int r)
-{
-    return rand()%(r-l+1)+l;
-}
-
-ll xs[XN];
-
-// 暴力：坐标只取采样点，用差分求每个采样区间的值
-// 先把 <L 的差分全部吃掉得到 cur，再从左端点开始逐段累加、到 R 就停
-ll brute(int k,map<ll,ll> &df,ll L,ll R)
-{
-    ll res=0,cur=0;
-    for(auto &pr:df)if(pr.first<L)cur+=pr.second;
-    for(int i=1;i<=k;i++)
-    {
-        if(xs[i]<L){if(df.count(xs[i]))cur+=df[xs[i]];continue;}
-        if(xs[i]>R)break;
-        if(df.count(xs[i]))cur+=df[xs[i]];
-        ll a=xs[i],b=min(R,i+1<=k?xs[i+1]-1:R);
-        res+=cur*(b-a+1);
-    }
-    return res;
-}
-
-int main()
-{
-    srand(20240513);
-
-    // 1. 小样例（值域 1..1e9，只用到 1..8 这几个位置）
-    DynSeg ds(1,V);
-    ds.add(5,8,10);
-    ds.add(1,5,1);
-    printf("小样例: sum[1,4]=%lld sum[5,5]=%lld sum[6,8]=%lld sum[1,1e9]=%lld\n",
-        ds.sum(1,4),ds.sum(5,5),ds.sum(6,8),ds.sum(1,V));
-
-    // 2. 对拍：大值域随机区间加 / 随机区间和 vs 差分暴力
-    bool ok=true;
-    for(int T=1;T<=10&&ok;T++)
-    {
-        int m=rnd(1,300),k=0;
-        for(int i=1;i<=m;i++)      // 采样 2m 个坐标，落在 1..1e9
-        {
-            xs[++k]=rnd(1,1000000000);
-            xs[++k]=rnd(1,1000000000);
-        }
-        sort(xs+1,xs+k+1);
-        k=unique(xs+1,xs+k+1)-xs-1;
-        DynSeg seg(1,V);
-        map<ll,ll> df;
-        for(int q=1;q<=400;q++)
-        {
-            int op=rnd(1,2),i=rnd(1,k),j=rnd(1,k);
-            if(i>j)swap(i,j);
-            ll L=xs[i],R=xs[j];
-            if(op==1)
-            {
-                ll v=rnd(-100,100);
-                seg.add(L,R,v);
-                df[L]+=v,df[R+1]-=v;
-            }
-            else
-            {
-                ll got=seg.sum(L,R),want=brute(k,df,L,R);
-                if(got!=want)
-                {
-                    printf("第 %d 轮错: [%lld,%lld] got=%lld want=%lld\n",T,L,R,got,want);
-                    ok=false;
-                    break;
-                }
-            }
-        }
-        printf("动态开点第 %d 轮 %s (结点数=%d)\n",T,ok?"passed":"FAILED",seg.nodes());
-    }
-
-    // 3. 规模测试：2e5 次修改，看结点数是不是 O(m log V)
-    DynSeg big(1,V);
-    for(int i=1;i<=200000;i++)
-    {
-        ll L=(ll)(rand()%1000000)*1000+1;
-        big.add(L,L+5000,1);
-    }
-    printf("规模: 200000 次修改 -> 结点 %d (上界 200000*31)\n",big.nodes());
-    printf("结果: %s\n",ok?"OK":"FAILED");
-    return 0;
-}

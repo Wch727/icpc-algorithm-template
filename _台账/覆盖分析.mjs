@@ -64,7 +64,7 @@ const MAP = {
     '素数判断': '05-数学/线性筛与欧拉函数.cpp', '最大公约数 gcd': '05-数学/扩展欧几里得.cpp', 'Bézout 定理': '05-数学/扩展欧几里得.cpp',
     '扩展欧几里德算法': '05-数学/扩展欧几里得.cpp', '逆元': '05-数学/乘法逆元.cpp', '组合数学': '05-数学/组合数与Lucas定理.cpp',
     '排列组合': '05-数学/组合数与Lucas定理.cpp', 'Lucas 定理': '05-数学/组合数与Lucas定理.cpp', 'Catalan 数': '05-数学/卡特兰数.cpp',
-    '容斥原理': '05-数学/容斥原理与排列组合.cpp', '莫比乌斯反演': '05-数学/莫比乌斯反演与整除分块.cpp', '整除分块': '05-数学/莫比乌斯反演与整除分块.cpp',
+    '容斥原理': '09-其他/容斥原理与排列组合.cpp', '莫比乌斯反演': '05-数学/莫比乌斯反演与整除分块.cpp', '整除分块': '05-数学/莫比乌斯反演与整除分块.cpp',
     '欧拉函数': '05-数学/线性筛与欧拉函数.cpp', '原根': '05-数学/原根与阶.cpp', '高斯消元': '05-数学/高斯消元.cpp',
     '线性代数': '05-数学/行列式与矩阵树定理.cpp', '行列式': '05-数学/行列式与矩阵树定理.cpp', '矩阵乘法': '05-数学/矩阵快速幂.cpp',
     '矩阵加速': '05-数学/矩阵快速幂.cpp', '矩阵运算': '05-数学/矩阵快速幂.cpp', '线性递推': '05-数学/矩阵快速幂.cpp',
@@ -109,5 +109,43 @@ md.push('\n## 台账里出现、但库里还没有对应模板的标签\n');
 md.push(gaps.length ? gaps.map(([t, n]) => `- ${t}（${n} 题）`).join('\n') : '- 无');
 md.push('\n');
 fs.writeFileSync(path.join(DIR, '标签覆盖报告.md'), md.join('\n'), 'utf8');
+
+// ---- 题目级对照：每道题的算法标签 → 模板文件 ----
+const perRow = [];
+let fullCovered = 0, withAlgo = 0;
+const usedFiles = new Set();
+for (const r of rows) {
+    const algo = r.tags.filter(t => !(NOISE.test(t) || PROV.test(t)));
+    const files = [];
+    for (const t of algo) {
+        const f = MAP[t];
+        if (!f) continue;
+        if (f.startsWith('（')) continue;          // 无需模板 / 思维题
+        files.push(f);
+        for (const one of f.split('、')) {
+            const clean = one.split('（')[0].trim();
+            if (clean && fs.existsSync(path.join(ROOT, clean))) usedFiles.add(clean);
+        }
+    }
+    const uniq = [...new Set(files)];
+    if (algo.length) withAlgo++;
+    if (uniq.length) fullCovered++;
+    perRow.push({ ...r, algo, files: uniq.join(' ') });
+}
+const perOut = ['id,名称,难度,算法标签,对应模板'];
+for (const r of perRow) {
+    perOut.push([r.id, '"' + r.name.replace(/"/g, '""') + '"', r.diffName, r.algo.join(';'), r.files].join(','));
+}
+fs.writeFileSync(path.join(DIR, '题目-模板对照.csv'), '\ufeff' + perOut.join('\n') + '\n', 'utf8');
+
 console.log(`报告已生成：${covered.length} 个标签有模板对应，${gaps.length} 个标签暂缺`);
-console.log('暂缺：' + gaps.map(([t, n]) => t + '(' + n + ')').join('、'));
+const noAlgoCnt = perRow.filter(r => !r.algo.length).length;
+const noTplCnt = perRow.filter(r => r.algo.length && !r.files).length;
+// 无模板的那批，统计它们到底只涉及哪些标签
+const onlyTags = new Set();
+for (const r of perRow) if (r.algo.length && !r.files) r.algo.forEach(t => onlyTags.add(t));
+console.log(`题目级结论：共 ${rows.length} 题 →`);
+console.log(`  有具体模板可对应 : ${fullCovered} 题（用到 ${usedFiles.size} 个模板文件）`);
+console.log(`  只涉及无模板可写的标签 : ${noTplCnt} 题（标签仅 ${[...onlyTags].join('、')}）`);
+console.log(`  洛谷本身没打算法标签 : ${noAlgoCnt} 题`);
+console.log('暂缺：' + (gaps.map(([t, n]) => t + '(' + n + ')').join('、') || '无'));

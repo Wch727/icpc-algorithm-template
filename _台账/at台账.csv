@@ -1,0 +1,83 @@
+﻿id,比赛,题号,题目名,难度值,难度,标签
+AT_abc243_c,"根目录",C,"[ABC243C] Collision 2",2,普及-,
+AT_abc413_a,"Denso Create Programming Contest 2025（AtCoder Beginner Contest 413）",A,"[ABC413A] Content Too Large",1,入门,模拟;数学
+AT_abc413_b,"Denso Create Programming Contest 2025（AtCoder Beginner Contest 413）",B,"[ABC413B] cat 2",1,入门,模拟;字符串
+AT_abc413_c,"Denso Create Programming Contest 2025（AtCoder Beginner Contest 413）",C,"[ABC413C] Large Queue",2,普及-,模拟;数学;队列
+AT_abc413_d,"Denso Create Programming Contest 2025（AtCoder Beginner Contest 413）",D,"[ABC413D] Make Geometric Sequence",3,普及,模拟;数学;排序
+AT_abc413_e,"Denso Create Programming Contest 2025（AtCoder Beginner Contest 413）",E,"[ABC413E] Reverse 2^i",3,普及,模拟;贪心;分治
+AT_abc413_f,"Denso Create Programming Contest 2025（AtCoder Beginner Contest 413）",F,"[ABC413F] No Passage",4,普及+/提高-,广度优先搜索 BFS
+AT_abc413_g,"Denso Create Programming Contest 2025（AtCoder Beginner Contest 413）",G,"[ABC413G] Big Banned Grid",4,普及+/提高-,并查集;广度优先搜索 BFS
+AT_abc414_a,"Mirrativ Programming Contest 2025 (AtCoder Beginner Contest 414)",A,"[ABC414A] Streamer Takahashi",1,入门,模拟
+AT_abc414_b,"Mirrativ Programming Contest 2025 (AtCoder Beginner Contest 414)",B,"[ABC414B] String Too Long",1,入门,模拟;字符串
+AT_abc414_c,"Mirrativ Programming Contest 2025 (AtCoder Beginner Contest 414)",C,"[ABC414C] Palindromic in Both Bases",3,普及,字符串;进制
+AT_abc414_d,"Mirrativ Programming Contest 2025 (AtCoder Beginner Contest 414)",D,"[ABC414D] Transmission Mission",3,普及,贪心
+AT_abc414_e,"Mirrativ Programming Contest 2025 (AtCoder Beginner Contest 414)",E,"[ABC414E] Count A%B=C",4,普及+/提高-,数学;整除分块
+AT_abc414_f,"Mirrativ Programming Contest 2025 (AtCoder Beginner Contest 414)",F,"[ABC414F] Jump Traveling",5,提高,广度优先搜索 BFS;最短路
+AT_abc414_g,"Mirrativ Programming Contest 2025 (AtCoder Beginner Contest 414)",G,"[ABC414G] AtCoder Express 4",7,省选/NOI-,图论;线段树;最短路
+AT_abc415_a,"Japan Registry Services (JPRS) Programming Contest 2025#2 (AtCoder Beginner Contest 415)",A,"[ABC415A] Unsupported Type",1,入门,
+AT_abc415_b,"Japan Registry Services (JPRS) Programming Contest 2025#2 (AtCoder Beginner Contest 415)",B,"[ABC415B] Pick Two",1,入门,
+AT_abc415_c,"Japan Registry Services (JPRS) Programming Contest 2025#2 (AtCoder Beginner Contest 415)",C,"[ABC415C] Mixture",3,普及,搜索;状压 DP
+AT_abc415_d,"Japan Registry Services (JPRS) Programming Contest 2025#2 (AtCoder Beginner Contest 415)",D,"[ABC415D] Get Many Stickers",3,普及,贪心;排序
+AT_abc415_e,"Japan Registry Services (JPRS) Programming Contest 2025#2 (AtCoder Beginner Contest 415)",E,"[ABC415E] Hungry Takahashi",3,普及,动态规划 DP;二分
+AT_abc415_f,"Japan Registry Services (JPRS) Programming Contest 2025#2 (AtCoder Beginner Contest 415)",F,"[ABC415F] Max Combo",5,提高,线段树
+AT_abc415_g,"Japan Registry Services (JPRS) Programming Contest 2025#2 (AtCoder Beginner Contest 415)",G,"[ABC415G] Get Many Cola",5,提高,
+AT_abc416_a,"AtCoder Beginner Contest 416",A,"[ABC416A] Vacation Validation",1,入门,字符串;枚举
+AT_abc416_b,"AtCoder Beginner Contest 416",B,"[ABC416B] 1D Akari",2,普及-,贪心
+AT_abc416_c,"AtCoder Beginner Contest 416",C,"[ABC416C] Concat (X-th)",2,普及-,枚举;排序;深度优先搜索 DFS
+AT_abc416_d,"AtCoder Beginner Contest 416",D,"[ABC416D] Match, Mod, Minimize 2",3,普及,贪心;二分;双指针 two-pointer
+AT_abc416_e,"AtCoder Beginner Contest 416",E,"[ABC416E] Development",4,普及+/提高-,图论;最短路;Floyd 算法
+AT_abc416_f,"AtCoder Beginner Contest 416",F,"[ABC416F] Paint Tree 2",5,提高,动态规划 DP;树形 DP
+AT_abc416_g,"AtCoder Beginner Contest 416",G,"[ABC416G] Concat (1st)",5,提高,贪心;排序;字典树 Trie
+AT_abc417_a,"AtCoder Beginner Contest 417",A,"[ABC417A] A Substring",1,入门,模拟
+AT_abc417_b,"AtCoder Beginner Contest 417",B,"[ABC417B] Search and Delete",2,普及-,模拟
+AT_abc417_c,"AtCoder Beginner Contest 417",C,"[ABC417C] Distance Indicators",2,普及-,数学
+AT_abc417_d,"AtCoder Beginner Contest 417",D,"[ABC417D] Takahashi's Expectation",4,普及+/提高-,动态规划 DP;二分
+AT_abc417_e,"AtCoder Beginner Contest 417",E,"[ABC417E] A Path in A Dictionary",3,普及,搜索;图论;贪心;深度优先搜索 DFS
+AT_abc417_f,"AtCoder Beginner Contest 417",F,"[ABC417F] Random Gathering",4,普及+/提高-,数学;线段树;颜色段均摊（珂朵莉树 ODT）;期望
+AT_abc417_g,"AtCoder Beginner Contest 417",G,"[ABC417G] Binary Cat",7,省选/NOI-,倍增;平衡树;树链剖分
+AT_abc418_a,"AtCoder Beginner Contest 418",A,"[ABC418A] I'm a teapot",1,入门,字符串
+AT_abc418_b,"AtCoder Beginner Contest 418",B,"[ABC418B] You're a teapot",1,入门,字符串;枚举;双指针 two-pointer
+AT_abc418_c,"AtCoder Beginner Contest 418",C,"[ABC418C] Flush",2,普及-,前缀和
+AT_abc418_d,"AtCoder Beginner Contest 418",D,"[ABC418D] XNOR Operation",3,普及,动态规划 DP;分治;前缀和
+AT_abc418_e,"AtCoder Beginner Contest 418",E,"[ABC418E] Trapezium",3,普及,数学;哈希 hashing
+AT_abc418_f,"AtCoder Beginner Contest 418",F,"[ABC418F] We're teapots",7,省选/NOI-,动态规划 DP;线段树;组合数学;矩阵乘法
+AT_abc418_g,"AtCoder Beginner Contest 418",G,"[ABC418G] Binary Operation",8,NOI/NOI+/CTSC,有限状态自动机;分类讨论
+AT_abc419_a,"AtCoder Beginner Contest 419",A,"[ABC419A] AtCoder Language",1,入门,
+AT_abc419_b,"AtCoder Beginner Contest 419",B,"[ABC419B] Get Min",1,入门,
+AT_abc419_c,"AtCoder Beginner Contest 419",C,"[ABC419C] King's Summit",2,普及-,贪心
+AT_abc419_d,"AtCoder Beginner Contest 419",D,"[ABC419D] Substr Swap",3,普及,前缀和;差分
+AT_abc419_e,"AtCoder Beginner Contest 419",E,"[ABC419E] Subarray Sum Divisibility",4,普及+/提高-,动态规划 DP
+AT_abc419_f,"AtCoder Beginner Contest 419",F,"[ABC419F] All Included",5,提高,AC 自动机;状压 DP
+AT_abc419_g,"AtCoder Beginner Contest 419",G,"[ABC419G] Count Simple Paths 2",7,省选/NOI-,图论;虚树
+AT_abc457_a,"Polaris.AI Programming Contest 2026（AtCoder Beginner Contest 457）",A,"[ABC457A] Array",1,入门,
+AT_abc457_b,"Polaris.AI Programming Contest 2026（AtCoder Beginner Contest 457）",B,"[ABC457B] Arrays",2,普及-,
+AT_abc457_c,"Polaris.AI Programming Contest 2026（AtCoder Beginner Contest 457）",C,"[ABC457C] Long Sequence",2,普及-,模拟;数学
+AT_abc457_d,"Polaris.AI Programming Contest 2026（AtCoder Beginner Contest 457）",D,"[ABC457D] Raise Minimum",3,普及,贪心;二分
+AT_abc457_e,"Polaris.AI Programming Contest 2026（AtCoder Beginner Contest 457）",E,"[ABC457E] Crossing Table Cloth",4,普及+/提高-,贪心;线段树;二分;树状数组;ST 表;扫描线;离线处理;哈希表
+AT_abc457_f,"Polaris.AI Programming Contest 2026（AtCoder Beginner Contest 457）",F,"[ABC457F] Second Gap",5,提高,动态规划 DP
+AT_abc457_g,"Polaris.AI Programming Contest 2026（AtCoder Beginner Contest 457）",G,"[ABC457G] Catch All Apples",5,提高,动态规划 DP;贪心;二分;树状数组;Dilworth 定理;线性 DP
+AT_abc458_a,"AtCoder Beginner Contest 458",A,"[ABC458A] Chompers",1,入门,字符串
+AT_abc458_b,"AtCoder Beginner Contest 458",B,"[ABC458B] Count Adjacent Cells",1,入门,
+AT_abc458_c,"AtCoder Beginner Contest 458",C,"[ABC458C] C Stands for Center",2,普及-,字符串;数学
+AT_abc458_d,"AtCoder Beginner Contest 458",D,"[ABC458D] Chalkboard Median",3,普及,堆;STL
+AT_abc458_e,"AtCoder Beginner Contest 458",E,"[ABC458E] Count 123",4,普及+/提高-,组合数学
+AT_abc458_f,"AtCoder Beginner Contest 458",F,"[ABC458F] Critical Misread",7,省选/NOI-,动态规划 DP;倍增;矩阵加速;矩阵乘法;AC 自动机
+AT_abc464_a,"Japanese Student Championship 2026 -Advance- Qualification (AtCoder Beginner Contest 464)",A,"[ABC464A] Decisive Battle",1,入门,字符串
+AT_abc464_b,"Japanese Student Championship 2026 -Advance- Qualification (AtCoder Beginner Contest 464)",B,"[ABC464B] Crop",1,入门,字符串
+AT_abc464_c,"Japanese Student Championship 2026 -Advance- Qualification (AtCoder Beginner Contest 464)",C,"[ABC464C] Plumage Palette",2,普及-,排序
+AT_abc464_d,"Japanese Student Championship 2026 -Advance- Qualification (AtCoder Beginner Contest 464)",D,"[ABC464D] Celester",3,普及,动态规划 DP
+AT_abc464_e,"Japanese Student Championship 2026 -Advance- Qualification (AtCoder Beginner Contest 464)",E,"[ABC464E] Fill-Rect Query",3,普及,动态规划 DP;二分;并查集;枚举;前缀和;离线处理
+AT_abc464_f,"Japanese Student Championship 2026 -Advance- Qualification (AtCoder Beginner Contest 464)",F,"[ABC464F] Random Vault Heist",6,提高+/省选-,期望;折半搜索 meet in the middle
+AT_arc203_a,"AtCoder Regular Contest 203 (Div. 2)",A,"[ARC203A] All Winners",3,普及,数学;贪心
+AT_arc203_b,"AtCoder Regular Contest 203 (Div. 2)",B,"[ARC203B] Swap If Equal Sum",4,普及+/提高-,
+AT_arc203_c,"AtCoder Regular Contest 203 (Div. 2)",C,"[ARC203C] Destruction of Walls",5,提高,组合数学;分类讨论
+AT_arc203_d,"AtCoder Regular Contest 203 (Div. 2)",D,"[ARC203D] Insert XOR",6,提高+/省选-,线段树
+AT_arc203_e,"AtCoder Regular Contest 203 (Div. 2)",E,"[ARC203E] Tile Grid with One Hole",0,未评定,
+AT_arc204_a,"AtCoder Regular Contest 204 (Div. 1)",A,"[ARC204A] Use Udon Coupon",7,省选/NOI-,动态规划 DP;Ad-hoc
+AT_arc204_b,"AtCoder Regular Contest 204 (Div. 1)",B,"[ARC204B] Sort Permutation",6,提高+/省选-,动态规划 DP;区间 DP
+AT_arc204_c,"AtCoder Regular Contest 204 (Div. 1)",C,"[ARC204C] Maximize Sum of Mex",7,省选/NOI-,贪心;背包 DP;分类讨论
+AT_arc204_d,"AtCoder Regular Contest 204 (Div. 1)",D,"[ARC204D] Favorite Interval",0,未评定,
+AT_arc219_a,"AtCoder Regular Contest-- 219",A,"[ARC219A] Similarity",3,普及,搜索;贪心;分治;字典树 Trie;构造
+AT_arc219_b,"AtCoder Regular Contest-- 219",B,"[ARC219B] Reverse Permutation",3,普及,
+AT_dp_a,"dp contest",A,"Frog 1",2,普及-,动态规划 DP
+AT_dp_b,"dp contest",B,"Frog 2",2,普及-,动态规划 DP
