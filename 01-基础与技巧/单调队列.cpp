@@ -1,66 +1,46 @@
-// 适用：固定长度滑动窗口最值；输入 a[1..n]，要求 1<=k<=n<N。
-// 队列存下标才能判过期；相等时保留较新元素，值相同但剩余有效时间更长。
 #include<bits/stdc++.h>
 using namespace std;
 typedef long long ll;
+
+// q 存候选下标；每个候选最多入队、出队一次，总 O(n)。
+// 适用：候选按入队顺序失效，过期后不再有效；队首始终是当前最优候选。
+// 新候选在旧候选剩余有效期内始终有效且不劣，才能永久删除旧候选。
+// 若候选优劣随查询改变、可能反转，不能直接套这个循环。
 const int N=1000005;
+int n,k,a[N],ans[N];
 
-// 单调队列：每个元素最多入队出队一次，O(n)，用于滑动窗口最值
-// 手写数组队列，空间 O(n)，常数比 deque 小
-int n,m;
-int a[N];
-int q[N];// 存下标，head..tail 是有效区间
-int head,tail;
-
-// O(1)，重置有效区间为空；每轮求最小/最大值前调用，不必清空整个 q。
-void init_q()
+// 窗口最小值，下标从 1 开始，1<=k<=n；先加入 i，再查询包含 i 的窗口。
+void solve()
 {
-    head=1,tail=0;
-}
-
-// 均摊 O(1)、单次最坏 O(n)，i 为递增输入下标；尾部 >= 当前值者不再可能最优。
-void push_keep_inc(int i)// 维护队列内 a 单调递增（队首最小），用于求窗口最小值
-{
-    while(head<=tail&&a[q[tail]]>=a[i])tail--;
-    q[++tail]=i;
-}
-
-// 均摊 O(1)、单次最坏 O(n)，i 为递增输入下标；维护最大值候选。
-void push_keep_dec(int i)// 维护队列内 a 单调递减（队首最大），用于求窗口最大值
-{
-    while(head<=tail&&a[q[tail]]<=a[i])tail--;
-    q[++tail]=i;
-}
-
-// 均摊 O(1)、单次最坏 O(n)，i 为窗口右端、k 为长度；保留闭窗口 [i-k+1,i]。
-void pop_expire(int i,int k)// 弹出下标 <= i-k 的队首
-{
-    while(head<=tail&&q[head]<=i-k)head++;
-}
-
-// O(1)，取队首对应值；必须 head<=tail，不能在空队列调用。
-int q_front()
-{
-    return a[q[head]];
-}
-
-int win_min[N],win_max[N];// 窗口最值答案
-
-// O(n) 时间、O(n) 空间；k 为窗口长度，答案下标 j 对应 [j,j+k-1]。
-void sliding_window(int k)// 窗口长度 k，结果存在 win_min/win_max[1..n-k+1]
-{
-    init_q();
+    deque<int> q;
     for(int i=1;i<=n;i++)
     {
-        push_keep_inc(i);
-        pop_expire(i,k);
-        if(i>=k)win_min[i-k+1]=q_front();
-    }
-    init_q();
-    for(int i=1;i<=n;i++)
-    {
-        push_keep_dec(i);
-        pop_expire(i,k);
-        if(i>=k)win_max[i-k+1]=q_front();
+        while(!q.empty()&&q.front()<=i-k)q.pop_front();
+        while(!q.empty()&&a[q.back()]>=a[i])q.pop_back();
+        q.push_back(i);
+        ans[i]=q.front(); // 记录当前最优候选下标；具体取值/转移在这里改
     }
 }
+// 窗口 [max(1,i-k+1),i]；求最大值把队尾比较 >= 改为 <=。
+// 上述非严格比较保留相等值中最新的下标；改成 > / < 则保留最早的下标。
+// ans[i] 存下标，窗口值为 a[ans[i]]；只要完整窗口时，i>=k 才记录答案。
+// 自定义题目：将队首条件换成 expired(id,i)，队尾条件换成 check(old,now)。
+// expired 判断是否失效，check 判断新候选能否永久淘汰旧候选，须满足上面的适用条件。
+
+// DP 示例：f[0]=0，f[i]=a[i]+max{f[j] | max(0,i-k)<=j<i}，a 下标从 1 开始，k>=1。
+// 先过期、再转移、最后加入 i；初始候选 0 不可漏，不能让 i 转移到自己。
+vector<ll> dp(const vector<ll> &a,int k)
+{
+    int n=(int)a.size()-1;
+    vector<ll> f(n+1);
+    deque<int> q{0};
+    for(int i=1;i<=n;i++)
+    {
+        while(!q.empty()&&q.front()<i-k)q.pop_front();
+        f[i]=f[q.front()]+a[i];
+        while(!q.empty()&&f[q.back()]<=f[i])q.pop_back();
+        q.push_back(i);
+    }
+    return f;
+}
+// 按题目改转移值、有效区间及队尾比较；只把可达状态入队，空队时当前状态不可达。

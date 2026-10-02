@@ -2,6 +2,50 @@
 // 模板本体：05-数学/原根与阶.cpp
 #include "../../05-数学/原根与阶.cpp"
 
+ll order_naive(ll a,ll p)
+{
+    if(__gcd(a,p)!=1)return -1;
+    ll cur=1%p;
+    for(ll k=1;k<=p;k++)
+    {
+        cur=cur*a%p;
+        if(cur==1)return k;
+    }
+    return -1;
+}
+
+bool is_root_naive(ll g,ll p)
+{
+    if(__gcd(g,p)!=1)return false;
+    static int seen[N];
+    for(int i=1;i<p;i++)seen[i]=0;
+    ll cur=1%p;
+    for(int k=1;k<p;k++)
+    {
+        cur=cur*g%p;
+        if(seen[cur])return false;
+        seen[cur]=1;
+    }
+    return true;
+}
+
+bool is_root_naive_general(ll g,ll n)
+{
+    if(n==1)return true;
+    if(__gcd(g,n)!=1)return false;
+    ll lim=phi_of(n);
+    static int seen[N];
+    for(int i=0;i<n;i++)seen[i]=0;
+    ll cur=1%n;
+    for(ll k=1;k<=lim;k++)
+    {
+        cur=cur*g%n;
+        if(seen[cur])return false;
+        seen[cur]=1;
+    }
+    return true;
+}
+
 int main()
 {
     get_prime(1000000);

@@ -2,6 +2,50 @@
 // 模板本体：02-数据结构/树链剖分.cpp
 #include "../../02-数据结构/树链剖分.cpp"
 
+// ---------- 以下为自测用的暴力 ----------
+int bval[N];
+int bsum_path(int u,int v)              // 暴力路径和
+{
+    int res=0;
+    while(dep[u]>dep[v])res+=bval[u],u=fa[u];
+    while(dep[v]>dep[u])res+=bval[v],v=fa[v];
+    while(u!=v)res+=bval[u]+bval[v],u=fa[u],v=fa[v];
+    return res+bval[u];
+}
+void bpath_add(int u,int v,int k)
+{
+    while(dep[u]>dep[v])bval[u]+=k,u=fa[u];
+    while(dep[v]>dep[u])bval[v]+=k,v=fa[v];
+    while(u!=v)bval[u]+=k,bval[v]+=k,u=fa[u],v=fa[v];
+    bval[u]+=k;
+}
+void bsub_add(int u,int k)              // 暴力子树
+{
+    for(int i=1;i<=n;i++)
+    {
+        int x=i;
+        while(x)
+        {
+            if(x==u){bval[i]+=k;break;}
+            x=fa[x];
+        }
+    }
+}
+int bsub_sum(int u)
+{
+    int res=0;
+    for(int i=1;i<=n;i++)
+    {
+        int x=i;
+        while(x)
+        {
+            if(x==u){res+=bval[i];break;}
+            x=fa[x];
+        }
+    }
+    return res;
+}
+
 int main()
 {
     srand(20240513);

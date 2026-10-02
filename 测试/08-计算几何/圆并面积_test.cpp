@@ -1,0 +1,2 @@
+#include "../../08-计算几何/圆并面积.cpp"
+int main(){double pi=acos(-1.0);auto eq=[](double a,double b){assert(fabs(a-b)<1e-7);};eq(circle_union_area({}),0);eq(circle_union_area({{0,0,1},{0,0,1}}),pi);eq(circle_union_area({{0,0,2},{0,0,1}}),4*pi);eq(circle_union_area({{10,20,1},{12,20,1}}),2*pi);eq(circle_union_area({{0,0,1},{1,0,1}}),4*pi/3+sqrt(3.)/2);eq(circle_union_area({{0,0,0}}),0);vector<Circle> c={{1,3,2},{3,4,1},{-2,-1,1.7}};double z=circle_union_area(c);for(auto &a:c)a.x+=100,a.y-=50;eq(circle_union_area(c),z);}

@@ -1,0 +1,3 @@
+#include "../../04-图论/曼哈顿最小生成树.cpp"
+ll mst(int n,vector<array<ll,3>> e){sort(e.begin(),e.end());vector<int> p(n);iota(p.begin(),p.end(),0);auto f=[&](auto&&f,int x)->int{return p[x]==x?x:p[x]=f(f,p[x]);};ll ans=0;int cnt=0;for(auto [w,u,v]:e){int a=f(f,u),b=f(f,v);if(a!=b)p[a]=b,ans+=w,cnt++;}assert(cnt==max(0,n-1));return ans;}
+int main(){mt19937 g(31);for(int t=0;t<500;t++){int n=g()%35;vector<pair<ll,ll>> p(n);for(auto &[x,y]:p)x=int(g()%101)-50,y=int(g()%101)-50;vector<array<ll,3>> all;for(int i=0;i<n;i++)for(int j=0;j<i;j++)all.push_back({abs(p[i].first-p[j].first)+abs(p[i].second-p[j].second),i,j});assert(mst(n,all)==mst(n,manhattan_edges(p)));}}

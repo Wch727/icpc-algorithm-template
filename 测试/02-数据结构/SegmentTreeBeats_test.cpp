@@ -1,0 +1,2 @@
+#include "../../02-数据结构/SegmentTreeBeats.cpp"
+int main(){mt19937 r(61);for(int t=0;t<60;t++){int n=1+r()%80;vector<ll>a(n);for(ll &x:a)x=int(r()%201)-100;Beats b(a);for(int q=0;q<700;q++){int l=r()%n,h=r()%n;if(l>h)swap(l,h);int op=r()%4;ll x=int(r()%201)-100;if(op==3)assert(b.sum(l,h)==accumulate(a.begin()+l,a.begin()+h+1,0LL));else{b.update(l,h,x,op);for(int i=l;i<=h;i++)if(op==0)a[i]+=x;else if(op==1)a[i]=min(a[i],x);else a[i]=max(a[i],x);}assert(b.sum(0,n-1)==accumulate(a.begin(),a.end(),0LL));}}}

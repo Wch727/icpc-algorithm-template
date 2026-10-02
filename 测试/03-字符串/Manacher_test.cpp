@@ -38,6 +38,12 @@ ll brute_count(const string &str)
 
 int main()
 {
+    // 审核回归：覆盖原随机小值测试遗漏的边界。
+    {
+        string x("!#%\0%#!",7); M.build(x);
+        assert(M.longest()==7); M.build(""); assert(M.longest()==0&&M.count_pal()==0);
+    }
+
     srand(12345);
 
     s="abacaba";

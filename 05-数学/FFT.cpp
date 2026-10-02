@@ -46,10 +46,8 @@ vector<ll> multiply(vector<ll> a,vector<ll> b)
     vector<complex<double> > x(n),y(n);
     for(int i=0;i<(int)a.size();i++)x[i]=a[i];
     for(int i=0;i<(int)b.size();i++)y[i]=b[i];
-    // O(L log L)，原地变换长度 L 的复数向量，L>=1 且为 2 的幂；逆变换最后除 L。
     fft(x,1),fft(y,1);
     for(int i=0;i<n;i++)x[i]*=y[i];
-    // O(L log L)，原地变换长度 L 的复数向量，L>=1 且为 2 的幂；逆变换最后除 L。
     fft(x,-1);
     vector<ll> ans(sz);
     for(int i=0;i<sz;i++)ans[i]=llround(x[i].real());

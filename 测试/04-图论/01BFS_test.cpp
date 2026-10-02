@@ -1,0 +1,2 @@
+#include "../../04-图论/01BFS.cpp"
+int main(){mt19937 g(128);for(int z=0;z<600;z++){int n=1+g()%40,s=g()%n;vector<vector<pair<int,int>>>a(n);for(int i=0;i<n*5;i++)a[g()%n].push_back({int(g()%n),int(g()%2)});vector<int>d(n,INF);d[s]=0;priority_queue<pair<int,int>,vector<pair<int,int>>,greater<pair<int,int>>>q;q.push({0,s});while(!q.empty()){auto [v,u]=q.top();q.pop();if(v!=d[u])continue;for(auto [to,w]:a[u])if(d[to]>v+w)d[to]=v+w,q.push({d[to],to});}assert(bfs01(a,s)==d);}cout<<"01BFS OK\n";}

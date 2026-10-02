@@ -14,14 +14,12 @@ struct Centroid
     int n,k;
     vector<vector<int> > adj;
     vector<int> fa,sz,vis,cnt;
-    // O(n) 初始化；n 是树大小，k 是目标距离，邻接和标记均按顶点编号。
     Centroid(int n,int k):n(n),k(k),adj(n+1),fa(n+1),sz(n+1),vis(n+1),cnt(n+1){}
     // 摊还 O(1)，加无向树边 u-v；不要加入自环或额外环。
     void add_edge(int u,int v)
     {
         adj[u].push_back(v),adj[v].push_back(u);
     }
-    // O(当前连通块大小)，rt 是未删除块内点；逆序求 sz，同时计父侧 tot-sz[u]。
     int center(int rt)
     {
         vector<int> q(1,rt);
@@ -68,7 +66,6 @@ struct Centroid
         for(int v:adj[c])if(!vis[v])ans+=solve(v);
         return ans;
     }
-    // O(n log n)，清重心标记后从 1 开始；k<=0 或 k>=n 没有无序异点对。
     ll run()
     {
         if(k<=0||k>=n)return 0;

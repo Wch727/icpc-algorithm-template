@@ -1,0 +1,3 @@
+#include "../../08-计算几何/圆的交点与公切线.cpp"
+bool close(double a,double b){return fabs(a-b)<1e-7;}
+int main(){double pi=acos(-1.0);Circle a={{0,0},1};assert(close(circle_intersection_area(a,a),pi));assert(close(circle_intersection_area(a,{{2,0},1}),0));assert(close(circle_intersection_area(a,{{1,0},1}),2*pi/3-sqrt(3.)/2));vector<Point> p={{-2,-2},{2,-2},{2,2},{-2,2}};assert(close(circle_polygon_area(a,p),pi));reverse(p.begin(),p.end());assert(close(circle_polygon_area(a,p),-pi));p={{0,0},{.5,0},{.5,.5},{0,.5}};assert(close(circle_polygon_area(a,p),.25));p={{0,0},{1,0},{0,1}};assert(close(circle_polygon_area(a,p),.5));assert(circle_polygon_area({{0,0},0},p)==0);}

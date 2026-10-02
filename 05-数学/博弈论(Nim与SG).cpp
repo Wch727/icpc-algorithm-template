@@ -62,11 +62,3 @@ void sg_init()
     memset(sg,-1,sizeof(sg));
     sg[0]=0;
 }
-
-// 通用 SG：对给定状态转移求 mex，状态转移由调用者提供
-// 这里演示「一堆 n 个石子，可取 1..k 个」的整体胜负判定
-// 多堆时把各堆 SG 异或即可，O(n*k)
-
-// 暴力博弈：每步从任意一堆取 1..k 个（k=0 表示不限制，即普通 Nim）
-// 返回当前局面先手是否必胜；memo 用按 k 分开的记忆化
-map<pair<int,vector<int>>,bool> memo;

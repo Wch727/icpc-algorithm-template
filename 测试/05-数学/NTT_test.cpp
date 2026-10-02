@@ -2,6 +2,15 @@
 // 模板本体：05-数学/NTT.cpp
 #include "../../05-数学/NTT.cpp"
 
+void mul_naive(ll a[],int n,ll b[],int m,ll c[],int &clen)
+{
+    clen=n+m-1;
+    for(int i=0;i<clen;i++)c[i]=0;
+    for(int i=0;i<n;i++)
+        for(int j=0;j<m;j++)
+            c[i+j]=(c[i+j]+a[i]*b[j])%mod;
+}
+
 int main()
 {
     int bad=0;

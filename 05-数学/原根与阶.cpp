@@ -19,6 +19,7 @@ int spf[N];// 最小质因子
 void get_prime(int n)
 {
     cnt=0;
+    fill(spf,spf+n+1,0);
     for(int i=2;i<=n;i++)
     {
         if(!spf[i])prime[++cnt]=i,spf[i]=i;// i 是素数
@@ -50,7 +51,7 @@ ll qpow(ll a,ll n,ll mod)
 vector<ll> factor(ll n)
 {
     vector<ll> v;
-    for(ll i=2;i*i<=n;i++)
+    for(ll i=2;i<=n/i;i++)
         if(n%i==0)
         {
             v.push_back(i);
@@ -65,7 +66,7 @@ vector<ll> factor(ll n)
 ll phi_of(ll n)
 {
     ll r=n;
-    for(ll i=2;i*i<=n;i++)
+    for(ll i=2;i<=n/i;i++)
         if(n%i==0)
         {
             r=r/i*(i-1);
@@ -128,54 +129,4 @@ ll get_root_general(ll n)
     for(ll g=1;g<n;g++)
         if(is_root(g,n))return g;
     return -1;
-}
-
-// O(p)，暴力求阶，对拍用
-// O(p)，逐次乘 a，返回最先出现 1 的正指数；大模数乘积可能溢出。
-ll order_naive(ll a,ll p)
-{
-    if(__gcd(a,p)!=1)return -1;
-    ll cur=1%p;
-    for(ll k=1;k<=p;k++)
-    {
-        cur=cur*a%p;
-        if(cur==1)return k;
-    }
-    return -1;
-}
-
-// O(p)，暴力判定原根：g 的幂跑满一个完整循环才回到 1（即 ord=phi(p)）
-// O(p)，适合素数 p 的小范围核对；合数请用 general 版，数组下标须 <N。
-bool is_root_naive(ll g,ll p)
-{
-    if(__gcd(g,p)!=1)return false;
-    static int seen[N];
-    for(int i=1;i<p;i++)seen[i]=0;
-    ll cur=1%p;
-    for(int k=1;k<p;k++)
-    {
-        cur=cur*g%p;
-        if(seen[cur])return false;
-        seen[cur]=1;
-    }
-    return true;
-}
-
-// O(p)，暴力判定任意模数的原根，对拍用
-// O(n+phi(n)) 加求 phi 的成本；g 是候选，n 为模数，记录所有幂的余数。
-bool is_root_naive_general(ll g,ll n)
-{
-    if(n==1)return true;
-    if(__gcd(g,n)!=1)return false;
-    ll lim=phi_of(n);
-    static int seen[N];
-    for(int i=0;i<n;i++)seen[i]=0;
-    ll cur=1%n;
-    for(ll k=1;k<=lim;k++)
-    {
-        cur=cur*g%n;
-        if(seen[cur])return false;
-        seen[cur]=1;
-    }
-    return true;
 }

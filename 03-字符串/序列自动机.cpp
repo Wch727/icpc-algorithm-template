@@ -5,12 +5,13 @@ const int N=100005;
 int n,m;
 string s;
 
-// 序列自动机：nxt[i][c] 表示位置 i 之后（不含 i）第一个字符 c 的下标，n+1 表示没有
+// 小写字母、0 下标：nxt[i][c] 是从 i 开始（含 i）首个 c 的位置，s.size() 表示不存在。
 // 从后往前递推，O(26n) 预处理
 int nxt[N][26];
 
 void build_seq(const string &t)
 {
+    s=t;
     int len=t.length();
     for(int c=0;c<26;c++)nxt[len][c]=len;// 末尾之后什么都没有，用 len 当哨兵
     for(int i=len-1;i>=0;i--)

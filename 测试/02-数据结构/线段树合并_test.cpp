@@ -2,6 +2,10 @@
 // 模板本体：02-数据结构/线段树合并.cpp
 #include "../../02-数据结构/线段树合并.cpp"
 
+// 只往儿子走，就不会顺着无向边爬回父亲或跑出子树
+int vis[N],mark[N];
+vector<int> son[N];
+
 int brute_distinct(int r)
 {
     for(int i=1;i<=n;i++)mark[i]=0,vis[i]=0;

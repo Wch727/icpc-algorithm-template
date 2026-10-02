@@ -68,7 +68,7 @@ int prime_cnt;
 bool is_prime(int x)//试除法，O(sqrt(x))
 {
     if(x<2)return false;
-    for(int i=2;i*i<=x;i++)
+    for(int i=2;i<=x/i;i++)
         if(x%i==0)return false;
     return true;
 }
@@ -107,7 +107,7 @@ void dfs_queen(int r)
 // ---------- 三、最优性剪枝（Branch and Bound）----------
 
 int best;
-int sum_rest[N];//sum_rest[i] = a[i]+...+a[n]（非负元素之和），必须是「还没放下去的元素」之和
+int sum_rest[N+1];//sum_rest[i] = a[i]+...+a[n]（非负元素之和），必须是「还没放下去的元素」之和
 
 // 把 n 个数分成两组，最小化两组和的差；O(2^n)，剪枝后远小于
 // 最优性剪枝：还没放的数最多把差值拉小 sum_rest[idx]，

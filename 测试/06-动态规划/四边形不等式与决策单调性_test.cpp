@@ -2,6 +2,8 @@
 // 模板本体：06-动态规划/四边形不等式与决策单调性.cpp
 #include "../../06-动态规划/四边形不等式与决策单调性.cpp"
 
+ll bk[N][N];
+
 int rndint(int l,int r)// 生成 [l,r] 的随机整数
 {
     return l+rand()%(r-l+1);
@@ -13,7 +15,7 @@ int rndint(int l,int r)// 生成 [l,r] 的随机整数
 // 结论（充分条件）：若 w 满足 QI 且 w 关于区间包含单调（w(a,d)>=w(b,c)），
 // 则 dp[i]=min_{j<i} dp[j]+w(j+1,i) 的决策点 opt[i] 单调不减；
 // 区间 dp f[l][r]=min_{l<=k<r} f[l][k]+f[k+1][r]+w(l,r) 有 opt[l][r-1]<=opt[l][r]<=opt[l+1][r]
-// 常见满足 QI 的代价：(sum)^2、区间长度、区间最值；不满足时不能乱用决策单调性
+// 非负数组的 (sum)^2 和区间和满足 QI；区间最值不能笼统断言；不满足时不能乱用决策单调性
 namespace QI
 {
     ll c[N][N];
@@ -30,7 +32,7 @@ namespace QI
         return bad;
     }
 
-    // O(n^3)，检查 dp[j]=min_{i<j} cost[i][j] 的决策点是否单调不减
+    // O(n^2)，检查 dp[j]=min_{i<j} cost[i][j] 的决策点是否单调不减
     int check_mono(int n)
     {
         int last=0;
@@ -59,70 +61,6 @@ void brute_partition(int n,int K,ll w[][N],ll f[][N])
         }
 }
 
-// ===== 写法一：分治优化，O(n K log n) =====
-// 已知 opt[k][i] 随 i 单调不减，用分治求 f[k][*]
-// 每层枚举总量 O(n log n)：先算中点 mid，再按 mid 的决策点夹出左右两半的取值范围
-void solve_layer(int k,int l,int r,int optl,int optr)
-{
-    if(l>r)return;
-    int mid=(l+r)>>1;
-    int bestj=-1;ll bv=INF;
-    int hi=min(mid-1,optr);
-    for(int j=optl;j<=hi;j++)
-    {
-        ll v=fd[k-1][j]+w[j+1][mid];
-        if(v<bv)bv=v,bestj=j;
-    }
-    fd[k][mid]=bv,opt[k][mid]=bestj;
-    solve_layer(k,l,mid-1,optl,bestj);
-    solve_layer(k,mid+1,r,bestj,optr);
-}
-
-void dnc_partition(int n,int K,ll w[][N],ll f[][N],int opt[][N])
-{
-    for(int i=1;i<=n;i++)f[1][i]=w[1][i],opt[1][i]=0;
-    for(int k=2;k<=K;k++)solve_layer(k,k,n,k-1,n-1);
-}
-
-// ===== 写法二：单调队列 + 二分找分界点，均摊 O(n log n) =====
-// 队列里放若干"决策候选人"，相邻两人的胜负分界点 pos 递增
-// 加入新决策 j 时二分出它从哪个位置开始优于队尾，若整段都优于队尾就弹掉队尾
-// 这里演示单层：f[i]=min_{1<=j<i} fd[1][j]+w(j+1,i)
-ll costd(int j,int i)
-{
-    return fd[1][j]+w[j+1][i];
-}
-
-void mq_layer(int n,ll w[][N])
-{
-    hd=tl=0;
-    for(int i=2;i<=n;i++)
-    {
-        while(hd+1<tl&&costd(dq[hd+1],i)<=costd(dq[hd],i))hd++;// 队首被下一个超过
-        if(hd>=tl)dq[0]=i-1,tl=1,hd=0;// 队列空了，直接用 i-1 起步
-        while(hd<tl)
-        {
-            int p=dq[tl-1];
-            if(costd(i,p)<=costd(p,p))tl--;// 新决策在 p 处就更优，队尾整段作废
-            else break;
-        }
-        if(hd>=tl)dq[0]=i,tl=1,hd=0;
-        else
-        {
-            int lo=1,hi=n,be=-1,p=dq[tl-1];// 找第一个新决策更优的位置
-            while(lo<=hi)
-            {
-                int mid=(lo+hi)>>1;
-                if(costd(i,mid)<=costd(p,mid))be=mid,hi=mid-1;
-                else lo=mid+1;
-            }
-            if(be!=-1)dq[tl++]=i;
-        }
-        int best=dq[hd];
-        for(int t=hd;t<tl;t++)if(costd(dq[t],i)<costd(best,i))best=dq[t];// 保险：真取最小（队列已排序，可不写）
-        fd[2][i]=costd(best,i);
-    }
-}
 
 int main()
 {

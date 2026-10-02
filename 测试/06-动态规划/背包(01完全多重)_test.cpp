@@ -43,6 +43,12 @@ void print_data()
 
 int main()
 {
+    // 审核回归：覆盖原随机小值测试遗漏的边界。
+    {
+        int ww[]={0,2},vv[]={0,3},cc[]={0,INT_MAX};
+        assert(knap_multiple_binary(1,10,ww,vv,cc)==15);
+    }
+
     srand(20240601);
     printf("==== 固定样例 ====\n");
     int w1[5]={0,71,69,1},v1[5]={0,100,1,2};

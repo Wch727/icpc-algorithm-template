@@ -22,6 +22,7 @@ void bfs_grid(int sx,int sy)
 {
     memset(dis,-1,sizeof(dis));
     queue<pair<int,int> > q;
+    if(block[sx][sy])return;
     dis[sx][sy]=0;
     q.push(make_pair(sx,sy));
     while(!q.empty())
@@ -75,6 +76,8 @@ int g[N][N];
 // 从 (x,y) 出发把同一连通块染色；调用外面留一圈 0 保证边界的连通性
 void flood(int x,int y,int c)
 {
+    assert(c!=0);
+    if(g[x][y]!=0)return;
     queue<pair<int,int> > q;
     g[x][y]=c;
     q.push(make_pair(x,y));

@@ -19,6 +19,11 @@ int brute_kmp(const string &s,const string &p)
 
 int main()
 {
+    // 审核回归：覆盖原随机小值测试遗漏的边界。
+    {
+        assert(min_cycle("")==0);
+    }
+
     srand(12345);
 
     // 基础自测

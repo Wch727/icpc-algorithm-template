@@ -11,6 +11,13 @@ string rand_str(int len)
 
 int main()
 {
+    // 审核回归：覆盖原随机小值测试遗漏的边界。
+    {
+        s="old"; build_seq("abc");
+        assert(s=="abc"&&is_subseq("ac")&&!is_subseq("ca"));
+        build_seq(""); assert(is_subseq("")&&!is_subseq("a"));
+    }
+
     srand(12345);
 
     // 基础自测

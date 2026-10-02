@@ -22,7 +22,9 @@ ll solve(const vector<ll> &a,ll target)
     ll ans=0;
     for(ll x:l)
     {
-        pair<vector<ll>::iterator,vector<ll>::iterator> p=equal_range(r.begin(),r.end(),target-x);
+        __int128 want=(__int128)target-x;
+        if(want<LLONG_MIN||want>LLONG_MAX)continue;
+        auto p=equal_range(r.begin(),r.end(),(ll)want);
         ans+=p.second-p.first;
     }
     return ans;

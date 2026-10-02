@@ -30,7 +30,7 @@ int dfs(int u)// 从左部点 u 出发增广，只走 lx[u]+ly[v]==w[u][v] 的�
     return 0;
 }
 
-ll km()// 二分图最大权完美匹配，O(n^3)
+ll km()// 二分图最大权完美匹配，O(n^4) 最坏；本版反复 DFS，需 O(n^3) 时用保留交错树的增广写法
 {
     for(int i=1;i<=n;i++)
     {

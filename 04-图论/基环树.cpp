@@ -9,7 +9,7 @@ const int N=100005;
 int n,m,ecnt;
 int head[N],to[N<<1],nxt[N<<1],w[N],val[N];
 int par[N],pe[N],vis[N];        // par：父亲，pe：从父亲过来的边编号
-int ring[N],rn;                 // 环上的点，按环顺序（无向图会得到编号递增/递减的顺序，够用）
+int ring[N],rn;                 // 环上的点，按环顺序（按环边相邻，编号不必单调）
 int fstk[N],fit[N];             // 找环用的显式栈（放全局，避免递归/大数组爆栈）
 int mark[N],tmp[N];             // mark：祖先标记；tmp：暂存另一支路径
 ll dp0[N],dp1[N];              // dp0：不选 u，dp1：选 u（子树部分）
@@ -37,7 +37,7 @@ void find_ring_undirected(int rt)
             int e=fit[tp];
             fit[tp]=nxt[e];
             int v=to[e];
-            if(v==par[u])continue;// 父亲那边来的边直接跳过
+            if(pe[u]&&e==(((pe[u]-1)^1)+1))continue;// 只跳父边反向，保留重边
             if(vis[v]){cu=u,cv=v;break;}// 碰到走过的点 → 找到环
             vis[v]=1,par[v]=u,pe[v]=e;
             fstk[++tp]=v,fit[tp]=head[v];
@@ -88,7 +88,7 @@ void tree_dp(int rt)
         for(int i=head[u];i;i=nxt[i])
         {
             int v=to[i];
-            if(v==tfa[u]||(on_ring[v]&&v!=rt))continue;// 环上别的点不走，只走 rt 挂的树
+            if(v==tfa[u]||on_ring[v])continue;// 环上别的点不走，只走 rt 挂的树
             tfa[v]=u,tq[tl++]=v;
         }
     }
@@ -99,7 +99,7 @@ void tree_dp(int rt)
         for(int j=head[u];j;j=nxt[j])
         {
             int v=to[j];
-            if(v==tfa[u]||(on_ring[v]&&v!=rt))continue;
+            if(v==tfa[u]||on_ring[v])continue;
             dp0[u]+=max(dp0[v],dp1[v]);
             dp1[u]+=dp0[v];
         }
@@ -116,7 +116,7 @@ ll max_independent_set(int rt)
     // 首点不选、首点必选；末点不能与首点同时选
     const ll neg=-4e18;
     ll ans=0;
-    for(int take=0;take<=1;take++)
+    for(int take=0;take<=(rn>1);take++)
     {
         ll f0=take?neg:dp0[ring[1]],f1=take?dp1[ring[1]]:neg;
         for(int i=2;i<=rn;i++)
@@ -129,7 +129,3 @@ ll max_independent_set(int rt)
     }
     return ans;
 }
-
-// ---------- 自测用：暴力枚举所有简单环 / 校验环 ----------
-int bvis[15],bpath[15],bpc;
-set<int> bcyc;

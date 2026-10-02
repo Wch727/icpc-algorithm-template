@@ -1,0 +1,2 @@
+#include "../../04-图论/稳定匹配.cpp"
+int main(){mt19937 g(19);for(int t=0;t<300;t++){int n=1+g()%15;vector<vector<int>> a(n,vector<int>(n)),b=a,ra=a,rb=a;for(int i=0;i<n;i++){iota(a[i].begin(),a[i].end(),0);iota(b[i].begin(),b[i].end(),0);shuffle(a[i].begin(),a[i].end(),g);shuffle(b[i].begin(),b[i].end(),g);for(int k=0;k<n;k++)ra[i][a[i][k]]=k,rb[i][b[i][k]]=k;}auto m=stable_matching(a,b);vector<int> r(n,-1);for(int i=0;i<n;i++){assert(m[i]>=0&&r[m[i]]<0);r[m[i]]=i;}for(int i=0;i<n;i++)for(int j=0;j<n;j++)assert(!(ra[i][j]<ra[i][m[i]]&&rb[j][i]<rb[j][r[j]]));}}

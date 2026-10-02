@@ -46,6 +46,17 @@ void run(ll md,ll &bad,ll &cnt)
 
 int main()
 {
+    // 审核回归：覆盖原随机小值测试遗漏的边界。
+    {
+        n=2; seg.mod=LLONG_MAX-24; a[1]=seg.mod-1; a[2]=-2;
+        seg.src=a; seg.build(1,2,1);
+        seg.update_mul(1,2,seg.mod-1,1,2,1);
+        seg.update_add(1,2,-4,1,2,1);
+        assert(seg.query(1,1,1,2,1)==seg.mod-3);
+        assert(seg.query(2,2,1,2,1)==seg.mod-2);
+        assert(seg.query(1,2,1,2,1)==seg.mod-5);
+    }
+
     srand(19260817);
     ll bad=0,cnt=0;
     run(1000000007,bad,cnt);

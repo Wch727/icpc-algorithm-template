@@ -1,0 +1,2 @@
+#include "../../02-数据结构/树状数组套权值线段树.cpp"
+int main(){mt19937 r(71);for(int t=0;t<50;t++){int n=1+r()%70,s=1+r()%50;vector<int>a(n);BITValueTree b(n,s);for(int i=0;i<n;i++)a[i]=r()%s,b.add(i,a[i],1);for(int q=0;q<700;q++)if(r()%2){int i=r()%n,v=r()%s;b.change(i,a[i],v);a[i]=v;}else{int l=r()%n,h=r()%n;if(l>h)swap(l,h);int k=1+r()%(h-l+1);vector<int> v(a.begin()+l,a.begin()+h+1);sort(v.begin(),v.end());assert(b.kth(l,h,k)==v[k-1]);}}}

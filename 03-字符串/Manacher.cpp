@@ -7,7 +7,7 @@ string s;
 
 // 预处理成 "#a#b#a#" 形式，两端加互不相同且不出现在原串的哨兵，省掉边界判断
 int len_cur;
-char buf[N<<1];
+int buf[N<<1];// 负数哨兵与任意字节互不相同
 int rr[N<<1];// rr[i]=以 i 为中心的回文半径，数值上等于该中心的最长回文长度
 
 // 求最长回文子串长度 / 回文子串个数，O(n)
@@ -17,19 +17,18 @@ struct Manacher
     int build(const string &str)
     {
         int len=0,nn=str.length();
-        buf[0]='%';
+        buf[0]=-1;
         for(int j=0;j<nn;j++)
         {
-            buf[++len]='#';
-            buf[++len]=str[j];
+            buf[++len]=-2;
+            buf[++len]=(unsigned char)str[j];
         }
-        buf[++len]='#';
-        buf[++len]='!';
-        // 反复调用时后面残留着上一次的 '!' 会让 while 一直比较下去，必须清干净
-        buf[len+1]='\0',buf[len+2]='\0';
+        buf[++len]=-2;
+        buf[++len]=-3;
         len_cur=len;
         int r=0,c=0;
-        for(int i=1;i<=len;i++)
+        rr[len]=0;
+        for(int i=1;i<len;i++)
         {
             rr[i]=0;//同样先清零，避免复用上一次调用的旧半径
             if(i<=r)rr[i]=min(rr[(c<<1)-i],r-i);//镜像复制，右端不超过 r

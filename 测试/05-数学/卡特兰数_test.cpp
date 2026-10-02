@@ -2,6 +2,16 @@
 // 模板本体：05-数学/卡特兰数.cpp
 #include "../../05-数学/卡特兰数.cpp"
 
+ll cat_naive(int n)
+{
+    ll c[1005]={0};
+    c[0]=1;
+    for(int i=1;i<=n;i++)
+        for(int j=0;j<i;j++)
+            c[i]=(c[i]+c[j]*c[i-1-j])%mod;
+    return c[n];
+}
+
 int main()
 {
     int bad=0;

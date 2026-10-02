@@ -31,7 +31,7 @@ struct DynSeg{
     void push_down(int p,ll l,ll r)
     {
         if(t[p].lazy==0||l==r)return;
-        ll v=t[p].lazy,mid=(l+r)>>1;
+        ll v=t[p].lazy,mid=l+(ll)(((__int128)r-l)/2);
         if(!t[p].ls)t[p].ls=new_node();
         if(!t[p].rs)t[p].rs=new_node();
         int L=t[p].ls,R=t[p].rs;        // 建完点之后再取，下标不会失效
@@ -43,13 +43,14 @@ struct DynSeg{
     // 区间 [L,R] 加 v，O(log V)
     void add(ll L,ll R,ll v,ll l,ll r,int p)
     {
+        if(R<l||r<L)return;
         if(L<=l&&r<=R)//(l,r)<=(L,R)
         {
             t[p].sum+=v*(r-l+1),t[p].lazy+=v;
             return;
         }
         push_down(p,l,r);
-        ll mid=(l+r)>>1;
+        ll mid=l+(ll)(((__int128)r-l)/2);
         if(L<=mid)
         {
             if(!t[p].ls)t[p].ls=new_node();
@@ -66,10 +67,10 @@ struct DynSeg{
     // 区间 [L,R] 求和，O(log V)；结点没建出来说明这段全是 0
     ll sum(ll L,ll R,ll l,ll r,int p)
     {
-        if(!p)return 0;             // 空结点直接返回 0，不用再往下走
+        if(!p||R<l||r<L)return 0;             // 空结点直接返回 0，不用再往下走
         if(L<=l&&r<=R)return t[p].sum;
         push_down(p,l,r);
-        ll mid=(l+r)>>1,res=0;
+        ll mid=l+(ll)(((__int128)r-l)/2),res=0;
         if(L<=mid)res+=sum(L,R,l,mid,t[p].ls);
         if(R>mid)res+=sum(L,R,mid+1,r,t[p].rs);
         return res;

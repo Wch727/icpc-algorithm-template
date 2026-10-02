@@ -3,7 +3,7 @@
 // 思路：对每个前缀 [1..i] 建一棵权值线段树，区间 [l,r] 的信息就是 root[r]-root[l-1]
 // 调用约定：kth(root[l-1],root[r],1,sz,k)、cnt(root[l-1],root[r],1,sz,x)
 //           第一个参数是「小版本」，写反了会算出 0 或负数
-// 坑：insert 里 sum 必须在递归返回之后按两个孩子重算，不能在递归前写 sum[old]+1
+// 每次插入 +1，可先 sum[old]+1 或递归后重算；kth 要求 1<=k<=区间元素数。
 #include<bits/stdc++.h>
 using namespace std;
 typedef long long ll;
@@ -75,6 +75,7 @@ void build()
 // 值域 [lo,hi]（真实值）内的数个数：把 lo-1、hi 转到离散化位置再做差
 int count_range(int L,int R,int lo,int hi)
 {
+    if(lo>hi||L>R||!sz)return 0;
     int p=lower_bound(b+1,b+sz+1,lo)-b-1;   // 最后一个位置，它的值 < lo
     int q=upper_bound(b+1,b+sz+1,hi)-b-1;   // 最后一个位置，它的值 <= hi
     if(q<=0)return 0;

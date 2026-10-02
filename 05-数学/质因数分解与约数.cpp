@@ -2,7 +2,7 @@
 // 参数：所有函数的 n>=1；返回向量下标 0 起，factor 的第二项为因子指数。
 // 关键：试除到剩余 n 的平方根；循环结束剩余数若大于 1 必为素数。
 // 结论：约数个数为指数加一的乘积；phi(n)=n*各不同素因子的 (1-1/p) 乘积。
-// 易错：i*i 接近 ll 上界会溢出，div_sum 虽宽整数累加，最终返回仍须能存入 ll。
+// 试除用 i<=n/i 避免平方溢出；div_sum 的最终答案仍须能存入 ll。
 // 复杂度：试除与枚举均 O(sqrt n) 上界，约数向量空间 O(约数个数)。
 #include<bits/stdc++.h>
 using namespace std;
@@ -13,7 +13,7 @@ typedef long long ll;
 vector<pair<ll,int>> factor(ll n)
 {
     vector<pair<ll,int>> f;
-    for(ll i=2;i*i<=n;i++)
+    for(ll i=2;i<=n/i;i++)
     {
         if(n%i)continue;
         int c=0;
@@ -29,7 +29,7 @@ vector<pair<ll,int>> factor(ll n)
 vector<ll> get_div(ll n)
 {
     vector<ll> v;
-    for(ll i=1;i*i<=n;i++)
+    for(ll i=1;i<=n/i;i++)
         if(n%i==0)
         {
             v.push_back(i);
@@ -43,8 +43,8 @@ vector<ll> get_div(ll n)
 int div_cnt(ll n)
 {
     int r=0;
-    for(ll i=1;i*i<=n;i++)
-        if(n%i==0)r+=(i*i==n?1:2);
+    for(ll i=1;i<=n/i;i++)
+        if(n%i==0)r+=(i==n/i?1:2);
     return r;
 }
 
@@ -53,7 +53,7 @@ int div_cnt(ll n)
 ll div_sum(ll n)
 {
     __int128 s=0;
-    for(ll i=1;i*i<=n;i++)
+    for(ll i=1;i<=n/i;i++)
         if(n%i==0)
         {
             s+=i;
@@ -67,7 +67,7 @@ ll div_sum(ll n)
 ll phi_one(ll n)
 {
     ll r=n;
-    for(ll i=2;i*i<=n;i++)
+    for(ll i=2;i<=n/i;i++)
         if(n%i==0)
         {
             r=r/i*(i-1);

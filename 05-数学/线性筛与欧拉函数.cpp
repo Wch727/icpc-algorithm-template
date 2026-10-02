@@ -22,6 +22,7 @@ int dmin[N];// 最小质因子在该数中的指数
 void get_prime(int n)
 {
     cnt=0;
+    fill(vis,vis+n+1,false);
     vis[1]=true;
     phi[1]=1,mu[1]=1,d[1]=1,dmin[1]=0;
     for(int i=2;i<=n;i++)
@@ -53,46 +54,4 @@ void get_prime(int n)
             d[t]=d[i]*2;
         }
     }
-}
-
-// O(sqrt n)，单个数的欧拉函数，对拍用
-// O(sqrt x)，x>=1，试除并去重因子，先除后乘避免一部分溢出。
-int phi_naive(int x)
-{
-    int r=x;
-    for(int i=2;(ll)i*i<=x;i++)
-        if(x%i==0)
-        {
-            r=r/i*(i-1);
-            while(x%i==0)x/=i;
-        }
-    if(x>1)r=r/x*(x-1);
-    return r;
-}
-
-// O(sqrt n)，约数个数，对拍用
-// O(sqrt x)，x>=1，约数成对计数；平方根只计一次。
-int d_naive(int x)
-{
-    int r=0;
-    for(int i=1;(ll)i*i<=x;i++)
-        if(x%i==0)r+=(i*i==x?1:2);
-    return r;
-}
-
-// O(sqrt n)，莫比乌斯函数，对拍用
-// O(sqrt x)，x>=1，重复质因子立即返回 0，否则每个不同因子翻一次符号。
-int mu_naive(int x)
-{
-    if(x==1)return 1;
-    int r=1;
-    for(int i=2;(ll)i*i<=x;i++)
-        if(x%i==0)
-        {
-            x/=i;
-            if(x%i==0)return 0;
-            r=-r;
-        }
-    if(x>1)r=-r;
-    return r;
 }

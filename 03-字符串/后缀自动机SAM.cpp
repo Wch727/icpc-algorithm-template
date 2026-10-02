@@ -45,6 +45,7 @@ void sam_extend(int c)
 }
 
 // 按 len 基数排序，得到 len 单调不减的拓扑序 id[0..tot-1]；顺便求每个状态的出现次数
+// 所有字符加入后调用一次；siz 累加后不要继续 extend/build。
 void sam_build()
 {
     int mx=tot+1;

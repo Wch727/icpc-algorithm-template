@@ -14,7 +14,7 @@ int min_show(const string &t)
     int i=0,j=1,k=0;// i,j 为两个候选起点，k 为已匹配长度
     while(i<len&&j<len&&k<len)
     {
-        int a=t[(i+k)%len],b=t[(j+k)%len];
+        int a=(unsigned char)t[(i+k)%len],b=(unsigned char)t[(j+k)%len];
         if(a==b)k++;
         else
         {
@@ -44,7 +44,7 @@ int max_show(const string &t)
     int i=0,j=1,k=0;
     while(i<len&&j<len&&k<len)
     {
-        int a=t[(i+k)%len],b=t[(j+k)%len];
+        int a=(unsigned char)t[(i+k)%len],b=(unsigned char)t[(j+k)%len];
         if(a==b)k++;
         else
         {

@@ -30,9 +30,8 @@ ll exgcd(ll a,ll b,ll &x,ll &y)
 ll inv_mod(ll a,ll p)
 {
     ll x,y;
-    // O(log min(a,b))，返回 gcd，引用 x/y 输出 ax+by=gcd 的系数。
     exgcd(a,p,x,y);
-    return (x%p+p)%p;
+    return (x%p<0?x%p+p:x%p);
 }
 
 // O(sqrt(p) log p)，互素离散对数，返回最小非负指数
@@ -41,7 +40,7 @@ ll bsgs(ll a,ll b,ll p)
 {
     assert(p>=1);
     if(p==1)return 0;
-    a=(a%p+p)%p,b=(b%p+p)%p;
+    a=(a%p<0?a%p+p:a%p),b=(b%p<0?b%p+p:b%p);
     if(b==1)return 0;
     if(gcd(a,p)!=1)return -1;// 非互素请用扩展版本
     ll m=sqrtl(p)+1,cur=1;
@@ -65,7 +64,7 @@ ll exbsgs(ll a,ll b,ll p)
 {
     assert(p>=1);
     if(p==1)return 0;
-    a=(a%p+p)%p,b=(b%p+p)%p;
+    a=(a%p<0?a%p+p:a%p),b=(b%p<0?b%p+p:b%p);
     if(b==1)return 0;
     ll cnt=0,mul=1,g;
     while((g=gcd(a,p))>1)

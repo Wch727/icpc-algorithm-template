@@ -10,16 +10,16 @@ const int N=100005;
 int n,m;
 // 无向图：链式前向星，边成对存，(e^1) 是反向边
 int head[N],to[N<<1],nxt[N<<1],ecnt;
-int deg[N],used[N<<1],it[N],stk[N];
+int deg[N],used[N<<1],it[N],stk[N+5];
 // 有向图：出边的链式前向星 + 入度
 int dhead[N],dto[N],dnxt[N],decnt,din[N],dout[N],dvis[N];
-int path_[N],pcnt;
+int path_[N+5],pcnt;
 
 void init_undirected(int n_)
 {
     n=n_,ecnt=1,pcnt=0;
     for(int i=1;i<=n;i++)head[i]=0,deg[i]=0;
-    for(int i=1;i<=2*m+2;i++)used[i]=0;
+    memset(used,0,sizeof(used));
 }
 
 void add_uedge(int u,int v)// 无向边，一次加一对
@@ -82,6 +82,7 @@ int connected_directed()
 // Hierholzer：无向图。返回 0 表示不存在，1 表示路径，2 表示回路；路径存在 path_[1..pcnt] 里
 int euler_undirected(int &s)
 {
+    pcnt=0;
     int odd=0;
     for(int i=1;i<=n;i++)
         if(deg[i]&1)odd++,s=i;
@@ -126,6 +127,7 @@ int euler_undirected(int &s)
 // Hierholzer：有向图。返回 0/1/2 同上
 int euler_directed(int &s)
 {
+    pcnt=0;
     int c1=0,c2=0;
     s=0;
     for(int i=1;i<=n;i++)

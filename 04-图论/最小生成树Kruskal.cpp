@@ -50,10 +50,10 @@ ll kruskal()// O(m log m)，返回最小生成树边权和；不连通返回 -1
 }
 
 // ---------- 附：Prim 堆优化版 O((n+m) log n)，稠密图也可用朴素版 ----------
-int head[N],to[N<<1],w[N<<1],nxt[N<<1],num=0;
+vector<pair<int,int>> adj[N];
 void add_edge(int u,int v,int c)
 {
-    to[++num]=v,w[num]=c,nxt[num]=head[u],head[u]=num;
+    adj[u].push_back({v,c});
 }
 bool vis[N];
 ll dis[N];
@@ -87,12 +87,12 @@ ll prim(int s)// 从 s 出发，返回 MST 权值和；不连通返回 -1
         vis[u]=1;
         sum+=d;
         cnt++;
-        for(int i=head[u];i;i=nxt[i])
-            if(w[i]<dis[to[i]])
+        for(auto [v,w]:adj[u])
+            if(w<dis[v])
             {
-                dis[to[i]]=w[i];
+                dis[v]=w;
                 Node tmp;
-                tmp.u=to[i],tmp.d=w[i];
+                tmp.u=v,tmp.d=w;
                 pq.push(tmp);
             }
     }

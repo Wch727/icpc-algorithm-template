@@ -37,6 +37,12 @@ string rand_str()
 
 int main()
 {
+    // 审核回归：覆盖原随机小值测试遗漏的边界。
+    {
+        t.clear(); t.insert(""); t.insert("a"); t.insert("ab");
+        assert(t.count_pre("")==3&&t.count_word("")==1); t.clear();
+    }
+
     srand(20240513);
 
     // 1. 小数据手测：a / ab / abc / ab / abd

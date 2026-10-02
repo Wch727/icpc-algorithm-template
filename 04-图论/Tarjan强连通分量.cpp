@@ -26,9 +26,7 @@ void add_edge(int u,int v)
 // O(1)，连加双向边；SCC 问题通常只需 add_edge，勿误用双向图。
 void add_undirected(int u,int v)
 {
-    // O(1)，加有向 u->v 边，边下标从 1 开始。
     add_edge(u,v);
-    // O(1)，加有向 u->v 边，边下标从 1 开始。
     add_edge(v,u);
 }
 

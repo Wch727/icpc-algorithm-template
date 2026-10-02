@@ -73,15 +73,3 @@ ll cat_rec(int n)
     if(n==0)return 1;
     return C(2*n,n)*qpow(n+1,mod-2,mod)%mod;
 }
-
-// O(n^2)，纯递推 Cat[n] = sum Cat[i]*Cat[n-1-i]，对拍基准
-// O(n^2)，按首对匹配拆分子结构，返回模 mod 的第 n 项。
-ll cat_naive(int n)
-{
-    ll c[1005]={0};
-    c[0]=1;
-    for(int i=1;i<=n;i++)
-        for(int j=0;j<i;j++)
-            c[i]=(c[i]+c[j]*c[i-1-j])%mod;
-    return c[n];
-}

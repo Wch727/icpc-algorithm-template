@@ -2,8 +2,49 @@
 // 模板本体：05-数学/线性筛与欧拉函数.cpp
 #include "../../05-数学/线性筛与欧拉函数.cpp"
 
+int phi_naive(int x)
+{
+    int r=x;
+    for(int i=2;(ll)i*i<=x;i++)
+        if(x%i==0)
+        {
+            r=r/i*(i-1);
+            while(x%i==0)x/=i;
+        }
+    if(x>1)r=r/x*(x-1);
+    return r;
+}
+
+int d_naive(int x)
+{
+    int r=0;
+    for(int i=1;(ll)i*i<=x;i++)
+        if(x%i==0)r+=(i*i==x?1:2);
+    return r;
+}
+
+int mu_naive(int x)
+{
+    if(x==1)return 1;
+    int r=1;
+    for(int i=2;(ll)i*i<=x;i++)
+        if(x%i==0)
+        {
+            x/=i;
+            if(x%i==0)return 0;
+            r=-r;
+        }
+    if(x>1)r=-r;
+    return r;
+}
+
 int main()
 {
+    // 审核回归：覆盖原随机小值测试遗漏的边界。
+    {
+        get_prime(50); get_prime(100); assert(phi[97]==96&&mu[97]==-1);
+    }
+
     int M=30000;
     get_prime(M);
     int bad=0,pcnt=0;

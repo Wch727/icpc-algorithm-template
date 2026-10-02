@@ -21,8 +21,9 @@ bool id_dfs(int dep,int lim,ll cur,ll target)
     {
         if(id_vis[i])continue;
         id_vis[i]=true;
-        if(id_dfs(dep+1,lim,cur+id_a[i],target))return true;
-        if(id_dfs(dep+1,lim,cur-id_a[i],target))return true;
+        bool ok=id_dfs(dep+1,lim,cur+id_a[i],target)||id_dfs(dep+1,lim,cur-id_a[i],target);
+        id_vis[i]=false;
+        if(ok)return true;
         id_vis[i]=false;
     }
     return false;
@@ -31,7 +32,8 @@ bool id_dfs(int dep,int lim,ll cur,ll target)
 // 返回最少用几个数；无解返回 -1
 int solve_iddfs(ll target)
 {
-    for(int lim=1;lim<=id_n;lim++)//上限从小到大
+    fill(id_vis,id_vis+25,false);
+    for(int lim=0;lim<=id_n;lim++)//上限从小到大
         if(id_dfs(0,lim,0,target))return lim;
     return -1;
 }
@@ -51,7 +53,7 @@ int ks_h()//O(25)
     int c=0;
     for(int i=0;i<KB;i++)
         for(int j=0;j<KB;j++)
-            if(ks[i][j]!=ks_goal[i][j])c++;
+            if(ks[i][j]!=-1&&ks[i][j]!=ks_goal[i][j])c++;
     return c;
 }
 
@@ -89,64 +91,16 @@ int ks_solve(int maxdepth)
 }
 
 // 暴力 BFS 求真实最少步数，用于对拍（状态空间小的时候可以用）
-int ks_bfs()
-{
-    string s0,t0;
-    for(int i=0;i<KB;i++)
-        for(int j=0;j<KB;j++)
-        {
-            s0.push_back((char)('0'+ks[i][j]+1));
-            t0.push_back((char)('0'+ks_goal[i][j]+1));
-        }
-    if(s0==t0)return 0;
-    map<string,int> dis;
-    queue<string> q;
-    dis[s0]=0;
-    q.push(s0);
-    while(!q.empty())
-    {
-        string u=q.front();
-        q.pop();
-        int p=u.find('0');
-        int x=p/KB,y=p%KB;
-        for(int i=1;i<=8;i++)
-        {
-            int xx=x+kdx[i],yy=y+kdy[i];
-            if(xx<0||xx>=KB||yy<0||yy>=KB)continue;
-            string v=u;
-            swap(v[p],v[xx*KB+yy]);
-            if(dis.count(v))continue;
-            dis[v]=dis[u]+1;
-            if(v==t0)return dis[v];
-            q.push(v);
-        }
-    }
-    return -1;
-}
-
-void ks_rand_start(mt19937 &rnd)
-{
-    int p[KB*KB];
-    for(int i=0;i<KB*KB;i++)p[i]=i;
-    for(int i=KB*KB-1;i>0;i--)swap(p[i],p[rnd()%(i+1)]);
-    for(int i=0;i<KB;i++)
-        for(int j=0;j<KB;j++)
-        {
-            int t=p[i*KB+j];
-            ks[i][j]=t%3-1;//-1 空格，0 白，1 黑
-            if(t%3==0)ks_sx=i,ks_sy=j;
-        }
-}
 
 // ========== 三、IDA*：九连环型旋钮（洛谷 P5507 思路）==========
 // n 个旋钮各 4 个状态，一次操作把旋钮 i 和它指向的旋钮 t[i] 都 +1（模 4）。
 // 估价：每个旋钮到 1 的最少次数之和的一半上取整。
-// 这个估价要求 t[i]!=i（每次操作改善两个不同旋钮），否则会高估、剪掉正解
+// 每步总共 +1 两次（允许 t[i]==i）；连续操作同一旋钮不能跳过。
 
 int cr_n;
 int cr_s[20],cr_t[20];
 int cr_sol,cr_lim;
-const int DIST1[4]={0,0,3,2};//状态 0/1/2/3 变到 1 的最少次数
+const int DIST1[4]={1,0,3,2};//状态 0/1/2/3 变到 1 的最少次数
 
 int cr_h()
 {
@@ -162,7 +116,6 @@ void cr_dfs(int g,int pre)
     if(g+h>cr_lim)return;
     for(int i=1;i<=cr_n;i++)
     {
-        if(i==pre)continue;//撤销上一步无意义
         cr_s[i]=(cr_s[i]+1)&3;
         cr_s[cr_t[i]]=(cr_s[cr_t[i]]+1)&3;
         cr_dfs(g+1,i);
@@ -180,37 +133,6 @@ int cr_solve(int maxdepth)
         cr_lim=lim;
         cr_dfs(0,0);
         if(cr_sol!=-1)return cr_sol;
-    }
-    return -1;
-}
-
-// 朴素 BFS 暴力，用于对拍（状态数 4^n，n<=6 才用）
-int cr_brute()
-{
-    int st=0,goal=0;
-    for(int i=1;i<=cr_n;i++){st|=cr_s[i]<<(2*(i-1));goal|=1<<(2*(i-1));}
-    map<int,int> dis;
-    queue<int> q;
-    dis[st]=0;
-    q.push(st);
-    while(!q.empty())
-    {
-        int u=q.front();
-        q.pop();
-        if(u==goal)return dis[u];
-        for(int i=1;i<=cr_n;i++)
-        {
-            int v=u;
-            int a=(v>>(2*(i-1)))&3;
-            v^=a<<(2*(i-1));
-            v|=((a+1)&3)<<(2*(i-1));
-            int b=(v>>(2*(cr_t[i]-1)))&3;
-            v^=b<<(2*(cr_t[i]-1));
-            v|=((b+1)&3)<<(2*(cr_t[i]-1));
-            if(dis.count(v))continue;
-            dis[v]=dis[u]+1;
-            q.push(v);
-        }
     }
     return -1;
 }

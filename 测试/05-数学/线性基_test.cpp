@@ -4,6 +4,12 @@
 
 int main()
 {
+    // 审核回归：覆盖原随机小值测试遗漏的边界。
+    {
+        LinearBasis z; for(int i=0;i<63;i++)z.insert(1LL<<i); z.build();
+        assert(z.query_kth(1ULL<<63)==LLONG_MAX&&z.query_kth(0)==-1);
+    }
+
     int bad=0;
     mt19937_64 rnd(20250707);
     // 1) 小数组：最大异或和与 2^n 暴力枚举子集对拍；第 k 小与排序后的全集对拍

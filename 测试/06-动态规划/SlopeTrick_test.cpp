@@ -1,0 +1,2 @@
+#include "../../06-动态规划/SlopeTrick.cpp"
+int main(){mt19937 g(89);for(int t=0;t<200;t++){SlopeTrick f;vector<long long> dp(201);for(int k=0;k<15;k++){int a=int(g()%41)-20;if(g()%2){f.prefix_min();for(int x=1;x<201;x++)dp[x]=min(dp[x],dp[x-1]);}f.add_abs(a);for(int x=0;x<201;x++)dp[x]+=abs(x-100-a);for(int x=40;x<=160;x++)assert(f.eval(x-100)==dp[x]);assert(f.min_value==*min_element(dp.begin(),dp.end()));}auto old=f;f.shift(-2,3);for(int x=-30;x<=30;x++){long long best=LLONG_MAX;for(int y=x-3;y<=x+2;y++)best=min(best,old.eval(y));assert(f.eval(x)==best);}}}

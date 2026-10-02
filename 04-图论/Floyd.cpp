@@ -12,7 +12,7 @@ void floyd()// 全源最短路 O(n^3)，允许负权边，不能有负环
     for(int k=1;k<=n;k++)
         for(int i=1;i<=n;i++)
             for(int j=1;j<=n;j++)
-                if(d[i][k]+d[k][j]<d[i][j])d[i][j]=d[i][k]+d[k][j];
+                if(d[i][k]<INF&&d[k][j]<INF&&d[i][k]+d[k][j]<d[i][j])d[i][j]=d[i][k]+d[k][j];
 }
 
 void closure()// 传递闭包 O(n^3)

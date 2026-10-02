@@ -2,6 +2,51 @@
 // 模板本体：02-数据结构/平衡树Splay.cpp
 #include "../../02-数据结构/平衡树Splay.cpp"
 
+int a[N],bf[N],bflen;
+
+// ---------- 暴力对照 ----------
+int bf_rank(int v)
+{
+    int c=0;
+    for(int i=1;i<=bflen;i++)if(bf[i]<v)c++;
+    return c;
+}
+int bf_kth(int k){return (k>=1&&k<=bflen)?bf[k]:0;}
+int bf_pre(int v)
+{
+    int ans=-INF;
+    for(int i=1;i<=bflen;i++)if(bf[i]<v&&bf[i]>ans)ans=bf[i];
+    return ans;
+}
+int bf_next(int v)
+{
+    int ans=INF;
+    for(int i=1;i<=bflen;i++)if(bf[i]>v&&bf[i]<ans)ans=bf[i];
+    return ans;
+}
+void bf_insert(int v)                                // 插入排序，保持升序
+{
+    bflen++;
+    int p=bflen;
+    while(p>1&&bf[p-1]>v)bf[p]=bf[p-1],p--;
+    bf[p]=v;
+}
+void bf_erase(int v)
+{
+    for(int i=1;i<=bflen;i++)
+        if(bf[i]==v)
+        {
+            for(int j=i;j<bflen;j++)bf[j]=bf[j+1];
+            bflen--;
+            return;
+        }
+}
+int bf_has(int v)
+{
+    for(int i=1;i<=bflen;i++)if(bf[i]==v)return 1;
+    return 0;
+}
+
 int rnd(int l,int r)
 {
     return rand()%(r-l+1)+l;
@@ -38,6 +83,14 @@ int expand(int *out)
 
 int main()
 {
+    // 审核回归：覆盖原随机小值测试遗漏的边界。
+    {
+        sp.clear(); for(int i=1;i<=1000;i++)sp.insert(i);
+        assert(sp.kth(1)==1&&sp.val[sp.root]==1);
+        assert(sp.find_node(1000)&&sp.val[sp.root]==1000);
+        assert(sp.get_rank(500)==499); sp.clear();
+    }
+
     srand(19260817);
 
     // 1. 文艺平衡树手测：1 2 3 4 5，翻转 [2,4] 应得 1 4 3 2 5

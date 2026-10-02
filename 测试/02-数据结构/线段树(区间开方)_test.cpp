@@ -10,6 +10,13 @@ int rnd(int l,int r)
 // 自测：随机区间开方 + 随机区间和，与暴力数组对拍
 int main()
 {
+    // 审核回归：覆盖原随机小值测试遗漏的边界。
+    {
+        n=1; a[1]=1000000000000000000LL-1;
+        seg.src=a; seg.build(1,1,1); seg.update(1,1,1,1,1);
+        assert(seg.query(1,1,1,1,1)==999999999LL);
+    }
+
     srand(19260817);
     ll bad=0,cnt=0;
     for(int t=1;t<=20;t++)

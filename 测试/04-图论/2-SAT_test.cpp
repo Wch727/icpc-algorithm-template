@@ -2,6 +2,8 @@
 // 模板本体：04-图论/2-SAT.cpp
 #include "../../04-图论/2-SAT.cpp"
 
+int cx[105],cvx[105],cy[105],cvy[105];// 自测用：存下所有条件
+
 int check_clauses()// 把 val[] 代回所有条件验证
 {
     for(int i=1;i<=m;i++)

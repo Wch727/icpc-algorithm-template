@@ -2,6 +2,14 @@
 // 模板本体：08-计算几何/旋转卡壳与多边形面积.cpp
 #include "../../08-计算几何/旋转卡壳与多边形面积.cpp"
 
+int in_convex_naive(vector<Point> &p,Point q)
+{
+    int n=p.size();
+    for(int i=0;i<n;i++)
+        if(sgn(cross(p[(i+1)%n]-p[i],q-p[i]))<0)return 0;
+    return 1;
+}
+
 // ================= 自测 =================
 
 void test_area()
@@ -40,7 +48,7 @@ void test_caliper()
     {
         int n=rnd()%12+1;
         vector<Point> q;
-        for(int i=0;i<n;i++)q.push_back(Point((rnd()%2001-1000)/10.0,(rnd()%2001-1000)/10.0));
+        for(int i=0;i<n;i++)q.push_back(Point(((int)(rnd()%2001)-1000)/10.0,((int)(rnd()%2001)-1000)/10.0));
         vector<Point> h=convex_hull(q);
         double got=rotating_diameter(h);
         double bf=0;
@@ -62,7 +70,7 @@ void test_caliper()
         sb/=2;
         if(fabs(sa-sb)>1e-6)ok=0;
     }
-    printf("[caliper] 300 组随机点集 旋转卡壳直径 vs O(n^2) 暴力 %s\n",ok?"全部通过":"失败");
+    printf("[caliper] 300 组随机点集 旋转卡壳直径 vs O(n^2) 暴力 %s\n",(assert(ok),ok?"全部通过":"失败"));
 }
 
 void test_in_convex()
@@ -76,7 +84,7 @@ void test_in_convex()
     int ok=1;
     for(int t=1;t<=500;t++)
     {
-        Point q((rnd()%1401-200)/100.0,(rnd()%1401-200)/100.0);
+        Point q(((int)(rnd()%1401)-200)/100.0,((int)(rnd()%1401)-200)/100.0);
         if(in_convex(h,q)!=in_convex_naive(h,q))ok=0;
     }
     // 三角形（非正多边形）也要对
@@ -84,14 +92,21 @@ void test_in_convex()
     tri.push_back(Point(0,0));tri.push_back(Point(5,1));tri.push_back(Point(2,4));
     for(int t=1;t<=500;t++)
     {
-        Point q((rnd()%601-50)/100.0,(rnd()%601-50)/100.0);
+        Point q(((int)(rnd()%601)-50)/100.0,((int)(rnd()%601)-50)/100.0);
         if(in_convex(tri,q)!=in_convex_naive(tri,q))ok=0;
     }
-    printf("[inconv] 1000 个随机点 二分判定 vs 朴素 O(n) 判定 %s\n",ok?"全部通过":"失败");
+    printf("[inconv] 1000 个随机点 二分判定 vs 朴素 O(n) 判定 %s\n",(assert(ok),ok?"全部通过":"失败"));
 }
 
 int main()
 {
+    // 审核回归：覆盖原随机小值测试遗漏的边界。
+    {
+        vector<Point> z;assert(in_convex(z,{0,0})==0&&rotating_diameter(z)==0);
+        vector<Point> p={{0,0},{1,0},{1,1},{0,1}};
+        assert(!in_convex(p,{0,2})&&!in_convex(p,{2,0})&&in_convex(p,{0,1}));
+    }
+
     test_area();
     test_caliper();
     test_in_convex();

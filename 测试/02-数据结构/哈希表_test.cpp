@@ -4,6 +4,14 @@
 
 int main()
 {
+    // 审核回归：覆盖原随机小值测试遗漏的边界。
+    {
+        ho.init();
+        for(int i=0;i<N;i++)assert(ho.insert(i));
+        assert(!ho.insert(N)); assert(!ho.count(N)); assert(ho.count(0));
+        ho.init();
+    }
+
     srand(20240513);
 
     hc.init(),ho.init();

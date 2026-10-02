@@ -11,12 +11,13 @@ int tot,last;
 int len[N],link[N],siz[N],cnt[N+2],id[N+2];
 int nxt[N][26];
 char str[N];// 1-indexed 原串，str[0] 放用不到的哨兵 '#'
-char pstr[N][27];// 便于对拍的缓存：该结点代表的回文串内容（只存长度 <=26 的）
+int pos[N];// 第一次出现的右端点；内容是 str[pos[u]-len[u]+1..pos[u]]
 
 // 清空 PAM，多组数据用
 void pam_init()
 {
     tot=1,last=0;
+    str[0]='#';
     len[0]=0,link[0]=1;
     len[1]=-1,link[1]=1;
     siz[0]=siz[1]=0;
@@ -38,16 +39,11 @@ void pam_extend(int i)
     if(!nxt[p][c])
     {
         int cur=++tot;
-        len[cur]=len[p]+2,siz[cur]=1;
+        len[cur]=len[p]+2,siz[cur]=1,pos[cur]=i;
         for(int j=0;j<26;j++)nxt[cur][j]=0;
         if(len[cur]==1)link[cur]=0;// 单字符回文的后缀链接是偶根
         else link[cur]=nxt[get_fail(link[p],i)][c];
         nxt[p][c]=cur;
-        if(len[cur]<=26)// 缓存串内容，仅用于自测
-        {
-            for(int k=0;k<len[cur];k++)pstr[cur][k]=str[i-len[cur]+1+k];
-            pstr[cur][len[cur]]=0;
-        }
     }
     else siz[nxt[p][c]]++;// 该回文串已经存在，出现次数 +1
     last=nxt[p][c];
@@ -55,6 +51,7 @@ void pam_extend(int i)
 
 // 按 len 基数排序，得到 len 单调不减的拓扑序 id[0..tot]，再沿 link 累加出现次数
 // len 最小是奇根的 -1，统一 +1 后落在 0..tot+1，所以桶和 id 都开到 tot+1
+// 所有字符加入后调用一次；累加后不要继续 extend/build。
 void pam_build()
 {
     int mx=tot+1;// 桶上界：len[i]+1 最大为 tot+1
@@ -70,10 +67,7 @@ void pam_build()
 }
 
 // 本质不同回文子串个数：去掉两个根
-int count_pal()
-{
-    return tot-1;
-}
+int count_pal(){return tot-1;}
 
 // 最长回文子串长度：所有结点 len 的最大值
 int longest_pal()

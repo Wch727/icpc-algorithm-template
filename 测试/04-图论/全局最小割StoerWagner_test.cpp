@@ -1,0 +1,2 @@
+#include "../../04-图论/全局最小割StoerWagner.cpp"
+int main(){mt19937 g(29);for(int t=0;t<300;t++){int n=2+g()%8;vector<vector<ll>> w(n,vector<ll>(n));for(int i=0;i<n;i++)for(int j=0;j<i;j++)w[i][j]=w[j][i]=g()%11;ll best=LLONG_MAX;for(int s=1;s<(1<<n)-1;s++){ll z=0;for(int i=0;i<n;i++)for(int j=0;j<i;j++)if(((s>>i)^(s>>j))&1)z+=w[i][j];best=min(best,z);}auto [z,cut]=global_min_cut(w);assert(z==best&&!cut.empty()&&(int)cut.size()<n);ll cost=0;vector<bool> in(n);for(int x:cut)in[x]=true;for(int i=0;i<n;i++)for(int j=0;j<i;j++)if(in[i]!=in[j])cost+=w[i][j];assert(cost==z);}}

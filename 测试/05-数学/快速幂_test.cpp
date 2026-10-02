@@ -4,6 +4,14 @@
 
 int main()
 {
+    // 审核回归：覆盖原随机小值测试遗漏的边界。
+    {
+        ll p=LLONG_MAX-24;
+        assert(qpow(2,0,1)==0&&qpow(-2,3,5)==2);
+        assert(qmul(p-1,p-1,p)==1&&qmul128(-2,3,5)==4);
+        assert(qpow_safe(p-1,2,p)==1&&qpow128(p-1,2,p)==1);
+    }
+
     // 1) 小数据与暴力逐次相乘对拍
     int bad=0;
     for(int a=0;a<=30;a++)

@@ -2,6 +2,57 @@
 // 模板本体：05-数学/行列式与矩阵树定理.cpp
 #include "../../05-数学/行列式与矩阵树定理.cpp"
 
+ll det_naive(ll a[N][N],int n)
+{
+    if(n==1)return a[1][1];
+    ll res=0;
+    ll b[N][N];
+    for(int j=1;j<=n;j++)
+    {
+        for(int i=2;i<=n;i++)
+        {
+            int c=0;
+            for(int k=1;k<=n;k++)
+            {
+                if(k==j)continue;
+                b[i-1][++c]=a[i][k];// 划掉第 1 行第 j 列
+            }
+        }
+        ll sub=det_naive(b,n-1);
+        if(j&1)res+=a[1][j]*sub;
+        else res-=a[1][j]*sub;
+    }
+    return res;
+}
+
+ll tree_naive(int n,ll g[N][N],int m,int eu[],int ev[])
+{
+    ll res=0;
+    for(int mask=0;mask<(1<<m);mask++)
+    {
+        if(__builtin_popcount(mask)!=n-1)continue;// 生成树恰好 n-1 条边
+        int fa[N];
+        for(int i=1;i<=n;i++)fa[i]=i;
+        function<int(int)> findd=[&](int x){return fa[x]==x?x:fa[x]=findd(fa[x]);};
+        bool ok=true;
+        for(int i=1;i<=m;i++)
+            if(mask>>(i-1)&1)
+            {
+                int a=findd(eu[i]),b=findd(ev[i]);
+                if(a==b){ok=false;break;}// 出现环
+                fa[a]=b;
+            }
+        if(ok)res++;
+    }
+    return res;
+}
+
+ll det_naive_mod(ll a[N][N],int n,ll p)
+{
+    ll v=det_naive(a,n);
+    return ((v%p)+p)%p;
+}
+
 int main()
 {
     int bad=0;

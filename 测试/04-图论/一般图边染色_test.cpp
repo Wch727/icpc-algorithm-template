@@ -1,0 +1,2 @@
+#include "../../04-图论/一般图边染色.cpp"
+int main(){mt19937 r(103);for(int t=0;t<500;t++){int n=r()%30;vector<pair<int,int>> e;vector<int>d(n);for(int i=0;i<n;i++)for(int j=0;j<i;j++)if(r()%3==0)e.push_back({i,j}),d[i]++,d[j]++;auto c=edgeColoring(n,e);int maxd=n?*max_element(d.begin(),d.end()):0;vector<set<int>> used(n);for(int k=0;k<(int)e.size();k++){auto [u,v]=e[k];assert(0<=c[k]&&c[k]<=maxd);assert(used[u].insert(c[k]).second&&used[v].insert(c[k]).second);}}}

@@ -2,8 +2,35 @@
 // 模板本体：08-计算几何/半平面交.cpp
 #include "../../08-计算几何/半平面交.cpp"
 
+vector<Point> brute(vector<Line> a)
+{
+    vector<Point> p={{-10,-10},{10,-10},{10,10},{-10,10}};
+    for(Line l:a)
+    {
+        vector<Point> b;
+        for(int i=0;i<(int)p.size();i++)
+        {
+            Point x=p[i],y=p[(i+1)%p.size()];
+            bool u=inside(l,x),v=inside(l,y);
+            if(u)b.push_back(x);
+            if(u!=v)b.push_back(meet(Line(x,y),l));
+        }
+        p=b;
+    }
+    return p;
+}
+
+vector<Line> box()
+{
+    return {Line({-10,-10},{10,-10}),Line({10,-10},{10,10}),Line({10,10},{-10,10}),Line({-10,10},{-10,-10})};
+}
+
 int main()
 {
+    {
+        auto a=box();a.emplace_back(Point{-10,0},Point{10,0});a.emplace_back(Point{10,0},Point{-10,0});
+        assert(half_plane(a).empty());
+    }
     srand(20260930);
     bool ok=fabs(area(half_plane(box()))-400)<EPS;
     vector<Line> a=box();

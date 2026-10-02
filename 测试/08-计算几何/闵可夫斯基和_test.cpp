@@ -2,6 +2,19 @@
 // 模板本体：08-计算几何/闵可夫斯基和.cpp
 #include "../../08-计算几何/闵可夫斯基和.cpp"
 
+vector<Point> brute(vector<Point> a,vector<Point> b)
+{
+    vector<Point> c;
+    for(Point x:a)for(Point y:b)c.push_back(x+y);
+    return hull(c);
+}
+
+bool same(vector<Point> a,vector<Point> b)
+{
+    sort(a.begin(),a.end()),sort(b.begin(),b.end());
+    return a==b;
+}
+
 int main()
 {
     srand(20260930);

@@ -1,3 +1,4 @@
+// 整体直径卡壳不直接给出每个顶点各自最远点；需要另证候选单调性或使用对应查询算法。
 #include<bits/stdc++.h>
 using namespace std;
 typedef long long ll;
@@ -11,7 +12,7 @@ struct Point
     Point operator+(const Point &b)const{return Point(x+b.x,y+b.y);}
     Point operator-(const Point &b)const{return Point(x-b.x,y-b.y);}
     Point operator*(double k)const{return Point(x*k,y*k);}
-    bool operator<(const Point &b)const{return x<b.x-EPS||(x<b.x+EPS&&y<b.y-EPS);}
+    bool operator<(const Point &b)const{return x!=b.x?x<b.x:y<b.y;}
     bool operator==(const Point &b)const{return fabs(x-b.x)<EPS&&fabs(y-b.y)<EPS;}
 };
 
@@ -28,19 +29,19 @@ double len(Point a){return sqrt(a.x*a.x+a.y*a.y);}
 double len2(Point a){return a.x*a.x+a.y*a.y;}
 
 // 极角排序，半平面 + 叉积，O(1) 比较
+// 排序比较不使用 EPS，避免破坏严格弱序；零向量无极角，实际应用应先去掉。
 bool cmp_polar(Point a,Point b)
 {
-    int ha=(a.y>EPS||(fabs(a.y)<=EPS&&a.x<-EPS))?1:0;
-    int hb=(b.y>EPS||(fabs(b.y)<=EPS&&b.x<-EPS))?1:0;
-    if(ha!=hb)return ha>hb;
-    return sgn(cross(a,b))>0;
+    int ha=a.y<0||(a.y==0&&a.x<0),hb=b.y<0||(b.y==0&&b.x<0);
+    if(ha!=hb)return ha<hb;
+    double v=cross(a,b);
+    return v!=0?v>0:len2(a)<len2(b);
 }
 
 // Andrew 单调链，返回逆时针凸包，O(n log n)
 vector<Point> convex_hull(vector<Point> p)
 {
     int n=p.size();
-    if(n<3)return p;
     sort(p.begin(),p.end());
     n=unique(p.begin(),p.end())-p.begin();
     p.resize(n);
@@ -84,7 +85,7 @@ double polygon_perimeter(vector<Point> &p)
 double rotating_diameter(vector<Point> &p)
 {
     int n=p.size();
-    if(n==1)return 0;
+    if(n<=1)return 0;
     if(n==2)return len(p[1]-p[0]);
     double ans=0;
     for(int i=0,j=1;i<n;i++)
@@ -118,12 +119,15 @@ double min_width(vector<Point> &p)
 int in_convex(vector<Point> &p,Point q)
 {
     int n=p.size();
+    if(!n)return 0;
     if(n==1)return q==p[0];
     if(n==2)
     {
         if(sgn(cross(p[1]-p[0],q-p[0]))!=0)return 0;
         return sgn(dot(q-p[0],q-p[1]))<=0;
     }
+    if(sgn(cross(p[1]-p[0],q-p[0]))==0)return sgn(dot(q-p[0],q-p[1]))<=0;
+    if(sgn(cross(p[n-1]-p[0],q-p[0]))==0)return sgn(dot(q-p[0],q-p[n-1]))<=0;
     if(sgn(cross(p[1]-p[0],q-p[0]))<0)return 0;//在 p0p1 外侧
     if(sgn(cross(p[n-1]-p[0],q-p[0]))>0)return 0;//在 p0p(n-1) 另一侧
     int lo=1,hi=n-1;
@@ -134,13 +138,4 @@ int in_convex(vector<Point> &p,Point q)
         else hi=mid;
     }
     return sgn(cross(p[(lo+1)%n]-p[lo],q-p[lo]))>=0;
-}
-
-// 朴素 O(n) 判定，用于对拍
-int in_convex_naive(vector<Point> &p,Point q)
-{
-    int n=p.size();
-    for(int i=0;i<n;i++)
-        if(sgn(cross(p[(i+1)%n]-p[i],q-p[i]))<0)return 0;
-    return 1;
 }

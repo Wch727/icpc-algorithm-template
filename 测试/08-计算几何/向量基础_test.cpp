@@ -33,7 +33,7 @@ void test_cross_seg()
         printf("[seg] 第 %d 组相交=%d (期望 %d)\n",i+1,got,cs[i].e);
         if(got!=cs[i].e)ok=0;
     }
-    printf("[seg] 4 组手算样例 %s\n",ok?"全部通过":"失败");
+    printf("[seg] 4 组手算样例 %s\n",(assert(ok),ok?"全部通过":"失败"));
 }
 
 void test_point_in_polygon()
@@ -65,11 +65,17 @@ void test_point_in_polygon()
         if(a==1)continue;//边界上凸包判定不保证，跳过
         if(a!=b)ok=0;
     }
-    printf("[inpoly] 300 个随机点，射线法与凸包判定一致 %s\n",ok?"全部通过":"失败");
+    printf("[inpoly] 300 个随机点，射线法与凸包判定一致 %s\n",(assert(ok),ok?"全部通过":"失败"));
 }
 
 int main()
 {
+    // 审核回归：覆盖原随机小值测试遗漏的边界。
+    {
+        bool ok; Point p=line_intersect({0,0},{2,0},{1,-1},{1,2},ok);
+        assert(ok&&fabs(p.x-1)<EPS&&fabs(p.y)<EPS);
+    }
+
     test_basic();
     test_cross_seg();
     test_point_in_polygon();

@@ -2,6 +2,19 @@
 // 模板本体：04-图论/最小树形图(朱刘算法).cpp
 #include "../../04-图论/最小树形图(朱刘算法).cpp"
 
+int on,om,oroot;// 自测用：原始点数/边数/根，都是 1-based
+int ou[N*N],ov[N*N];
+ll ow[N*N];
+ll bval;// 暴力算出的最小权值
+int bok;// 暴力是否找到
+
+ll run()// 把 1-based 数据转成 0..on-1 编号再调用模板
+{
+    n=on,m=om,root=oroot-1;
+    for(int i=1;i<=m;i++)e[i].u=ou[i]-1,e[i].v=ov[i]-1,e[i].w=ow[i];
+    return zhuliu();
+}
+
 void brute()// 枚举每个非根点选哪条入边，检查是否构成以 oroot 为根的树形图
 {
     bok=0,bval=0;

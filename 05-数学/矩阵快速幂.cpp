@@ -15,7 +15,6 @@ int M=2;// 矩阵阶数，用之前改成实际大小
 // 矩阵乘法，O(M^3)，取模版
 struct Matrix{
     ll a[10][10];
-    // O(1)，固定 10*10 存储清零；有效阶数来自全局 M。
     Matrix(){memset(a,0,sizeof(a));}
 };
 
@@ -67,19 +66,4 @@ ll fib(ll n)
     A.a[1][1]=1,A.a[1][2]=1,A.a[2][1]=1,A.a[2][2]=0;
     Matrix r=qpow(A,n-1);
     return r.a[1][1];
-}
-
-// 朴素递推，O(n)，当对拍基准
-// O(n)，线性递推作为小规模参考，不依赖 M，返回同一初值约定的第 n 项。
-ll fib_naive(ll n)
-{
-    ll x=1,y=1;
-    if(n<=0)return 0;
-    if(n<=2)return 1;
-    for(ll i=3;i<=n;i++)
-    {
-        ll z=(x+y)%mod;
-        x=y,y=z;
-    }
-    return y;
 }

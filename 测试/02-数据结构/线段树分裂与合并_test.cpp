@@ -1,0 +1,2 @@
+#include "../../02-数据结构/线段树分裂与合并.cpp"
+int main(){mt19937 g(73);for(int k=0;k<100;k++){int n=1+g()%100;SplitMergeSeg s(n);int root=0;vector<int>a(n);for(int i=0;i<n;i++)a[i]=g()%8,root=s.add(root,0,n-1,i,a[i]);for(int q=0;q<50;q++){int l=g()%n,r=g()%n;if(l>r)swap(l,r);int b=s.split(root,0,n-1,l,r);long long sum=accumulate(a.begin()+l,a.begin()+r+1,0LL);assert(s.t[b].sum==sum);assert(s.t[root].sum+sum==accumulate(a.begin(),a.end(),0LL));root=s.merge(root,b,0,n-1);assert(s.t[root].sum==accumulate(a.begin(),a.end(),0LL));}}}

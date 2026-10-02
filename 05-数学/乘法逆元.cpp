@@ -48,9 +48,8 @@ ll exgcd(ll a,ll b,ll &x,ll &y)
 ll inv_exgcd(ll a,ll p)
 {
     ll x,y;
-    // O(log min(a,b))，返回 gcd，引用 x/y 输出 ax+by=gcd。
     exgcd(a,p,x,y);
-    return (x%p+p)%p;
+    return (x%p<0?x%p+p:x%p);
 }
 
 // O(n)，线性递推求 1..n 的全部逆元（p 为素数且 n<p）

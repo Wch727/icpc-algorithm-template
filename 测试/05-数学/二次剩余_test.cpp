@@ -2,6 +2,27 @@
 // 模板本体：05-数学/二次剩余.cpp
 #include "../../05-数学/二次剩余.cpp"
 
+ll cipolla_naive(ll a,ll p)
+{
+    a=(a%p<0?a%p+p:a%p);
+    for(ll x=0;x<p;x++)
+        if((lll)x*x%p==a)return x;
+    return -1;
+}
+
+int count_qr_naive(ll p)
+{
+    int c=0;
+    for(ll x=1;x<p;x++)
+    {
+        bool ok=false;
+        for(ll y=0;y<p;y++)
+            if((lll)y*y%p==x%p){ok=true;break;}
+        if(ok)c++;
+    }
+    return c;
+}
+
 int main()
 {
     int bad=0;

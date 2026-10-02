@@ -8,8 +8,6 @@ int head[N],to[N<<1],nxt[N<<1],num;
 ll w[N<<1];
 ll dis[N];// dis[i] 就是变量 x_i 的一组可行解
 int cnt[N],inq[N];
-int eu[N],ev[N];// 自测用：记下所有约束，方便代回验证
-ll ew[N];
 
 void add_edge(int u,int v,ll c)// 有向边 u->v 权 c，表示 x_v <= x_u + c
 {

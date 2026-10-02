@@ -1,0 +1,2 @@
+#include "../../02-数据结构/WaveletTree.cpp"
+int main(){mt19937 r(67);WaveletTree e({});assert(e.count_le(0,0,3)==0);for(int t=0;t<100;t++){int n=1+r()%70;vector<long long>a(n);for(auto &x:a)x=int(r()%31)-15;WaveletTree w(a);for(int q=0;q<200;q++){int l=r()%n,h=l+1+r()%(n-l),k=r()%(h-l);vector<long long> b(a.begin()+l,a.begin()+h);sort(b.begin(),b.end());assert(w.kth(l,h,k)==b[k]);int x=int(r()%51)-25;assert(w.count_le(l,h,x)==upper_bound(b.begin(),b.end(),x)-b.begin());}}}

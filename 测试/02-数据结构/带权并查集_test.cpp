@@ -2,6 +2,15 @@
 // 模板本体：02-数据结构/带权并查集.cpp
 #include "../../02-数据结构/带权并查集.cpp"
 
+int n,vmod;
+int gid[305],val[305];//暴力：每个点的集合编号 + 在该集合内的"绝对"权值
+
+int norm(int x)
+{
+    if(vmod==0)return x;
+    return ((x%vmod)+vmod)%vmod;
+}
+
 void brute_init(int n_)
 {
     n=n_;

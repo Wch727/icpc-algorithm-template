@@ -14,8 +14,7 @@ int main()
     printf("手造图 Prim=%lld（期望 12）\n",prim(1));
     // 自测 2：不连通图，Kruskal 返回 -1；Prim 只吃到 1-2 那条边所在的连通块
     n=4,m=2;
-    for(int i=1;i<=n;i++)head[i]=0;
-    num=0;
+    for(int i=1;i<=n;i++)adj[i].clear();
     e[1].u=1,e[1].v=2,e[1].w=5;
     e[2].u=3,e[2].v=4,e[2].w=7;
     add_edge(1,2,5),add_edge(2,1,5);
@@ -24,9 +23,8 @@ int main()
     for(int t=1;t<=200;t++)
     {
         n=6;
-        for(int i=1;i<=n;i++)head[i]=0;
-        num=0;
-        m=0;
+        for(int i=1;i<=n;i++)adj[i].clear();
+            m=0;
         // 先造一棵随机生成树保证连通
         for(int i=2;i<=n;i++)
         {

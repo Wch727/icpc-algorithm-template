@@ -54,3 +54,16 @@ double point_line(Point p,Point a,Point v)
     if(len(v)<EPS)return len(p-a);
     return len(cross(p-a,v))/len(v);
 }
+
+// 绕坐标轴正方向按右手法则转 times*90 度，axis=0/1/2 为 x/y/z；避免 sin/cos 误差。
+Point rotate_axis(Point p,int axis,int times)
+{
+    assert(0<=axis&&axis<3);times=(times%4+4)%4;
+    while(times--)
+        if(axis==0)p={p.x,-p.z,p.y};
+        else if(axis==1)p={p.z,p.y,-p.x};
+        else p={-p.y,p.x,p.z};
+    return p;
+}
+// 非原点轴先减轴上基点，再旋转再加回；维护旋转矩阵时，列向量先 A 后 B 为 B*A。
+// 90 度矩阵：Rx=[1 0 0;0 0 -1;0 1 0]，Ry=[0 0 1;0 1 0;-1 0 0]，Rz=[0 -1 0;1 0 0;0 0 1]。

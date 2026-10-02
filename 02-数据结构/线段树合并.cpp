@@ -87,8 +87,3 @@ void dfs(int u,int fa)
     }
     ans[u]=seg.count_distinct(root[u]);
 }
-
-// 暴力：先把子树里的点全部标记出来（从 r 出发只往儿子走），再数颜色
-// 只往儿子走，就不会顺着无向边爬回父亲或跑出子树
-int vis[N],mark[N];
-vector<int> son[N];

@@ -2,6 +2,10 @@
 // 模板本体：04-图论/基环树.cpp
 #include "../../04-图论/基环树.cpp"
 
+// ---------- 自测用：暴力枚举所有简单环 / 校验环 ----------
+int bvis[15],bpath[15],bpc;
+set<int> bcyc;
+
 int check_cycle_edges(int *c,int len)// 校验 c[1..len] 是简单环
 {
     if(len<3)return 0;
@@ -55,6 +59,13 @@ ll brute_mis(int n_)
 
 int main()
 {
+    // 审核回归：覆盖原随机小值测试遗漏的边界。
+    {
+        n=2; ecnt=0; head[1]=head[2]=0; val[1]=3;val[2]=4;
+        add_edge(1,2); add_edge(1,2); assert(max_independent_set(1)==4);
+        n=1;ecnt=0;head[1]=0;val[1]=9;add_edge(1,1);assert(max_independent_set(1)==0);
+    }
+
     srand(20240516);
 
     // 自测 1：4 元环 1-2-3-4-1，再挂树：5-1、6-2、7-6

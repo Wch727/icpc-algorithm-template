@@ -5,6 +5,8 @@
 int main()
 {
     srand(19260817);
+    assert(count_subset(UINT_MAX,UINT_MAX)==(1ULL<<32));
+    assert(subset_sum({N,1})[1]&&!subset_sum({N,1})[N-1]);
     bool ok=subset_sum({2,3})[5]&&!subset_sum({2,3})[4];
     for(int t=1;t<=60;t++)
     {
@@ -43,7 +45,7 @@ int main()
             for(int v=0;v<n;v++)if(g[s][v]!=(bool)vis[v])ok=false;
         }
         unsigned mask=rand()%256,allow=rand()%256;
-        int cnt=0;
+        unsigned long long cnt=0;
         for(unsigned s=0;s<256;s++)if((s&mask)==s&&(s&allow)==s)cnt++;
         if(count_subset(mask,allow)!=cnt)ok=false;
     }

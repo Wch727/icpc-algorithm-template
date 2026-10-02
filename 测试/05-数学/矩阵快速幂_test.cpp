@@ -2,6 +2,19 @@
 // 模板本体：05-数学/矩阵快速幂.cpp
 #include "../../05-数学/矩阵快速幂.cpp"
 
+ll fib_naive(ll n)
+{
+    ll x=1,y=1;
+    if(n<=0)return 0;
+    if(n<=2)return 1;
+    for(ll i=3;i<=n;i++)
+    {
+        ll z=(x+y)%mod;
+        x=y,y=z;
+    }
+    return y;
+}
+
 int main()
 {
     M=2;

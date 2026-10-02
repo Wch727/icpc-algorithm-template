@@ -2,9 +2,20 @@
 // 模板本体：01-基础与技巧/高精度BigInt.cpp
 #include "../../01-基础与技巧/高精度BigInt.cpp"
 
+void chk(const char* name,const string& got,const string& want)
+{
+    if(got!=want){fprintf(stderr,"FAILED %s: got %s want %s\n",name,got.c_str(),want.c_str());exit(1);}
+}
+
 int main()
 {
     srand(20240523);
+    assert(BigInt(LLONG_MIN).to_string()==to_string(LLONG_MIN));
+    assert((BigInt(1)*INT_MIN).to_string()==to_string(INT_MIN));
+    assert(BigInt()==BigInt(0));
+    assert(BigInt("-000")==BigInt(0));
+    assert((BigInt(LLONG_MIN)/BigInt(-1)).to_string()=="9223372036854775808");
+    assert((BigInt(LLONG_MIN)%BigInt(-1)).to_string()=="0");
     // 自测1：手算样例，含负数、零、借位
     chk("add1",(BigInt("12")+BigInt("34")).to_string(),"46");
     chk("sub1",(BigInt("12")-BigInt("34")).to_string(),"-22");
@@ -46,7 +57,7 @@ int main()
         if((A<B)!=(x<y)||(A>B)!=(x>y)||(A==B)!=(x==y))
         {
             printf("fail cmp %lld %lld\n",x,y);
-            return 0;
+            return 1;
         }
     }
     printf("ll differential self-check OK\n");
@@ -65,7 +76,7 @@ int main()
         BigInt sqv=big*big;// (10^60-1)^2 = 10^120-2*10^60+1
         string sq=sqv.to_string();
         bool ok=(sq.size()==120)&&sq[0]=='9'&&sq[119]=='1'&&sq[59]=='8';
-        if(!ok)printf("fail square: len=%d head=%c tail=%c mid=%c\n",(int)sq.size(),sq[0],sq[119],sq[59]);
+        if(!ok){fprintf(stderr,"FAILED square structure\n");return 1;}
         chk("square_div",(sqv/big).to_string(),big.to_string());
     }
     printf("big digit self-check OK\n");

@@ -2,6 +2,38 @@
 // 模板本体：02-数据结构/二叉搜索树.cpp
 #include "../../02-数据结构/二叉搜索树.cpp"
 
+vector<int> bf;                 // 暴力容器：始终保持有序
+
+void bf_insert(int x)
+{
+    if(binary_search(bf.begin(),bf.end(),x))return;
+    bf.insert(lower_bound(bf.begin(),bf.end(),x),x);
+}
+void bf_erase(int x)
+{
+    vector<int>::iterator it=lower_bound(bf.begin(),bf.end(),x);
+    if(it!=bf.end()&&*it==x)bf.erase(it);
+}
+int bf_rank(int x)              // 比 x 小的个数
+{
+    return lower_bound(bf.begin(),bf.end(),x)-bf.begin();
+}
+int bf_kth(int k)
+{
+    if(k<1||k>(int)bf.size())return 0;
+    return bf[k-1];
+}
+int bf_pre(int x)
+{
+    int pos=lower_bound(bf.begin(),bf.end(),x)-bf.begin()-1;
+    return pos>=0?bf[pos]:-INF;
+}
+int bf_next(int x)
+{
+    int pos=upper_bound(bf.begin(),bf.end(),x)-bf.begin();
+    return pos<(int)bf.size()?bf[pos]:INF;
+}
+
 int main()
 {
     srand(20240513);

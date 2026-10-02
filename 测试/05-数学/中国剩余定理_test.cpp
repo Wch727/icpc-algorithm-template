@@ -4,6 +4,12 @@
 
 int main()
 {
+    // 审核回归：覆盖原随机小值测试遗漏的边界。
+    {
+        ll a1=-1,m1=LLONG_MAX-24;
+        assert(crt_merge(a1,m1,-1,m1)&&a1==m1-1);
+    }
+
     int bad=0;
     // 1) 互质版：与 [0,lcm) 暴力枚举对拍
     int ms1[4]={2,3,5,7};

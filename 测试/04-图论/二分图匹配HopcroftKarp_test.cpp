@@ -1,0 +1,2 @@
+#include "../../04-图论/二分图匹配HopcroftKarp.cpp"
+int main(){mt19937 r(12);for(int t=0;t<300;t++){int n=r()%8,m=r()%8;HopcroftKarp h(n,m);for(int u=0;u<n;u++)for(int v=0;v<m;v++)if(r()%2)h.g[u].push_back(v);auto dfs=[&](auto&&dfs,int u,int mask)->int{if(u==n)return 0;int z=dfs(dfs,u+1,mask);for(int v:h.g[u])if(!(mask>>v&1))z=max(z,1+dfs(dfs,u+1,mask|(1<<v)));return z;};assert(h.solve()==dfs(dfs,0,0));assert(h.solve()==dfs(dfs,0,0));}}

@@ -85,13 +85,7 @@ struct Splay{
     // 删除一个值 v（删掉一次出现）
     void erase(int v)
     {
-        int p=root;
-        while(p)
-        {
-            push_down(p);
-            if(val[p]==v)break;
-            p=ch[p][v>val[p]];
-        }
+        int p=find_node(v);
         if(!p)return;                                // 不存在
         splay(p);
         if(num[p]>1){num[p]--,push_up(p);return;}
@@ -108,27 +102,31 @@ struct Splay{
         ch[q][1]=r,fa[r]=q,push_up(q);
     }
     // 找值为 v 的结点，没有返回 0
+
     int find_node(int v)
     {
-        int p=root;
+        int p=root,last=0;
         while(p)
         {
-            push_down(p);
-            if(val[p]==v)return p;
+            push_down(p); last=p;
+            if(val[p]==v){splay(p); return p;}
             p=ch[p][v>val[p]];
         }
+        if(last)splay(last);
         return 0;
     }
+
     // 严格小于 v 的个数（0 起）
     int get_rank(int v)
     {
-        int p=root,ans=0;
+        int p=root,last=0,ans=0;
         while(p)
         {
-            push_down(p);
+            push_down(p); last=p;
             if(v<=val[p])p=ch[p][0];
             else ans+=sz[ch[p][0]]+num[p],p=ch[p][1];
         }
+        if(last)splay(last);
         return ans;
     }
     // 第 k 小（k 从 1 开始），不存在返回 0
@@ -140,31 +138,33 @@ struct Splay{
         {
             push_down(p);
             if(k<=sz[ch[p][0]])p=ch[p][0];
-            else if(k<=sz[ch[p][0]]+num[p])return val[p];
+            else if(k<=sz[ch[p][0]]+num[p]){int v=val[p]; splay(p); return v;}
             else k-=sz[ch[p][0]]+num[p],p=ch[p][1];
         }
         return 0;
     }
     int get_pre(int v)                               // 严格小于 v 的最大值
     {
-        int p=root,ans=-INF;
+        int p=root,last=0,ans=-INF;
         while(p)
         {
-            push_down(p);
+            push_down(p); last=p;
             if(val[p]<v)ans=val[p],p=ch[p][1];
             else p=ch[p][0];
         }
+        if(last)splay(last);
         return ans;
     }
     int get_next(int v)                              // 严格大于 v 的最小值
     {
-        int p=root,ans=INF;
+        int p=root,last=0,ans=INF;
         while(p)
         {
-            push_down(p);
+            push_down(p); last=p;
             if(val[p]>v)ans=val[p],p=ch[p][0];
             else p=ch[p][1];
         }
+        if(last)splay(last);
         return ans;
     }
     // ---------- 以下是文艺平衡树 ----------
@@ -225,47 +225,3 @@ struct Splay{
 };
 
 Splay sp;
-int a[N],bf[N],bflen;
-
-// ---------- 暴力对照 ----------
-int bf_rank(int v)
-{
-    int c=0;
-    for(int i=1;i<=bflen;i++)if(bf[i]<v)c++;
-    return c;
-}
-int bf_kth(int k){return (k>=1&&k<=bflen)?bf[k]:0;}
-int bf_pre(int v)
-{
-    int ans=-INF;
-    for(int i=1;i<=bflen;i++)if(bf[i]<v&&bf[i]>ans)ans=bf[i];
-    return ans;
-}
-int bf_next(int v)
-{
-    int ans=INF;
-    for(int i=1;i<=bflen;i++)if(bf[i]>v&&bf[i]<ans)ans=bf[i];
-    return ans;
-}
-void bf_insert(int v)                                // 插入排序，保持升序
-{
-    bflen++;
-    int p=bflen;
-    while(p>1&&bf[p-1]>v)bf[p]=bf[p-1],p--;
-    bf[p]=v;
-}
-void bf_erase(int v)
-{
-    for(int i=1;i<=bflen;i++)
-        if(bf[i]==v)
-        {
-            for(int j=i;j<bflen;j++)bf[j]=bf[j+1];
-            bflen--;
-            return;
-        }
-}
-int bf_has(int v)
-{
-    for(int i=1;i<=bflen;i++)if(bf[i]==v)return 1;
-    return 0;
-}

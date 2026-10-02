@@ -27,6 +27,14 @@ ll brute(int k,map<ll,ll> &df,ll L,ll R)
 
 int main()
 {
+    // 审核回归：覆盖原随机小值测试遗漏的边界。
+    {
+        DynSeg z(LLONG_MAX-20,LLONG_MAX-1);
+        z.add(LLONG_MAX-19,LLONG_MAX-18,3);
+        assert(z.sum(LLONG_MAX-20,LLONG_MAX-1)==6);
+        assert(z.sum(0,1)==0);
+    }
+
     srand(20240513);
 
     // 1. 小样例（值域 1..1e9，只用到 1..8 这几个位置）

@@ -64,8 +64,7 @@ Heap<int,CmpMax> mx;                   // 大根堆
 Heap<int,CmpMax> hs;                   // 堆排序专用的大根堆（全局，避免爆栈）
 
 // 堆排序：升序，先建大根堆，再把堆顶换到末尾、缩小堆
-template<typename T>
-void heap_sort(T *src,int len)
+void heap_sort(int *src,int len)
 {
     hs.clear();
     hs.build(src,len);

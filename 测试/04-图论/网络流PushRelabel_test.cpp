@@ -1,0 +1,2 @@
+#include "../../04-图论/网络流PushRelabel.cpp"
+int main(){mt19937 r(107);for(int t=0;t<400;t++){int n=2+r()%7;PushRelabel f(n);vector<tuple<int,int,ll>> e;for(int u=0;u<n;u++)for(int v=0;v<n;v++)if(u!=v&&r()%3==0){ll c=r()%20;f.addEdge(u,v,c);e.push_back({u,v,c});}ll best=LLONG_MAX;for(int s=0;s<(1<<n);s++)if((s&1)&&!(s>>(n-1)&1)){ll z=0;for(auto [u,v,c]:e)if((s>>u&1)&&!(s>>v&1))z+=c;best=min(best,z);}assert(f.calc(0,n-1)==best);ll cut=0;for(auto [u,v,c]:e)if(f.leftOfMinCut(u)&&!f.leftOfMinCut(v))cut+=c;assert(cut==best);}}

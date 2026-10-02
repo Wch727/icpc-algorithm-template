@@ -68,7 +68,7 @@ void test_split()
             printf("  第 %d 组对拍失败: 剪枝=%d 暴力=%d\n",t,best,bf);
         }
     }
-    printf("[split] 200 组随机数据与暴力对拍 %s\n",ok?"全部通过":"失败");
+    printf("[split] 200 组随机数据与暴力对拍 %s\n",(assert(ok),ok?"全部通过":"失败"));
     n=5;
     for(int i=1;i<=5;i++)a[i]=i;
     sum_rest[n+1]=0;

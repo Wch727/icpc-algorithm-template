@@ -1,82 +1,72 @@
-// 适用：最近较大/较小元素、可见对计数；a[1..n]，结果 0 表示不存在。
-// 严格与非严格关系决定弹栈条件；相等值是否挡住视线必须按题意选。
-// 调用前保证 n+2<=N；计数可能达到 n(n-1)/2，返回值使用 ll。
 #include<bits/stdc++.h>
 using namespace std;
 typedef long long ll;
+
 const int N=1000005;
+int n,a[N],st[N],top,ans[N];
 
-// 单调栈：每个元素最多入栈出栈一次，O(n)
-int n;
-int a[N];
-int nge[N];// 右边第一个 >a[i] 的下标，没有记 0
-int nge2[N];// 右边第一个 >=a[i] 的下标，没有记 0
-int nse[N];// 右边第一个 <a[i] 的下标，没有记 0
-int nle[N];// 左边第一个 <=a[i] 的下标，没有记 0
-int st[N],top;// 手写数组栈，比 stack<int> 快
-int bf1[N],bf2[N],bf3[N],bf4[N];// 暴力对拍用
-
-// O(n)，填 nge：右侧最近严格较大的下标；弹栈时当前 i 是首次满足条件的位置。
-void get_nge()// 下一个更大元素：栈内下标对应值单调递减
+// O(n)，右边第一个严格更大的下标，不存在为 0。
+void right_greater()
 {
     top=0;
-    memset(nge,0,sizeof(int)*(n+2));
+    fill(ans+1,ans+n+1,0);
     for(int i=1;i<=n;i++)
     {
-        while(top>0&&a[st[top]]<a[i])nge[st[top]]=i,top--;
+        while(top&&a[st[top]]<a[i])ans[st[top--]]=i;
         st[++top]=i;
     }
 }
 
-// O(n)，填 nge2：右侧最近大于等于的下标；相等也弹出并确定答案。
-void get_nge2()// 下一个大于等于：弹栈条件改成 <=，保证相等不互相吃掉
+// O(n)，左边第一个严格更小的下标，不存在为 0。
+void left_less()
 {
     top=0;
-    memset(nge2,0,sizeof(int)*(n+2));
     for(int i=1;i<=n;i++)
     {
-        while(top>0&&a[st[top]]<=a[i])nge2[st[top]]=i,top--;
+        while(top&&a[st[top]]>=a[i])top--;
+        ans[i]=top?st[top]:0;
         st[++top]=i;
     }
 }
+// 右侧写法：弹栈时给旧元素赋答案；左侧写法：弹栈后给当前元素赋答案。
+// 修改比较方向可求较大/较小；是否包含等号由题意决定。
 
-// O(n)，填 nse：右侧最近严格较小的下标；未弹出的元素答案保持 0。
-void get_nse()// 下一个更小元素
+// 柱状图最大矩形：a[1..n] 为非负高度，柱宽为 1，O(n)。
+// 弹出 j 时，右边界 i、左边界为弹出后的栈顶 L，可覆盖 [L+1,i-1]。
+ll histogram()
 {
     top=0;
-    memset(nse,0,sizeof(int)*(n+2));
-    for(int i=1;i<=n;i++)
+    ll res=0;
+    for(int i=1;i<=n+1;i++)
     {
-        while(top>0&&a[st[top]]>a[i])nse[st[top]]=i,top--;
-        st[++top]=i;
+        while(top&&(i==n+1||a[st[top]]>=a[i]))
+        {
+            int j=st[top--],L=top?st[top]:0;
+            res=max(res,1LL*a[j]*(i-L-1));
+        }
+        if(i<=n)st[++top]=i;
     }
+    return res;
 }
+// n+1 只负责清空栈，不访问 a[n+1]；等高柱合并后由更靠右的柱继续扩展。
 
-// O(n)，填 nle：左侧最近小于等于的下标；弹完较大者后先查栈顶再入栈。
-void get_nle()// 从左往右扫，得到左边第一个 <=a[i]
+// 所有非空子数组的最小值之和，O(n)，乘积/总和须在 ll 范围内。
+// j 左侧第一个 < a[j] 的位置为 L，右侧第一个 <= a[j] 的位置为 R。
+// 左端点有 j-L 种，右端点有 R-j 种，贡献 a[j]*(j-L)*(R-j)。
+ll sum_min()
 {
     top=0;
-    memset(nle,0,sizeof(int)*(n+2));
-    for(int i=1;i<=n;i++)
+    ll res=0;
+    for(int i=1;i<=n+1;i++)
     {
-        while(top>0&&a[st[top]]>a[i])top--;// 弹掉左边比它大的，栈里全 <=a[i]
-        if(top>0)nle[i]=st[top];// 栈顶就是离它最近的那个
-        st[++top]=i;
+        while(top&&(i==n+1||a[st[top]]>=a[i]))
+        {
+            int j=st[top--],L=top?st[top]:0;
+            res+=1LL*a[j]*(j-L)*(i-j);
+        }
+        if(i<=n)st[++top]=i;
     }
+    return res;
 }
-
-// O(n)，统计右向可见对；只保留尚未遇到大于等于自身高度的左侧牛，空间 O(n)。
-ll count_see()// 洛谷 P2866：每头牛向右能看到的牛数之和
-{
-    // 反过来数：连续一段严格矮于它的才会被它挡住视线
-    // 维护一个「严格递减」的栈（存身高）：把 <=a[i] 的全弹掉，剩下的都能看见第 i 头牛
-    top=0;
-    ll ans=0;
-    for(int i=1;i<=n;i++)
-    {
-        while(top>0&&a[st[top]]<=a[i])top--;// 矮的或一样高的都出栈
-        ans+=top;
-        st[++top]=i;
-    }
-    return ans;
-}
+// 一侧严格、一侧非严格，把相同最小值归给最右位置，避免重复或遗漏。
+// 求最大值之和：>= 改为 <=；子数组极差之和 = 最大值之和 - 最小值之和。

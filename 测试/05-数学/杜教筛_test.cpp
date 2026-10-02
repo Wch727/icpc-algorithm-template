@@ -2,8 +2,31 @@
 // 模板本体：05-数学/杜教筛.cpp
 #include "../../05-数学/杜教筛.cpp"
 
+ll phi_naive_sum(ll n)
+{
+    ll res=0;
+    for(ll i=1;i<=n;i++)
+    {
+        ll x=i,r=x;
+        for(ll j=2;j*j<=x;j++)
+            if(x%j==0)
+            {
+                r=r/j*(j-1);
+                while(x%j==0)x/=j;
+            }
+        if(x>1)r=r/x*(x-1);
+        res+=r;
+    }
+    return res;
+}
+
 int main()
 {
+    // 审核回归：覆盖原随机小值测试遗漏的边界。
+    {
+        get_pre(10); assert(du_phi(30)==278); get_pre(20); assert(du_phi(30)==278);
+    }
+
     int P=1000000;// 预处理上界；取 n^(2/3) 量级，这里为了对拍取大一点
     get_pre(P);
     int bad=0;

@@ -2,7 +2,7 @@
 using namespace std;
 const int N=513;
 
-// O(n*S/字长)，非负整数子集和，所有可表示的和必须小于 N
+// O(n*N/字长)，非负整数子集和，保留 0..N-1；只需 N 大于查询上限。
 bitset<N> subset_sum(const vector<int> &a)
 {
     bitset<N> f;
@@ -15,7 +15,7 @@ bitset<N> subset_sum(const vector<int> &a)
     return f;
 }
 
-// O(n^3/字长)，传递闭包；包含长度为 0 的路径
+// O(n²*N/字长)，传递闭包；包含长度为 0 的路径，高于 n-1 的输入位应清零。
 void closure(vector<bitset<N> > &g)
 {
     int n=g.size();
@@ -25,16 +25,5 @@ void closure(vector<bitset<N> > &g)
         for(int i=0;i<n;i++)if(g[i][k])g[i]|=g[k];
 }
 
-// 小全集子集枚举：一次位运算判断子集是否落在允许集合
-int count_subset(unsigned mask,unsigned allow)
-{
-    int ans=0;
-    unsigned s=mask;
-    while(true)
-    {
-        if((s&allow)==s)ans++;
-        if(!s)break;
-        s=(s-1)&mask;
-    }
-    return ans;
-}
+// mask 的子集中同时属于 allow 的个数（含空集）：交集中的每一位自由选，O(1)。
+unsigned long long count_subset(unsigned mask,unsigned allow){return 1ULL<<__builtin_popcount(mask&allow);}

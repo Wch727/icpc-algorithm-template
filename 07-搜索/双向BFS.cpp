@@ -136,7 +136,3 @@ int bibfs_num(ull s,ull t)
     }
     return best==0x3f3f3f3f?-1:best;
 }
-
-// ---------- 三、自测 ----------
-
-mt19937 rnd(20240607);

@@ -30,7 +30,6 @@
 /_台账/_raw*
 /_台账/_progress*
 /_台账/tag_dropdown.csv
-/_台账/verify.py
 /_台账/拆分模板与测试.py
 /_台账/修正拆分.py
 /_台账/codex*日志.txt
@@ -48,3 +47,7 @@ bin/
 *.o
 *.obj
 *.out
+
+# Python 缓存
+__pycache__/
+*.py[cod]

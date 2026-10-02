@@ -6,12 +6,13 @@ int main()
 {
     // 自测 1：手造图 1-2 2-3 3-1 3-4 4-5 5-6 6-4（两个环靠 3-4 相连）
     n=6;
-    int uu[7]={0,1,2,3,3,4,5},vv[7]={0,2,3,1,4,5,6};
-    for(int i=1;i<=6;i++)add_undirected(uu[i],vv[i]);
+    int uu[8]={0,1,2,3,3,4,5,6},vv[8]={0,2,3,1,4,5,6,4};
+    for(int i=1;i<=7;i++)add_undirected(uu[i],vv[i]);
     for(int i=1;i<=n;i++)if(!dfn[i])tarjan(i,0);
+    assert(is_cut[3]&&is_cut[4]&&!is_cut[5]&&ecnt==1);
     printf("割点：");
     for(int i=1;i<=n;i++)if(is_cut[i])printf("%d ",i);
-    printf("\n期望 3 4 5（5 在 4-6 环上是割点）\n");
+    printf("\n期望 3 4\n");
     printf("桥：");
     for(int i=1;i<=ecnt;i++)printf("(%d,%d) ",ea[i],eb[i]);
     printf("\n期望 (3,4)\n");

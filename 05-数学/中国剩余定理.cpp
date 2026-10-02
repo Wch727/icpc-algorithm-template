@@ -40,7 +40,7 @@ ll crt(int n,ll a[],ll m[])
         x=(x%m[i]+m[i])%m[i];
         ans=(ans+(__int128)a[i]*Mi%M*x)%M;
     }
-    return (ans%M+M)%M;
+    return (ans%M<0?ans%M+M:ans%M);
 }
 
 // 扩展 CRT（模数不必互质）：合并 x === a1 (mod m1) 与 x === a2 (mod m2)
@@ -49,16 +49,20 @@ ll crt(int n,ll a[],ll m[])
 // O(log min(m1,m2))，成功时原地更新 a1/m1；失败返回 false，m1 是 lcm 周期。
 bool crt_merge(ll &a1,ll &m1,ll a2,ll m2)
 {
+    a1%=m1;if(a1<0)a1+=m1;
+    a2%=m2;if(a2<0)a2+=m2;
     ll x,y;
     ll g=exgcd(m1,m2,x,y);
     ll d=a2-a1;
     if(d%g)return false;// 无解
     ll t=m2/g;
     x=(ll)((__int128)(d/g)%t*x%t);
-    x=(x%t+t)%t;
-    a1=a1+(__int128)m1*x;
-    m1=m1/g*m2;// lcm
-    a1=(a1%m1+m1)%m1;
+    x=(x%t<0?x%t+t:x%t);
+    __int128 next_mod=(__int128)(m1/g)*m2;
+    assert(next_mod<=LLONG_MAX);
+    a1=(a1+(__int128)m1*x)%next_mod;
+    m1=(ll)next_mod;// lcm
+    a1=(a1%m1<0?a1%m1+m1:a1%m1);
     return true;
 }
 
@@ -69,5 +73,5 @@ ll crt_ex(int n,ll a[],ll m[])
     ll ra=a[1],rm=m[1];
     for(int i=2;i<=n;i++)
         if(!crt_merge(ra,rm,a[i],m[i]))return -1;
-    return (ra%rm+rm)%rm;
+    return (ra%rm<0?ra%rm+rm:ra%rm);
 }

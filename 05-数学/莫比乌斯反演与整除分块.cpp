@@ -20,6 +20,8 @@ ll sum_mu[N];// mu 的前缀和（杜教筛 / 整除分块都要用）
 void get_mu(int n)
 {
     cnt=0;
+    fill(vis,vis+n+1,false);
+    sum_mu[0]=0;
     mu[1]=1;
     for(int i=2;i<=n;i++)
     {
@@ -71,7 +73,6 @@ ll sum_mu_mul_g(int n,ll g[],int gn)
     return res;
 }
 
-// O(log n)，数论分块求 Σ_{i=1}^{n} floor(n/i)，用于自测分块边界
 // O(sqrt n)，合并等商区间求 floor(n/i) 总和；原 O(log n) 注释不适用于此循环。
 ll sum_floor(int n)
 {
@@ -96,34 +97,5 @@ ll sum_coprime(int n,int m)
         r=min(n/(n/l),m/(m/l));// 两个商同时不变的最远位置
         res+=(ll)(sum_mu[r]-sum_mu[l-1])*(n/l)*(m/l);
     }
-    return res;
-}
-
-// O(n^2)，暴力数 gcd，对拍用
-// O(n*m*log(max(n,m))) 上界，逐对 gcd 核对反演公式。
-ll sum_coprime_naive(int n,int m)
-{
-    ll res=0;
-    for(int i=1;i<=n;i++)
-        for(int j=1;j<=m;j++)
-            if(__gcd(i,j)==1)res++;
-    return res;
-}
-
-// O(n)，暴力枚举倍数求 Σ mu[i]*(n/i)，对拍整除分块用
-// O(n)，逐项求和；须预先有 mu[1..n]。
-ll sum_mu_div_naive(int n)
-{
-    ll res=0;
-    for(int i=1;i<=n;i++)res+=(ll)mu[i]*(n/i);
-    return res;
-}
-
-// O(sqrt n)，由 mu 前缀和暴力求 Σ mu[i]，对拍线性筛前缀和用
-// O(n)，逐项累加 mu[1..n]；原 O(sqrt n) 注释与实际循环不符。
-int mertens_naive(int n)
-{
-    int res=0;
-    for(int i=1;i<=n;i++)res+=mu[i];
     return res;
 }

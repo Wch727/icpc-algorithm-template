@@ -7,7 +7,6 @@ typedef long long ll;
 const int N=100005;
 int n,m,block;
 int a[N],ans[N],cnt[N],now;
-int ql[N],qr[N];                 // 自测用：保留原始询问左右端点（solve 会把 q 排序）
 
 struct Query{
     int l,r,id;

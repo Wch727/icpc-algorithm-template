@@ -1,0 +1,2 @@
+#include "../../04-图论/带权二分图匹配Hungarian.cpp"
+int main(){mt19937 r(37);assert(hungarian({}).first==0);for(int t=0;t<300;t++){int n=1+r()%5,m=n+r()%3;vector<vector<ll>> c(n,vector<ll>(m));for(auto &a:c)for(auto &x:a)x=int(r()%41)-20;auto dfs=[&](auto&&dfs,int i,int mask)->ll{if(i==n)return 0;ll z=LLONG_MAX;for(int j=0;j<m;j++)if(!(mask>>j&1))z=min(z,c[i][j]+dfs(dfs,i+1,mask|(1<<j)));return z;};auto [z,a]=hungarian(c);assert(z==dfs(dfs,0,0));set<int> used(a.begin(),a.end());assert((int)used.size()==n);ll sum=0;for(int i=0;i<n;i++)sum+=c[i][a[i]];assert(sum==z);}}

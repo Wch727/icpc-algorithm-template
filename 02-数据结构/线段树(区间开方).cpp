@@ -4,7 +4,7 @@ typedef long long ll;
 const int N=100005;
 
 // 线段树：区间开方(向下取整) + 区间和
-// 关键性质：一个数最多开方 6 次就变成 1，之后开方不变，用 flag 剪枝
+// 非负整数；64 位整数最多开方 7 次变成 0/1，用 flag 剪枝。区间和须不溢出。
 // 均摊复杂度 O((n+m) log n)
 template<typename T,int NMAX=N>
 struct SegmentTree
@@ -32,7 +32,10 @@ struct SegmentTree
         if(flag[p])return;//全 0/1，开方不变
         if(l==r)
         {
-            tr[p]=(T)sqrt((double)tr[p]),flag[p]=(tr[p]<=1);
+            T v=tr[p],x=(T)sqrtl((long double)v);
+            while((__int128)x*x>v)--x;
+            while((__int128)(x+1)*(x+1)<=v)++x;
+            tr[p]=x,flag[p]=(x<=1);
             return;
         }
         update(L,R,l,mid,lp);

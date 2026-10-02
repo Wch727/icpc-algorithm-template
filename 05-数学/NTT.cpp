@@ -67,28 +67,16 @@ void ntt(ll a[],int n,int inv)
 // O(L log L)，输出 c[0..clen-1]；clen 引用返回 n+m-1，c 至少有这些槽。
 void poly_mul(ll a[],int n,ll b[],int m,ll c[],int &clen)
 {
+    if(n<=0||m<=0){clen=0;return;}
     int len=1;
     while(len<n+m-1)len<<=1;
+    assert(len<=N);
     static ll x[N],y[N];
-    for(int i=0;i<len;i++)x[i]=(i<n?a[i]:0),y[i]=(i<m?b[i]:0);
-    // O(n log n)，a[0..n-1] 原地变换，inv=0/1 表示正/逆；位反转保证迭代合并顺序。
+    for(int i=0;i<len;i++)x[i]=(i<n?(a[i]%mod+mod)%mod:0),y[i]=(i<m?(b[i]%mod+mod)%mod:0);
     ntt(x,len,0);
-    // O(n log n)，a[0..n-1] 原地变换，inv=0/1 表示正/逆；位反转保证迭代合并顺序。
     ntt(y,len,0);
     for(int i=0;i<len;i++)x[i]=x[i]*y[i]%mod;
-    // O(n log n)，a[0..n-1] 原地变换，inv=0/1 表示正/逆；位反转保证迭代合并顺序。
     ntt(x,len,1);
     clen=n+m-1;
     for(int i=0;i<clen;i++)c[i]=x[i];
-}
-
-// O(n^2)，暴力卷积，对拍基准
-// O(n*m)，按次数相加卷积，输出与 poly_mul 相同；小规模可用来核对结果。
-void mul_naive(ll a[],int n,ll b[],int m,ll c[],int &clen)
-{
-    clen=n+m-1;
-    for(int i=0;i<clen;i++)c[i]=0;
-    for(int i=0;i<n;i++)
-        for(int j=0;j<m;j++)
-            c[i+j]=(c[i+j]+a[i]*b[j])%mod;
 }

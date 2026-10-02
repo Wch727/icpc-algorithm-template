@@ -1,0 +1,3 @@
+#include "../../08-计算几何/多边形面积并.cpp"
+vector<Point> rect(double x,double y,double X,double Y){return {{x,y},{X,y},{X,Y},{x,Y}};}
+int main(){auto eq=[](double a,double b){assert(fabs(a-b)<1e-7);};auto a=rect(0,0,2,2);eq(polygon_union_area({a,a}),4);eq(polygon_union_area({a,rect(1,1,3,3)}),7);eq(polygon_union_area({a,rect(2,0,4,2)}),8);eq(polygon_union_area({a,rect(.5,.5,1,1)}),4);mt19937 r(41);for(int t=0;t<200;t++){vector<vector<Point>> p;bool grid[10][10]={};for(int j=0;j<5;j++){int x=r()%8,y=r()%8,X=x+1+r()%(9-x),Y=y+1+r()%(9-y);p.push_back(rect(x,y,X,Y));for(int i=x;i<X;i++)for(int k=y;k<Y;k++)grid[i][k]=1;}int count=0;for(auto &a:grid)for(bool x:a)count+=x;eq(polygon_union_area(p),count);}}

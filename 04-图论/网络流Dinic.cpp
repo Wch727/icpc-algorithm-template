@@ -4,6 +4,8 @@
 // 关键：只走层数加一的边；当前弧按引用推进，失败边不反复扫描。
 // 易错：调用会修改 cap；重新求原图最大流须重建，head 清零且 num=1。
 // 复杂度：一般图 O(n^2*m)，空间 O(n+m)；递归深度最坏 O(n)。
+// 最大权闭合图：选 u 必须选 v 就连 u->v(INF)；正权连 S->u(w)，负权连 u->T(-w)。
+// 最优值=正权总和-最小割；最后残量图中 S 可达点即选集。INF 大于所有有限容量总和且不溢出。
 #include<bits/stdc++.h>
 using namespace std;
 typedef long long ll;

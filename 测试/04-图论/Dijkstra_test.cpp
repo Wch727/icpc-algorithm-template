@@ -2,16 +2,14 @@
 // 模板本体：04-图论/Dijkstra.cpp
 #include "../../04-图论/Dijkstra.cpp"
 
-// 自测用的链式前向星副本已移到文件顶部
 
 int main()
 {
-    // 自测：随机非负权有向图，朴素 / 堆优化 / 链式前向星堆优化 三者两两比对
+    // 自测：随机非负权有向图，朴素 / 堆优化 两者比对
     n=12;
     for(int t=1;t<=300;t++)
     {
         for(int i=1;i<=n;i++)adj[i].clear();
-        memset(head,0,sizeof(head)),num=0;
         m=0;
         for(int i=1;i<=n;i++)
             for(int j=i+1;j<=n;j++)// 无向图，每条边只随一次机、只取一个权值
@@ -24,26 +22,23 @@ int main()
                     adj[i].push_back(e);
                     e.to=i;
                     adj[j].push_back(e);
-                    add_undirected(i,j,cc);// 链式前向星正反各加一次
                 }
         for(int st=1;st<=n;st++)
         {
-            ll r1[20],r2[20],r3[20];
+            ll r1[20],r2[20];
             dijkstra_naive(st);
             for(int i=1;i<=n;i++)r1[i]=dis[i];
             dijkstra_heap(st);
             for(int i=1;i<=n;i++)r2[i]=dis[i];
-            dijkstra_star(st);
-            for(int i=1;i<=n;i++)r3[i]=dis[i];
             for(int i=1;i<=n;i++)
-                if(r1[i]!=r2[i]||r1[i]!=r3[i])
+                if(r1[i]!=r2[i])
                 {
-                    printf("WA t=%d st=%d i=%d %lld %lld %lld\n",t,st,i,r1[i],r2[i],r3[i]);
+                    printf("WA t=%d st=%d i=%d %lld %lld\n",t,st,i,r1[i],r2[i]);
                     return 0;
                 }
         }
     }
-    printf("随机对拍 300 组全部通过：朴素=堆优化=链式前向星\n");
+    printf("随机对拍 300 组全部通过：朴素=堆优化\n");
     // 手造小图：1->2(7) 1->3(9) 1->6(14) 2->3(10) 2->4(15) 3->4(11) 3->6(2) 4->5(6) 6->5(9)
     n=6,m=9;
     for(int i=1;i<=n;i++)adj[i].clear();

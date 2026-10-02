@@ -1,0 +1,2 @@
+#include "../../05-数学/Stirling数.cpp"
+int main(){auto c=stirling(7,1000000007,true),s=stirling(7,1000000007,false);assert(c[3][1]==2&&c[3][2]==3&&c[3][3]==1);assert(s[3][1]==1&&s[3][2]==3&&s[3][3]==1);vector<int>p(7);iota(p.begin(),p.end(),0);vector<int> count(8);do{vector<bool>vis(7);int cnt=0;for(int i=0;i<7;i++)if(!vis[i]){cnt++;for(int u=i;!vis[u];u=p[u])vis[u]=true;}count[cnt]++;}while(next_permutation(p.begin(),p.end()));for(int k=0;k<=7;k++)assert(count[k]==c[7][k]);}

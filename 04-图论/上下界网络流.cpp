@@ -98,7 +98,6 @@ void build()// 按 eu/ev/elow/eup 重新建图：上下界边先默认流下界�
 // O(n^2*m)，type=0/1/2 对应可行/最大/最小；返回 -1 也可能与负最小流混淆。
 ll solve_lr(int type)
 {
-    // O(n+m)，从 1..m 的输入边重建；eidx 指向正边，清空旧平衡量。
     build();
     int e_ts=0;
     if(type)add_edge(t,s,INF),e_ts=num-1;// 人为加 t->s 的无穷边，把有源汇变成无源汇

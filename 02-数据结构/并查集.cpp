@@ -35,4 +35,3 @@ struct DSU
 
 int n;
 DSU<305> d;
-int id[305];//暴力：直接记每个点当前属于哪个连通块

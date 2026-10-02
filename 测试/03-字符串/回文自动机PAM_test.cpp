@@ -2,6 +2,8 @@
 // 模板本体：03-字符串/回文自动机PAM.cpp
 #include "../../03-字符串/回文自动机PAM.cpp"
 
+string node_string(int u){return len[u]>0?string(str+pos[u]-len[u]+1,len[u]):string();}
+
 string rand_str(int len)
 {
     string r="";
@@ -21,7 +23,7 @@ int main()
     for(int i=1;i<=n;i++)str[i]=base[i-1],pam_extend(i);
     pam_build();
     printf("s=%s  diff_pal=%d  longest_pal=%d\n",base.c_str(),count_pal(),longest_pal());
-    for(int i=2;i<=tot&&i<=10;i++)printf("  node %d: %s len=%d occur=%d link=%d\n",i,len[i]<=26?pstr[i]:"...",len[i],siz[i],link[i]);
+    for(int i=2;i<=tot&&i<=10;i++)printf("  node %d: %s len=%d occur=%d link=%d\n",i,node_string(i).c_str(),len[i],siz[i],link[i]);
 
     int bad=0;
     for(int rd=1;rd<=800;rd++)
@@ -51,7 +53,7 @@ int main()
 
         for(int i=2;i<=tot;i++)
         {
-            string cur=pstr[i];
+            string cur=node_string(i);
             string rv=cur;
             reverse(rv.begin(),rv.end());
             // 校验 1：结点存的是回文，且出现次数与暴力一致
@@ -62,7 +64,7 @@ int main()
             }
             // 校验 2：同一长度下结点互不相同（本质不同）
             for(int j=2;j<i;j++)
-                if(len[j]==len[i]&&strcmp(pstr[j],pstr[i])==0)
+                if(len[j]==len[i]&&node_string(j)==node_string(i))
                 {
                     bad++;
                     if(bad<=3)printf("dup node a=%s cur=%s\n",a.c_str(),cur.c_str());
@@ -70,7 +72,7 @@ int main()
             // 校验 3：link 的串是自己的最长回文真后缀
             if(link[i]>=0&&len[link[i]]>0)
             {
-                string lk=pstr[link[i]];
+                string lk=node_string(link[i]);
                 if(len[link[i]]>=len[i]||cur.compare(len[i]-len[link[i]],len[link[i]],lk)!=0)
                 {
                     bad++;

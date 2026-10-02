@@ -1,0 +1,2 @@
+#include "../../06-动态规划/SOS子集与超集和.cpp"
+int main(){mt19937 g(130);for(int k=0;k<=8;k++)for(int z=0;z<20;z++){int n=1<<k;vector<ll>a(n);for(auto &v:a)v=int(g()%101)-50;auto b=a,c=a;subset_sum(b);superset_sum(c);for(int s=0;s<n;s++){ll x=0,y=0;for(int t=0;t<n;t++){if((s&t)==t)x+=a[t];if((s&t)==s)y+=a[t];}assert(b[s]==x&&c[s]==y);}subset_sum(b,true);superset_sum(c,true);assert(b==a&&c==a);}vector<ll>a={LLONG_MIN,LLONG_MIN};subset_sum(a,true);assert(a[0]==LLONG_MIN&&a[1]==0);cout<<"SOS OK\n";}

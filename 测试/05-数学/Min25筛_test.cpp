@@ -1,0 +1,2 @@
+#include "../../05-数学/Min25筛.cpp"
+int main(){const ll p=1000000007;for(int n=0;n<=500;n+=1+n/40){ll want=0;for(int i=1;i<=n;i++){ll f=1;int x=i;for(int q=2;q*q<=x;q++)if(x%q==0){ll pw=1;while(x%q==0)x/=q,pw*=q;f=f*(pw*(pw-1)%p)%p;}if(x>1)f=f*((ll)x*(x-1)%p)%p;want=(want+f)%p;}assert(min25(n,{0,-1,1},[&](ll,int,ll pw){return pw%p*((pw-1)%p)%p;})==want);assert(min25(n,{1,0,0},[](ll,int,ll){return 1LL;})==n);ll d=0;for(int i=1;i<=n;i++)d+=n/i;assert(min25(n,{2,0,0},[](ll,int e,ll){return (ll)e+1;})==d%p);}assert(min25(100000,{1,0,0},[](ll,int,ll){return 1LL;})==100000);}

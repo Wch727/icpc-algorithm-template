@@ -2,27 +2,26 @@
 using namespace std;
 typedef long long ll;
 
-// 高精度：加减乘除取模 + 比较 + 输出，竖式运算，每次 O(len^2)
-// d[0] 是最低位，base 10；只用 d[0..len-1]；sign=1 正，-1 负
-// 低位数组放堆上（vector），对象只占几十字节，表达式里的临时对象不会爆栈
+// 按区复制：非负加法 0+1，用 add_abs；普通 a+b 复制 0+1+2+3。
+// 仅乘法：0+4 或 0+5；除法/取模：0+2+4+6；比较：0+7。
+// 各区放在同一个 struct BigInt 内，不需要的区整块省略。
 struct BigInt
 {
+    // [0 公共：存储、构造、去零、绝对值比较、输出]
     vector<int> d;
-    int len,sign;
+    int len,sign; // d[0] 为最低位，十进制；sign=1 正，-1 负，零统一为正
 
-    BigInt()// 空对象当 0 用：d 里先不放东西，len=0，to_string 会输出 0
-    {
-        len=0,sign=1;
-    }
+    BigInt():d(1,0),len(1),sign(1){}
 
     BigInt(ll v)
     {
         len=0,sign=1;
-        if(v<0)sign=-1,v=-v;
-        while(v>0)
+        unsigned long long u=v;
+        if(v<0)sign=-1,u=0-u;
+        while(u>0)
         {
-            d.push_back((int)(v%10));
-            v/=10;
+            d.push_back((int)(u%10));
+            u/=10;
             len++;
         }
         if(len==0)
@@ -59,10 +58,7 @@ struct BigInt
         if(len==1&&d[0]==0)sign=1;
     }
 
-    bool is_zero()const
-    {
-        return len<=0||(len==1&&d[0]==0);
-    }
+    bool is_zero()const{return len<=0||(len==1&&d[0]==0);}
 
     bool abs_less(const BigInt& b)const// 比绝对值
     {
@@ -72,41 +68,33 @@ struct BigInt
         return false;
     }
 
-    bool operator<(const BigInt& b)const
+    string to_string()const// 输出用
     {
-        if(sign!=b.sign)return sign<b.sign;
-        if(sign==1)return abs_less(b);
-        return b.abs_less(*this);
+        string s;
+        if(len<=0)return "0";// 空对象当 0
+        if(sign==-1&&!is_zero())s+='-';
+        for(int i=len-1;i>=0;i--)s+=(char)('0'+d[i]);
+        return s;
     }
 
-    bool operator>(const BigInt& b)const
+    // [1 绝对值加法：仅需 0，O(n)]
+    static BigInt add_abs(const BigInt& a,const BigInt& b)// 只用绝对值相加
     {
-        return b<*this;
+        BigInt res;
+        res.d.assign(max(a.len,b.len)+1,0);
+        int carry=0;
+        for(int i=0;i<a.len||i<b.len||carry;i++)
+        {
+            int sum=carry+(i<a.len?a.d[i]:0)+(i<b.len?b.d[i]:0);
+            res.d[i]=sum%10;
+            carry=sum/10;
+        }
+        res.len=(int)res.d.size();
+        res.trim();
+        return res;
     }
 
-    bool operator==(const BigInt& b)const
-    {
-        if(len!=b.len||sign!=b.sign)return false;
-        for(int i=0;i<len;i++)
-            if(d[i]!=b.d[i])return false;
-        return true;
-    }
-
-    bool operator!=(const BigInt& b)const
-    {
-        return !(*this==b);
-    }
-
-    bool operator<=(const BigInt& b)const
-    {
-        return !(b<*this);
-    }
-
-    bool operator>=(const BigInt& b)const
-    {
-        return !(*this<b);
-    }
-
+    // [2 绝对值减法：仅需 0，要求 |a|>=|b|，O(n)]
     static BigInt sub_abs(const BigInt& a,const BigInt& b)// 只用绝对值，返回 |a|-|b|（要求 |a|>=|b|）
     {
         BigInt res;
@@ -124,22 +112,7 @@ struct BigInt
         return res;
     }
 
-    static BigInt add_abs(const BigInt& a,const BigInt& b)// 只用绝对值相加
-    {
-        BigInt res;
-        res.d.assign(max(a.len,b.len)+1,0);
-        int carry=0;
-        for(int i=0;i<a.len||i<b.len||carry;i++)
-        {
-            int sum=carry+(i<a.len?a.d[i]:0)+(i<b.len?b.d[i]:0);
-            res.d[i]=sum%10;
-            carry=sum/10;
-        }
-        res.len=(int)res.d.size();
-        res.trim();
-        return res;
-    }
-
+    // [3 带符号加减：需 0+1+2，O(n)]
     BigInt operator-()const// 取相反数
     {
         BigInt res=*this;
@@ -149,39 +122,18 @@ struct BigInt
 
     BigInt operator+(const BigInt& b)const
     {
+        BigInt res;
         if(sign==b.sign)
         {
-            // 同号：绝对值相加，符号不变（两个 0 也是正的）
-            BigInt res=add_abs(*this,b);
+            res=add_abs(*this,b);
             if(!res.is_zero())res.sign=sign;
-            return res;
         }
-        if(sign==-1)
+        else
         {
-            // (-|a|) + |b| = |b| - |a|
-            BigInt x=*this,y=b;
-            x.sign=1,y.sign=1;
-            if(x.abs_less(y))
-            {
-                BigInt res=sub_abs(y,x);
-                if(!res.is_zero())res.sign=1;
-                return res;
-            }
-            BigInt res=sub_abs(x,y);
-            if(!res.is_zero())res.sign=-1;
-            return res;
+            bool less=abs_less(b);
+            res=less?sub_abs(b,*this):sub_abs(*this,b);
+            if(!res.is_zero())res.sign=less?b.sign:sign;
         }
-        // |a| + (-|b|) = |a| - |b|
-        BigInt x=*this,y=b;
-        x.sign=1,y.sign=1;
-        if(x.abs_less(y))
-        {
-            BigInt res=sub_abs(y,x);
-            if(!res.is_zero())res.sign=-1;
-            return res;
-        }
-        BigInt res=sub_abs(x,y);
-        if(!res.is_zero())res.sign=1;
         return res;
     }
 
@@ -192,17 +144,20 @@ struct BigInt
         return *this+t;
     }
 
+    // [4 高精乘 int：仅需 0，O(n)]
     BigInt operator*(int v)const// 高精乘低精，除法试商时用
     {
         BigInt res;
         if(v==0)return res;// 已经是 0
+        res.d.clear();
         res.sign=sign;
-        if(v<0)res.sign=-res.sign,v=-v;
+        ll u=v;
+        if(u<0)res.sign=-res.sign,u=-u;
         ll carry=0;
         int i=0;
         for(;i<len||carry;i++)
         {
-            ll cur=carry+(i<len?(ll)d[i]*v:0);
+            ll cur=carry+(i<len?(ll)d[i]*u:0);
             res.d.push_back((int)(cur%10));
             carry=cur/10;
         }
@@ -211,6 +166,7 @@ struct BigInt
         return res;
     }
 
+    // [5 高精乘高精：仅需 0，O(nm)]
     BigInt operator*(const BigInt& b)const// 高精乘高精
     {
         BigInt res;
@@ -223,7 +179,7 @@ struct BigInt
             for(int j=0;j<b.len||carry;j++)
             {
                 int cur=res.d[i+j]+carry+(j<b.len?d[i]*b.d[j]:0);
-                if(i+j<n)res.d[i+j]=cur%10;// 越界那位必定是 0，丢掉
+                res.d[i+j]=cur%10;
                 carry=cur/10;
             }
         }
@@ -233,6 +189,7 @@ struct BigInt
         return res;
     }
 
+    // [6 除法与取模：需 0+2+4，无需加法区和高精乘高精区，O(nm)]
     static pair<BigInt,BigInt> divmod_abs(const BigInt& a,const BigInt& b)// 只用绝对值，返回 {商,余数}
     {
         if(a.abs_less(b))return make_pair(BigInt(0),a);
@@ -241,7 +198,9 @@ struct BigInt
         q.len=a.len;
         for(int i=a.len-1;i>=0;i--)// 逐位试商，每位二分 0..9
         {
-            r=r*10+a.d[i];
+            r.d.insert(r.d.begin(),a.d[i]); // r=r*10+当前位，无需加法区
+            r.len=(int)r.d.size();
+            r.trim();
             int lo=0,hi=9,dig=0;
             while(lo<=hi)
             {
@@ -250,7 +209,7 @@ struct BigInt
                 else hi=mid-1;
             }
             q.d[i]=dig;
-            r=r-b*dig;
+            r=sub_abs(r,b*dig);
         }
         q.trim();
         r.trim();
@@ -259,7 +218,7 @@ struct BigInt
 
     static pair<BigInt,BigInt> divmod(const BigInt& a,const BigInt& b)// 返回 {商,余数}，符号同 C++
     {
-        if(b.is_zero())return make_pair(BigInt(0),a);// 除 0 未定义，直接返回被除数
+        assert(!b.is_zero()); // 除数必须非零
         BigInt x=a,y=b;
         int sa=x.sign,sb=y.sign;
         x.sign=1,y.sign=1;
@@ -270,27 +229,31 @@ struct BigInt
         return make_pair(q,r);
     }
 
-    BigInt operator/(const BigInt& b)const
+    BigInt operator/(const BigInt& b)const{return divmod(*this,b).first;}
+
+    BigInt operator%(const BigInt& b)const{return divmod(*this,b).second;}
+
+    // [7 比较重载：仅需 0，按需选用]
+    bool operator<(const BigInt& b)const
     {
-        return divmod(*this,b).first;
+        if(sign!=b.sign)return sign<b.sign;
+        if(sign==1)return abs_less(b);
+        return b.abs_less(*this);
     }
 
-    BigInt operator%(const BigInt& b)const
+    bool operator>(const BigInt& b)const{return b<*this;}
+
+    bool operator==(const BigInt& b)const
     {
-        return divmod(*this,b).second;
+        if(len!=b.len||sign!=b.sign)return false;
+        for(int i=0;i<len;i++)
+            if(d[i]!=b.d[i])return false;
+        return true;
     }
 
-    string to_string()const// 输出用
-    {
-        string s;
-        if(len<=0)return "0";// 空对象当 0
-        if(sign==-1&&!is_zero())s+='-';
-        for(int i=len-1;i>=0;i--)s+=(char)('0'+d[i]);
-        return s;
-    }
+    bool operator!=(const BigInt& b)const{return !(*this==b);}
+
+    bool operator<=(const BigInt& b)const{return !(b<*this);}
+
+    bool operator>=(const BigInt& b)const{return !(*this<b);}
 };
-
-void chk(const char* name,const string& got,const string& want)
-{
-    if(got!=want)printf("fail %s: got %s want %s\n",name,got.c_str(),want.c_str());
-}

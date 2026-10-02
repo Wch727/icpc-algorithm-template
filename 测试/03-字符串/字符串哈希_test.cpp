@@ -11,6 +11,12 @@ string rand_str(int len)
 
 int main()
 {
+    // 审核回归：覆盖原随机小值测试遗漏的边界。
+    {
+        string x; x.push_back(char(255)); x.push_back(char(128));
+        H2.build(x); assert(H2.get(1,1).first==255&&H2.get(2,2).first==128);
+    }
+
     srand(12345);
 
     // 基础自测：子串哈希与暴力比较

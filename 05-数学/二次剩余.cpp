@@ -1,7 +1,7 @@
 // 适用：求模素数平方根 x^2=a；有非零解时通常是 x 与 p-x 两个根。
 // 参数：p 为素数；a 可负，入口归一化；模 2 特判，零的平方根只有零。
 // 状态：P/W 是一次 Cipolla 运算使用的全局模数和非剩余，不能并发复用。
-// 关键：找 b 使 b^2-a 非剩余，在扩域中求 (b+sqrt(W))^((p+1)/2)。
+// 关键：找 b 使 b^2-a 非剩余，在扩域中求 (b+sqrt(W))^(p/2+1)。
 // 易错：__int128 保护乘法，但双乘积相加和 ll 归一化也要在范围内；返回根不保证最小。
 // 复杂度：随机找非剩余期望常数轮，每轮 O(log p)，加一次扩域幂；朴素核对只用于小 p。
 #include<bits/stdc++.h>
@@ -29,7 +29,7 @@ ll qpow(ll a,ll n,ll p)
 // O(log p)，返回 0/1/-1；欧拉判别只对奇素数 p 成立。
 int legendre(ll a,ll p)
 {
-    a=(a%p+p)%p;
+    a=(a%p<0?a%p+p:a%p);
     if(a==0)return 0;
     ll t=qpow(a,(p-1)/2,p);
     return t==1?1:-1;
@@ -49,8 +49,6 @@ Cip mul(Cip x,Cip y)
     Cip r;
     r.real=((lll)x.real*y.real+(lll)x.imag*y.imag%P*W)%P;
     r.imag=((lll)x.real*y.imag+(lll)x.imag*y.real)%P;
-    r.real=(r.real%P+P)%P;
-    r.imag=(r.imag%P+P)%P;
     return r;
 }
 
@@ -74,11 +72,11 @@ Cip cpw(Cip a,ll n)
 // 期望 O(log p) 次宽整数操作，返回一个根或 -1；b 的选择随机重试。
 ll cipolla(ll a,ll p)
 {
-    a=(a%p+p)%p;
+    a=(a%p<0?a%p+p:a%p);
     if(a==0)return 0;
     if(p==2)return a;// 模 2 时 x=a 就是解
     if(legendre(a,p)!=1)return -1;// 无解判定
-    if(p%4==3)return qpow(a,(p+1)/4,p);// p≡3 (mod 4) 有显式公式
+    if(p%4==3)return qpow(a,p/4+1,p);// p≡3 (mod 4) 有显式公式
     P=p;
     mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
     ll b;
@@ -86,36 +84,11 @@ ll cipolla(ll a,ll p)
     {
         b=rnd()%p;
         W=((lll)b*b-a)%p;// w = b^2 - a
-        W=(W%p+p)%p;
+        W=(W%p<0?W%p+p:W%p);
         if(W!=0&&legendre(W,p)==-1)break;// w 必须是非二次剩余
     }
     Cip x;
     x.real=b,x.imag=1;
-    Cip r=cpw(x,(p+1)/2);// (b+√w)^((p+1)/2) 的虚部必为 0
+    Cip r=cpw(x,p/2+1);// (b+√w)^(p/2+1) 的虚部必为 0
     return r.real;
-}
-
-// O(p)，暴力找最小非负解，无解返回 -1，对拍用
-// O(p)，逐个检查 x=0..p-1；返回最小根，不能直接要求与随机根相等。
-ll cipolla_naive(ll a,ll p)
-{
-    a=(a%p+p)%p;
-    for(ll x=0;x<p;x++)
-        if((lll)x*x%p==a)return x;
-    return -1;
-}
-
-// O(p)，暴力数二次剩余个数，检查 (p-1)/2 个
-// O(p^2)，逐余数枚举平方根，原 O(p) 注释与两层循环不符。
-int count_qr_naive(ll p)
-{
-    int c=0;
-    for(ll x=1;x<p;x++)
-    {
-        bool ok=false;
-        for(ll y=0;y<p;y++)
-            if((lll)y*y%p==x%p){ok=true;break;}
-        if(ok)c++;
-    }
-    return c;
 }

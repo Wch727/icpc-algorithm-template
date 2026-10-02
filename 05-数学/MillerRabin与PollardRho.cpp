@@ -2,7 +2,7 @@
 // 参数：n<=LLONG_MAX；分解入口 factor 要 n>=1，pollard_rho 只接受合数。
 // 关键：n-1=d*2^s，强伪素数测试不断平方；固定七个底数覆盖接口可表示范围。
 // 随机：Rho 返回的是任意非平凡因子，不保证素数，继续递归分解。
-// 易错：qmul 用 __int128 防乘法溢出，但 qmul(x,x,n)+c 在接近 ll 上界时仍可能溢出。
+// 模乘和 Rho 的平方加常数均用 __int128；仅支持正的 signed ll。
 // 复杂度：七底数素性判定 O(log n) 次模乘；Rho 期望约 O(n^(1/4))，无确定时间上界。
 #include<bits/stdc++.h>
 using namespace std;
@@ -67,8 +67,9 @@ ll pollard_rho(ll n)
     if(n%3==0)return 3;
     while(true)
     {
-        ll c=rand()%(n-1)+1;
-        ll x=rand()%(n-1)+1,y=x,d=1;
+        static mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
+        ll c=uniform_int_distribution<ll>(1,n-1)(rnd);
+        ll x=uniform_int_distribution<ll>(1,n-1)(rnd),y=x,d=1;
         // 倍增步长 + gcd 批量化
         ll q=1;
         for(ll len=1;d==1;len<<=1)
@@ -76,7 +77,7 @@ ll pollard_rho(ll n)
             ll tx=x;
             for(ll i=1;i<=len;i++)
             {
-                x=(qmul(x,x,n)+c)%n;
+                x=((lll)qmul(x,x,n)+c)%n;
                 q=qmul(q,abs(x-y),n);
                 if(i%127==0)
                 {

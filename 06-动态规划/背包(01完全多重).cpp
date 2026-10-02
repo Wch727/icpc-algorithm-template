@@ -41,13 +41,13 @@ int knap_complete(int n,int V,int w[],int v[])
     return f[V];
 }
 
-// O(V*log c)，多重背包：二进制拆分把 c 个物品拆成 1,2,4,... 个 01 物品
+// O(V*Σlog(c[i]+1))，多重背包：二进制拆分把 c 个物品拆成 1,2,4,... 个 01 物品
 int knap_multiple_binary(int n,int V,int w[],int v[],int c[])
 {
     for(int j=0;j<=V;j++)f[j]=0;
     for(int i=1;i<=n;i++)
     {
-        int k=1,cc=c[i];
+        int k=1,cc=min(c[i],V/w[i]);
         while(cc>0)
         {
             int t=min(k,cc);
@@ -84,7 +84,7 @@ int knap_multiple_deque(int n,int V,int w[],int v[],int c[])
     return f[V];
 }
 
-// O(nV)，混合背包：0=01 1=完全 2=多重，多重用二进制拆分
+// O(V*(n+Σ多重log(c[i]+1)))，混合背包：0=01 1=完全 2=多重，多重用二进制拆分
 int knap_mixed(int n,int V,int w[],int v[],int c[],int typ[])
 {
     for(int j=0;j<=V;j++)f[j]=0;
@@ -96,7 +96,7 @@ int knap_mixed(int n,int V,int w[],int v[],int c[],int typ[])
             for(int j=w[i];j<=V;j++)f[j]=max(f[j],f[j-w[i]]+v[i]);
         else
         {
-            int k=1,cc=c[i];
+            int k=1,cc=min(c[i],V/w[i]);
             while(cc>0)
             {
                 int t=min(k,cc);

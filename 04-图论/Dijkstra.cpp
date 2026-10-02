@@ -9,14 +9,12 @@ struct Edge
     int to,w;
 };
 vector<Edge> adj[N];
-// 链式前向星存图，与上面 vector 邻接表等价，任选一种使用
-int head[N],to[N<<1],w[N<<1],nxt[N<<1],num=0;
 ll dis[N];
 bool vis[N];
 
 void add_edge(int u,int v,int c)
 {
-    to[++num]=v,w[num]=c,nxt[num]=head[u],head[u]=num;
+    adj[u].push_back({v,c});
 }
 
 void add_undirected(int u,int v,int c)
@@ -79,30 +77,5 @@ void dijkstra_heap(int s)// 堆优化 O((n+m) log n)，只适合非负权
                 pq.push(tmp);
             }
         }
-    }
-}
-
-void dijkstra_star(int s)// 与堆优化版同一套流程，仅换遍历方式
-{
-    for(int i=1;i<=n;i++)dis[i]=INF,vis[i]=0;
-    dis[s]=0;
-    priority_queue<Node,vector<Node>,greater<Node> > pq;
-    Node st;
-    st.u=s,st.d=0;
-    pq.push(st);
-    while(!pq.empty())
-    {
-        int u=pq.top().u;
-        pq.pop();
-        if(vis[u])continue;
-        vis[u]=1;
-        for(int i=head[u];i;i=nxt[i])
-            if(dis[u]+w[i]<dis[to[i]])
-            {
-                dis[to[i]]=dis[u]+w[i];
-                Node tmp;
-                tmp.u=to[i],tmp.d=dis[to[i]];
-                pq.push(tmp);
-            }
     }
 }

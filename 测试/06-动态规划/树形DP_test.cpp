@@ -7,55 +7,6 @@ int rndint(int l,int r)// 生成 [l,r] 的随机整数
     return l+rand()%(r-l+1);
 }
 
-// O(n)，没有上司的舞会
-// dp[x][0] 表示 x 不参加时子树的最大欢乐值(儿子可选可不选)
-// dp[x][1] 表示 x 参加时的最大值(儿子都不能参加)
-void dfs_party(int x)
-{
-    dp[x][0]=0,dp[x][1]=h[x];
-    for(int i=0;i<(int)son[x].size();i++)
-    {
-        int y=son[x][i];
-        dfs_party(y);
-        dp[x][0]+=max(dp[y][0],dp[y][1]);
-        dp[x][1]+=dp[y][0];
-    }
-}
-
-// O(n*m^2)，树上背包(选课)：f[x][j] 表示以 x 为根的子树里选 j 门课的最大收益
-// 先把所有儿子合并上来，最后再把自己塞进去，体现"选子必须先选父"
-// 分数非负时 f 直接 0 初始化，含义是"至多 j 门"；分数可能为负就改成 NEG 初始化
-void dfs_knap(int x)
-{
-    for(int t=0;t<=m;t++)f[x][t]=0;
-    for(int i=0;i<(int)son[x].size();i++)
-    {
-        int y=son[x][i];
-        dfs_knap(y);
-        for(int t=m;t>=0;t--)// 倒序，每个儿子只贡献一次
-            for(int j=t;j>=0;j--)
-                f[x][t]=max(f[x][t],f[x][t-j]+f[y][j]);
-    }
-    if(x!=0)// 虚拟根 0 没有学分
-        for(int t=m;t>0;t--)f[x][t]=f[x][t-1]+score[x];
-}
-
-// O(n)，树形 dp 求直径（边数）：d1[x] 是最长向下链，d2[x] 是次长
-void dfs_dia(int x)
-{
-    d1[x]=0,d2[x]=0;
-    for(int i=0;i<(int)son[x].size();i++)
-    {
-        int y=son[x][i];
-        dfs_dia(y);
-        int t=d1[y]+1;
-        if(t>d1[x])d2[x]=d1[x],d1[x]=t;
-        else if(t>d2[x])d2[x]=t;
-    }
-    dia=max(dia,d1[x]+d2[x]);// 拐点在自己身上的最长路
-}
-
-// 暴力：枚举所有子集，父亲和儿子不能同时选
 int brute_party(int n)
 {
     int best=0;
@@ -115,6 +66,13 @@ int brute_dia(int n)
 
 int main()
 {
+    // 审核回归：覆盖原随机小值测试遗漏的边界。
+    {
+        n=2;m=1;son[0].clear();son[1].clear();son[2].clear();
+        son[0].push_back(1);son[1].push_back(2);score[1]=-5;score[2]=20;
+        dfs_knap(0);assert(f[0][1]==-5);m=2;dfs_knap(0);assert(f[0][2]==15);
+    }
+
     srand(20240607);
     printf("==== 固定样例 ====\n");
     n=7;

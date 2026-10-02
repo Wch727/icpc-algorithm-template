@@ -17,7 +17,7 @@ void get_dig(ll x)
     while(x>0)dig[++len]=x%10,x/=10;
 }
 
-// 示例1：统计数字 tar 在 0..x 里出现的总次数
+// 示例1：统计数字 tar 在 1..x 里出现的总次数（不把 0 记为一位数字）
 // 返回 (合法数的个数, 这些数里 tar 的出现次数)
 // 关键边界：记忆化只在 !limit && !lead 时记录和取用
 pair<ll,ll> dfs_cnt(int pos,bool limit,bool lead)

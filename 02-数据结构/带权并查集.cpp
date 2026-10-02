@@ -44,11 +44,12 @@ struct KindDSU
 template<int NMAX=N>
 struct WeightDSU
 {
-    int fa[NMAX],d[NMAX],mod;
-    int norm(int x)
+    int fa[NMAX],mod;
+    ll d[NMAX];
+    ll norm(ll x)
     {
         if(mod==0)return x;
-        return ((x%mod)+mod)%mod;
+        x%=mod;return x<0?x+mod:x;
     }
     void init(int n,int m=0)
     {
@@ -64,7 +65,7 @@ struct WeightDSU
         return fa[x];
     }
     // 加入关系 val[y]-val[x]=w，返回 false 表示与已有关系矛盾
-    bool merge(int x,int y,int w)
+    bool merge(int x,int y,ll w)
     {
         int fx=find(x),fy=find(y);
         if(fx==fy)return norm(d[y]-d[x])==norm(w);
@@ -73,18 +74,9 @@ struct WeightDSU
         return true;
     }
     // 同集合返回 val[y]-val[x]，否则返回 INF
-    int query(int x,int y)
+    ll query(int x,int y)
     {
         if(find(x)!=find(y))return INF;
         return norm(d[y]-d[x]);
     }
 };
-
-int n,vmod;
-int gid[305],val[305];//暴力：每个点的集合编号 + 在该集合内的"绝对"权值
-
-int norm(int x)
-{
-    if(vmod==0)return x;
-    return ((x%vmod)+vmod)%vmod;
-}

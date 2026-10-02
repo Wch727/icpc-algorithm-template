@@ -1,0 +1,2 @@
+#include "../../05-数学/FWT(按位卷积).cpp"
+int main(){mt19937 g(126);assert(bit_convolution({}, {1},0).empty());for(int z=0;z<400;z++){int n=1+g()%40,m=1+g()%40,L=1;while(L<max(n,m))L*=2;vector<ll>a(n),b(m);for(auto &v:a)v=int(g()%200)-100;for(auto &v:b)v=int(g()%200)-100;for(int t=0;t<3;t++){vector<ll>exp(L);for(int i=0;i<n;i++)for(int j=0;j<m;j++){int k=t==0?(i^j):t==1?(i&j):(i|j);exp[k]=(exp[k]+a[i]*b[j])%MOD;}for(auto &v:exp)if(v<0)v+=MOD;assert(bit_convolution(a,b,t)==exp);auto c=exp;fwt(c,t);fwt(c,t,true);assert(c==exp);}}cout<<"FWT OK\n";}

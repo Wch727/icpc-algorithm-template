@@ -2,6 +2,8 @@
 // 模板本体：02-数据结构/并查集.cpp
 #include "../../02-数据结构/并查集.cpp"
 
+int id[305];//暴力：直接记每个点当前属于哪个连通块
+
 int rnd(int l,int r)
 {
     return rand()%(r-l+1)+l;

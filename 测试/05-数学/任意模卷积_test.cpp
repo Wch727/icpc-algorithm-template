@@ -1,0 +1,2 @@
+#include "../../05-数学/任意模卷积.cpp"
+int main(){mt19937 r(43);for(int t=0;t<300;t++){int n=1+r()%40,m=1+r()%40,p=t%3==0?INT_MAX:t%3==1?1000000007:1+r()%10000;vector<ll>a(n),b(m);for(ll &x:a)x=(ll)r()-INT_MAX;for(ll &x:b)x=(ll)r()-INT_MAX;vector<int> want(n+m-1);for(int i=0;i<n;i++)for(int j=0;j<m;j++){ll x=(a[i]%p+p)%p,y=(b[j]%p+p)%p;want[i+j]=(want[i+j]+(__int128)x*y)%p;}assert(convolution_mod(a,b,p)==want);}assert(convolution_mod({}, {1}, 7).empty());}

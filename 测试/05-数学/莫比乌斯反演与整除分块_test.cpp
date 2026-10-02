@@ -2,6 +2,29 @@
 // 模板本体：05-数学/莫比乌斯反演与整除分块.cpp
 #include "../../05-数学/莫比乌斯反演与整除分块.cpp"
 
+ll sum_coprime_naive(int n,int m)
+{
+    ll res=0;
+    for(int i=1;i<=n;i++)
+        for(int j=1;j<=m;j++)
+            if(__gcd(i,j)==1)res++;
+    return res;
+}
+
+ll sum_mu_div_naive(int n)
+{
+    ll res=0;
+    for(int i=1;i<=n;i++)res+=(ll)mu[i]*(n/i);
+    return res;
+}
+
+int mertens_naive(int n)
+{
+    int res=0;
+    for(int i=1;i<=n;i++)res+=mu[i];
+    return res;
+}
+
 int main()
 {
     int M=3000;

@@ -1,19 +1,19 @@
 // 适用：无向图删除点或边后的连通性，割点与桥必须分别判断。
 // 参数：顶点 1..n；根调用 tarjan(u,0)，fa 是入边编号而非父顶点。
 // 关键：桥要求 low[v]>dfn[u]，割点允许相等；根必须有至少两棵 DFS 子树。
-// 易错：当前 num=0、边从 1 成对加入，与 i^1 配对不一致；多重边尤其需核对，此处只注释不修逻辑。
-// 容量：cut_edge[N] 按有向边编号访问，边数大时可能超过该数组。
+// 从 2 开始成对加边，i^1 为反向边；重边仅跳过真正的父边。
+// 边槽须容纳 2*m+2；重建时 num=1，清空 head 与各标记。
 // 复杂度：全图 O(n+m)，空间 O(n+m)，递归深度 O(n)；多组须清空标记与计数。
 #include<bits/stdc++.h>
 using namespace std;
 typedef long long ll;
 const int N=100005;
 int n,m;
-int head[N],to[N<<1],nxt[N<<1],num=0;
+int head[N],to[N<<1],nxt[N<<1],num=1;
 int dfn[N],low[N];
 int is_cut[N];// 是否为割点
 int timer=0;
-int ea[N],eb[N],cut_edge[N],ecnt=0;// 桥的列表
+int ea[N],eb[N],cut_edge[N<<1],ecnt=0;// 桥的列表
 
 // O(1)，加一个方向的邻接边；编号由 num 决定，不能单独打乱配对。
 void add_edge(int u,int v)
@@ -24,9 +24,7 @@ void add_edge(int u,int v)
 // O(1)，按顺序加两个方向；注意现有边编号与异或反边约定的风险。
 void add_undirected(int u,int v)
 {
-    // O(1)，加一个方向的邻接边；编号由 num 决定，不能单独打乱配对。
     add_edge(u,v);
-    // O(1)，加一个方向的邻接边；编号由 num 决定，不能单独打乱配对。
     add_edge(v,u);
 }
 

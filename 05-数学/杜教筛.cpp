@@ -24,6 +24,8 @@ unordered_map<ll,ll> mp_phi,mp_mu;// 记忆化
 void get_pre(int n)
 {
     M=n,cnt=0;
+    fill(vis,vis+n+1,false);
+    mp_phi.clear(),mp_mu.clear(); sum_phi[0]=sum_mu[0]=0;
     vis[1]=true;
     phi[1]=1,mu[1]=1;
     for(int i=2;i<=n;i++)
@@ -62,11 +64,11 @@ ll du_phi(ll n)
 {
     if(n<=M)return sum_phi[n];
     if(mp_phi.count(n))return mp_phi[n];
-    ll res=n*(n+1)/2;
+    __int128 res=(__int128)n*(n+1)/2;
     for(ll l=2,r;l<=n;l=r+1)
     {
         r=n/(n/l);// 整除分块
-        res-=(r-l+1)*du_phi(n/l);
+        res-=(__int128)(r-l+1)*du_phi(n/l);
     }
     return mp_phi[n]=res;
 }
@@ -85,24 +87,4 @@ ll du_mu(ll n)
         res-=(r-l+1)*du_mu(n/l);
     }
     return mp_mu[n]=res;
-}
-
-// O(n)，暴力前缀和，对拍用
-// O(n*sqrt n) 上界，逐个试除求 phi 再累加；只适合小范围核对。
-ll phi_naive_sum(ll n)
-{
-    ll res=0;
-    for(ll i=1;i<=n;i++)
-    {
-        ll x=i,r=x;
-        for(ll j=2;j*j<=x;j++)
-            if(x%j==0)
-            {
-                r=r/j*(j-1);
-                while(x%j==0)x/=j;
-            }
-        if(x>1)r=r/x*(x-1);
-        res+=r;
-    }
-    return res;
 }

@@ -2,6 +2,10 @@
 // 模板本体：05-数学/博弈论(Nim与SG).cpp
 #include "../../05-数学/博弈论(Nim与SG).cpp"
 
+// 暴力博弈：每步从任意一堆取 1..k 个（k=0 表示不限制，即普通 Nim）
+// 返回当前局面先手是否必胜；memo 用按 k 分开的记忆化
+map<pair<int,vector<int>>,bool> memo;
+
 bool brute(vector<int> v,int k)
 {
     sort(v.begin(),v.end());

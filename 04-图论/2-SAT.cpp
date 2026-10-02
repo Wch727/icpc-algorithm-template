@@ -43,6 +43,9 @@ void tarjan(int u)// 缩点，O(n+m)
 
 int solve()// 返回是否有解，有解时 val[] 是一组可行赋值
 {
+    // 重新判定只清 SCC 工作数组，保留图与此前固定条件。
+    for(int i=1;i<=2*n;i++)dfn[i]=low[i]=scc[i]=ins[i]=0;
+    tim=top=cnt=0;
     for(int i=1;i<=2*n;i++)if(!dfn[i])tarjan(i);
     for(int i=1;i<=n;i++)
     {
@@ -52,10 +55,25 @@ int solve()// 返回是否有解，有解时 val[] 是一组可行赋值
     return 1;
 }
 
+// 小规模字典序最小赋值：按变量 1..n 优先取 0；O(n*(n+m))，图中额外保留 n 条强制边。
+// SCC 编号给出的任意解不保证字典序；单位子句 x=v 只需连 !(x=v)->(x=v)。
+int solve_lex()
+{
+    if(!solve())return 0;
+    for(int x=1;x<=n;x++)
+    {
+        adj[id(x,1)].push_back(id(x,0)); // 试 x=0
+        if(!solve())
+        {
+            adj[id(x,1)].pop_back();
+            adj[id(x,0)].push_back(id(x,1)); // 前面固定的条件保留，改成 x=1
+        }
+    }
+    return solve();
+}
+
 void clear_all()// 多组数据清空
 {
     for(int i=1;i<=2*n;i++)adj[i].clear(),dfn[i]=low[i]=scc[i]=ins[i]=0;
     tim=top=cnt=0;
 }
-
-int cx[105],cvx[105],cy[105],cvy[105];// 自测用：存下所有条件

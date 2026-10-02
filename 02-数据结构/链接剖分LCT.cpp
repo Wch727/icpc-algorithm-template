@@ -81,19 +81,3 @@ struct LCT
         return true;
     }
 };
-
-vector<int> path(const vector<vector<int>> &g,int x,int y)
-{
-    int n=(int)g.size()-1;
-    vector<int> fa(n+1,-1),a;
-    queue<int> q;
-    q.push(x),fa[x]=0;
-    while(!q.empty())
-    {
-        int u=q.front(); q.pop();
-        for(int v=1;v<=n;v++)if(g[u][v]&&fa[v]==-1)fa[v]=u,q.push(v);
-    }
-    if(fa[y]==-1)return a;
-    for(int u=y;u;u=fa[u])a.push_back(u);
-    return a;
-}

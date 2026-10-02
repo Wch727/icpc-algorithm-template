@@ -7,68 +7,6 @@ int rndint(int l,int r)// 生成 [l,r] 的随机整数
     return l+rand()%(r-l+1);
 }
 
-// 单调队列维护下凸壳，O(n) 斜率优化
-// 叉积 cross(o,a,b)=(x[a]-x[o])*(y[b]-y[o])-(y[a]-y[o])*(x[b]-x[o])
-// cross(o,a,b)<=0 表示 a 在 ob 连线之上，下凸壳要把 a 弹掉
-ll slope_dp(int n,ll L,ll a[])
-{
-    for(int i=1;i<=n;i++)s[i]=s[i-1]+a[i];
-    int head=0,tail=0;
-    x[0]=0,y[0]=0;// f[0]=0
-    q[tail++]=0;
-    for(int i=1;i<=n;i++)
-    {
-        ll k=2*(s[i]-L);
-        while(head+1<tail&&y[q[head+1]]-y[q[head]]<=k*(x[q[head+1]]-x[q[head]]))head++;
-        int j=q[head];
-        f[i]=y[j]-k*x[j]+sq(s[i]-L);
-        x[i]=s[i],y[i]=f[i]+sq(s[i]);
-        while(head+1<tail)
-        {
-            int o=q[tail-2],p=q[tail-1];
-            if((x[p]-x[o])*(y[i]-y[o])-(y[p]-y[o])*(x[i]-x[o])<=0)tail--;
-            else break;
-        }
-        q[tail++]=i;
-    }
-    return f[n];
-}
-
-// 斜率优化的通用写法：只要求查询斜率 k 单调，点可以按任意顺序加入
-// 用 deque 的版本见注释：把上面 q[] 换成 deque<int> 即可
-// 输出每个 f[i] 方便观察转移来源
-void slope_dp_all(int n,ll L,ll a[],ll f[])
-{
-    for(int i=1;i<=n;i++)s[i]=s[i-1]+a[i];
-    int head=0,tail=0;
-    x[0]=0,y[0]=0,q[tail++]=0;
-    for(int i=1;i<=n;i++)
-    {
-        ll k=2*(s[i]-L);
-        while(head+1<tail&&y[q[head+1]]-y[q[head]]<=k*(x[q[head+1]]-x[q[head]]))head++;
-        int j=q[head];
-        f[i]=y[j]-k*x[j]+sq(s[i]-L);
-        x[i]=s[i],y[i]=f[i]+sq(s[i]);
-        while(head+1<tail)
-        {
-            int o=q[tail-2],p=q[tail-1];
-            if((x[p]-x[o])*(y[i]-y[o])-(y[p]-y[o])*(x[i]-x[o])<=0)tail--;
-            else break;
-        }
-        q[tail++]=i;
-    }
-}
-
-// 把转移式乘开成 A[i]*B[j]+C[i] 的标准形式，方便套李超线段树/一般凸壳
-// f[i]=min_j (f[j]+s[j]^2 - 2*s[i]*s[j]) + s[i]^2 + L^2 - 2*L*s[i]
-void build_ab(int n,ll L,ll a[])
-{
-    for(int i=1;i<=n;i++)s[i]=s[i-1]+a[i];
-    for(int j=0;j<=n;j++)A[j]=-2*s[j],B[j]=f[j]+s[j]*s[j];// 斜率、截距
-    for(int i=1;i<=n;i++)C[i]=s[i]*s[i]+L*L-2*L*s[i];// 与 j 无关的常数
-}
-
-// O(n^2) 暴力，直接枚举转移
 ll bs[N],bf[N];// 放全局，避免函数里开 8e5 字节的局部数组爆栈
 ll brute_slope(int n,ll L,ll a[])
 {
@@ -85,6 +23,15 @@ ll brute_slope(int n,ll L,ll a[])
 
 int main()
 {
+    // 审核回归：覆盖原随机小值测试遗漏的边界。
+    {
+        ll v[]={0,0,0,2,0,3};
+        assert(slope_dp(5,2,v)==brute_slope(5,2,v));
+        build_ab(5,2,v);
+        for(int i=1;i<=5;i++)for(int j=0;j<i;j++)
+            assert((__int128)A[j]*s[i]+B[j]+C[i]==(__int128)f[j]+(s[i]-s[j]-2)*(s[i]-s[j]-2));
+    }
+
     srand(20240615);
     printf("==== 固定样例 ====\n");
     // 玩具装箱简化版：c={2,3,1}, L=1

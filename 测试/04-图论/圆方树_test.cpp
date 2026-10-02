@@ -2,6 +2,21 @@
 // 模板本体：04-图论/圆方树.cpp
 #include "../../04-图论/圆方树.cpp"
 
+bool connected(const vector<vector<int>> &adj,int s,int t,int ban)
+{
+    if(s==ban||t==ban)return false;
+    vector<int> vis(adj.size());
+    queue<int> q;
+    vis[s]=1,q.push(s);
+    while(!q.empty())
+    {
+        int u=q.front();
+        q.pop();
+        for(int v:adj[u])if(v!=ban&&!vis[v])vis[v]=1,q.push(v);
+    }
+    return vis[t];
+}
+
 int main()
 {
     int bad=0;

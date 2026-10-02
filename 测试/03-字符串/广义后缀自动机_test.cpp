@@ -1,0 +1,2 @@
+#include "../../03-字符串/广义后缀自动机.cpp"
+int main(){mt19937 g(83);for(int t=0;t<300;t++){GeneralSAM a;set<string> all;for(int k=0;k<10;k++){string s;for(int n=g()%15;n--;)s+=char('a'+g()%4);a.insert(s);for(int i=0;i<(int)s.size();i++)for(int j=i+1;j<=(int)s.size();j++)all.insert(s.substr(i,j-i));assert(a.distinct()==(long long)all.size());for(auto &x:all)assert(a.contains(x));}for(int k=0;k<100;k++){string s;for(int n=1+g()%8;n--;)s+=char('a'+g()%4);assert(a.contains(s)==all.count(s));}}}

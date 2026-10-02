@@ -12,7 +12,7 @@ struct Point
     Point operator+(const Point &b)const{return Point(x+b.x,y+b.y);}
     Point operator-(const Point &b)const{return Point(x-b.x,y-b.y);}
     Point operator*(double k)const{return Point(x*k,y*k);}
-    bool operator<(const Point &b)const{return x<b.x-EPS||(x<b.x+EPS&&y<b.y-EPS);}
+    bool operator<(const Point &b)const{return x!=b.x?x<b.x:y<b.y;}
     bool operator==(const Point &b)const{return fabs(x-b.x)<EPS&&fabs(y-b.y)<EPS;}
 };
 
@@ -32,12 +32,13 @@ double len2(Point a){return a.x*a.x+a.y*a.y;}
 // atan2 精度差、常数大；用半平面 + 叉积排序，O(log) 常数极小
 // 顺序：先按 y>=0 / y<0 分上下半平面，同半平面内按极角逆时针
 
+// 排序比较不使用 EPS，避免破坏严格弱序；零向量无极角，实际应用应先去掉。
 bool cmp_polar(Point a,Point b)
 {
-    int ha=(a.y>EPS||(fabs(a.y)<=EPS&&a.x<-EPS))?1:0;//上半平面（含负 x 轴起点）
-    int hb=(b.y>EPS||(fabs(b.y)<=EPS&&b.x<-EPS))?1:0;
-    if(ha!=hb)return ha>hb;
-    return sgn(cross(a,b))>0;
+    int ha=a.y<0||(a.y==0&&a.x<0),hb=b.y<0||(b.y==0&&b.x<0);
+    if(ha!=hb)return ha<hb;
+    double v=cross(a,b);
+    return v!=0?v>0:len2(a)<len2(b);
 }
 
 // 也可以用 atan2，写法最短但有精度损失
@@ -49,7 +50,6 @@ bool cmp_atan2(Point a,Point b){return atan2(a.y,a.x)<atan2(b.y,b.x);}
 vector<Point> convex_hull(vector<Point> p)
 {
     int n=p.size();
-    if(n<3)return p;
     sort(p.begin(),p.end());
     n=unique(p.begin(),p.end())-p.begin();//先去重，否则共线点会出错
     p.resize(n);
@@ -74,11 +74,13 @@ vector<Point> convex_hull(vector<Point> p)
 vector<Point> convex_hull_keep_col(vector<Point> p)
 {
     int n=p.size();
-    if(n<3)return p;
     sort(p.begin(),p.end());
     n=unique(p.begin(),p.end())-p.begin();
     p.resize(n);
     if(n<3)return p;
+    bool all_line=true;
+    for(Point x:p)if(sgn(cross(p.back()-p.front(),x-p.front()))!=0)all_line=false;
+    if(all_line)return p;
     vector<Point> h(2*n);
     int k=0;
     for(int i=0;i<n;i++)
@@ -103,59 +105,8 @@ double polygon_area(vector<Point> &p)//有向面积，逆时针为正
     return s/2;
 }
 
-// ---------- 自测 ----------
-
-double shoelace(vector<Point> p)//鞋带公式，与上面独立实现，用于对拍
-{
-    double s=0;
-    int n=p.size();
-    for(int i=0;i<n;i++)
-    {
-        int j=(i+1)%n;
-        s+=p[i].x*p[j].y-p[j].x*p[i].y;
-    }
-    return s/2;
-}
-
 bool on_seg(Point a,Point b,Point p)
 {
     if(sgn(cross(b-a,p-a))!=0)return false;
     return sgn(dot(p-a,p-b))<=0;
-}
-
-// 朴素 O(n^3) 凸包：枚举点对，若其余所有点都在同一侧，则该点对是凸包边
-// 共线点也会被当成边收集进来（凸包边界上的点会全部留下），所以与保留共线点版本可比
-vector<Point> naive_hull(vector<Point> p)
-{
-    sort(p.begin(),p.end());
-    p.erase(unique(p.begin(),p.end()),p.end());
-    int n=p.size();
-    if(n<3)return p;
-    vector<Point> h;
-    for(int i=0;i<n;i++)
-        for(int j=0;j<n;j++)
-        {
-            if(i==j)continue;
-            int pos=0,neg=0;
-            for(int k=0;k<n;k++)
-            {
-                if(k==i||k==j)continue;
-                int s=sgn(cross(p[j]-p[i],p[k]-p[i]));
-                if(s>0)pos++;
-                if(s<0)neg++;
-            }
-            if(pos&&neg)continue;//两侧都有点，不是凸包边
-            h.push_back(p[i]);//否则 p[i] 是凸包顶点（边 i->j 朝向凸包外侧）
-        }
-    sort(h.begin(),h.end());
-    h.erase(unique(h.begin(),h.end()),h.end());
-    if((int)h.size()<3)return h;
-    // 按绕质心的极角排成逆时针
-    Point o(0,0);
-    for(int i=0;i<(int)h.size();i++)o=o+h[i];
-    o=o*(1.0/h.size());
-    for(int i=0;i<(int)h.size();i++)h[i]=h[i]-o;
-    sort(h.begin(),h.end(),cmp_polar);
-    for(int i=0;i<(int)h.size();i++)h[i]=h[i]+o;
-    return h;
 }

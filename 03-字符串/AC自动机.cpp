@@ -1,3 +1,6 @@
+// 匹配文本前缀到状态 u：它的 fail 树祖先均为当前位置结束的匹配模式。
+// 反过来模式结点 v 的出现次数/位置和，可统计 fail 子树内被访问状态；DFS 序转 BIT 区间。
+// 多查询若对文本前缀长度单调，可共建一棵 AC，再整体二分按 mid 扫文本。
 #include<bits/stdc++.h>
 using namespace std;
 typedef long long ll;

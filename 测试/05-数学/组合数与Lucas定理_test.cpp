@@ -2,6 +2,37 @@
 // 模板本体：05-数学/组合数与Lucas定理.cpp
 #include "../../05-数学/组合数与Lucas定理.cpp"
 
+ll kfac(ll n,ll p)
+{
+    ll r=0;
+    while(n)n/=p,r+=n;
+    return r;
+}
+
+ll pf(ll n,ll p)
+{
+    ll r=1;
+    while(n)
+    {
+        ll t=n/p;
+        // t! 的 (n/p) 段的完整阶乘 mod p
+        for(ll i=1;i<=n%p;i++)r=r*i%p;
+        if(t&1)r=(p-r)%p;// (p-1)! === -1 (mod p)
+        n=t;
+    }
+    return r;
+}
+
+ll C_naive(ll n,ll m,ll p)
+{
+    if(m<0||m>n)return 0;
+    ll e=kfac(n,p)-kfac(m,p)-kfac(n-m,p);
+    if(e>0)return 0;// p 整除组合数
+    ll num=pf(n,p);
+    ll den=pf(m,p)*pf(n-m,p)%p;
+    return num*qpow(den,p-2,p)%p;
+}
+
 int main()
 {
     int bad=0;

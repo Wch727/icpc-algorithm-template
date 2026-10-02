@@ -1,3 +1,5 @@
+// 二维相似变换用复数：保持定向 z->a*z+b，反转定向 z->a*conj(z)+b。
+// p0!=p1 映到 q0,q1：a=(q1-q0)/(p1-p0)，b=q0-a*p0；退化点对不能除。
 #include<bits/stdc++.h>
 using namespace std;
 typedef long long ll;
@@ -8,12 +10,12 @@ const double EPS=1e-9;
 struct Point
 {
     double x,y;
-    Point(){}
+    Point():x(0),y(0){}
     Point(double x,double y):x(x),y(y){}
     Point operator+(const Point &b)const{return Point(x+b.x,y+b.y);}
     Point operator-(const Point &b)const{return Point(x-b.x,y-b.y);}
     Point operator*(double k)const{return Point(x*k,y*k);}
-    bool operator<(const Point &b)const{return x<b.x-EPS||(x<b.x+EPS&&y<b.y-EPS);}
+    bool operator<(const Point &b)const{return x!=b.x?x<b.x:y<b.y;}
     bool operator==(const Point &b)const{return fabs(x-b.x)<EPS&&fabs(y-b.y)<EPS;}
 };
 
@@ -48,7 +50,7 @@ Point line_intersect(Point a,Point b,Point c,Point d,bool &ok)
     if(sgn(s1-s2)==0&&sgn(s1)==0){ok=false;return Point();}//共线，无穷多交点
     if(sgn(s1-s2)==0){ok=false;return Point();}//平行
     ok=true;
-    return a+(b-a)*(s1/(s1-s2));
+    return c+(d-c)*(s1/(s1-s2));
 }
 
 // 线段 ab 与线段 cd 是否相交（含端点、含共线重叠），O(1)
@@ -72,7 +74,7 @@ double point_seg_dis(Point a,Point b,Point p)
     return fabs(cross(b-a,p-a))/len(b-a);
 }
 
-// 点与多边形位置关系（任意简单多边形，射线法），0 外部 1 边界 -1 表示 -1 不能用
+// 点与简单多边形位置关系，射线法。
 // 返回：0 外部，1 边界上，2 内部
 int point_in_polygon(vector<Point> &p,Point q)
 {
@@ -96,6 +98,9 @@ int point_in_polygon(vector<Point> &p,Point q)
 bool in_convex_polygon(vector<Point> &p,Point q)//顶点逆时针
 {
     int n=p.size();
+    if(!n)return false;
+    if(n==1)return q==p[0];
+    if(n==2)return on_segment(p[0],p[1],q);
     for(int i=0;i<n;i++)
         if(sgn(cross(p[(i+1)%n]-p[i],q-p[i]))<0)return false;
     return true;

@@ -3,7 +3,7 @@
 #include<bits/stdc++.h>
 using namespace std;
 typedef long long ll;
-const int N=100003;         // 取质数，模冲突最少
+const int N=100003;         // 容量；质数不能保证无冲突
 
 // ---------------- 拉链法 ----------------
 // h[k] 存链表头（结点下标），e[] 存值，nxt[] 存后继，idx 从 0 开始
@@ -46,24 +46,32 @@ struct HashOpen{
     {
         return (x%N+N)%N;
     }
-    // 返回 x 所在位置；没找到时返回 x 应该插入的第一个空位
+    // 已有位置或首个空位；表满且不存在时返回 -1。x 不能等于 null。
     int find(int x)
     {
         int k=get_key(x);
+        int start=k;
         while(h[k]!=null&&h[k]!=x)
         {
             k++;
             if(k==N)k=0;          // 走到表尾绕回表头
+            if(k==start)return -1;
         }
         return k;
     }
-    void insert(int x)            // 重复插入同一个数只留一份
+    bool insert(int x)            // 重复插入只留一份；满表返回 false
     {
-        h[find(x)]=x;
+        if(x==null)return false;
+        int p=find(x);
+        if(p<0)return false;
+        h[p]=x;
+        return true;
     }
     bool count(int x)
     {
-        return h[find(x)]==x;
+        if(x==null)return false;
+        int p=find(x);
+        return p>=0&&h[p]==x;
     }
 };
 

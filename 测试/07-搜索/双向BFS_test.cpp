@@ -2,6 +2,10 @@
 // 模板本体：07-搜索/双向BFS.cpp
 #include "../../07-搜索/双向BFS.cpp"
 
+// ---------- 三、自测 ----------
+
+mt19937 rnd(20240607);
+
 int rand_int(int l,int r)//[l,r]
 {
     return l+(int)(rnd()%(unsigned)(r-l+1));

@@ -1,3 +1,5 @@
+// 至多一次失配的最长匹配：先求 LCP，未到串尾则跳过一个字符，再求一次 LCP；两次查询。
+// LCP 上界截在两串剩余长度内；哈希有碰撞概率，需严格正确可用 SA+RMQ 的 LCP。
 #include<bits/stdc++.h>
 using namespace std;
 typedef long long ll;
@@ -20,7 +22,7 @@ struct Hash1
         for(int i=1;i<=len;i++)
         {
             p[i]=p[i-1]*base1;
-            h[i]=h[i-1]*base1+(ull)str[i-1];
+            h[i]=h[i-1]*base1+(unsigned char)str[i-1];
         }
     }
     // 下标 1 开始，[l,r] 的哈希值
@@ -45,8 +47,8 @@ struct Hash2
         for(int i=1;i<=len;i++)
         {
             p1[i]=p1[i-1]*base1%mod1,p2[i]=p2[i-1]*base2%mod2;
-            h1[i]=(h1[i-1]*base1+(ull)str[i-1])%mod1;
-            h2[i]=(h2[i-1]*base2+(ull)str[i-1])%mod2;
+            h1[i]=(h1[i-1]*base1+(unsigned char)str[i-1])%mod1;
+            h2[i]=(h2[i-1]*base2+(unsigned char)str[i-1])%mod2;
         }
     }
     // 下标 1 开始，返回 [l,r] 的双哈希
