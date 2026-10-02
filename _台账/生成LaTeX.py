@@ -1,0 +1,315 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""生成自包含双栏手册；不截断实现，不依赖额外项目文件。
+
+python _台账/生成LaTeX.py
+配置：_台账/打印配置.json；输出：ICPC算法手册.tex
+"""
+import json
+import re
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+CFG = ROOT / '_台账' / '打印配置.json'
+OUT = ROOT / 'ICPC算法手册.tex'
+CHAPTERS = [
+    ('01-基础与技巧', '基础与技巧'), ('02-数据结构', '数据结构'),
+    ('03-字符串', '字符串'), ('04-图论', '图论'), ('05-数学', '数学'),
+    ('06-动态规划', '动态规划'), ('07-搜索', '搜索'),
+    ('08-计算几何', '计算几何'), ('09-其他', '其他'),
+]
+
+PREAMBLE = r'''% 自动生成；修改模板或打印配置后运行 _台账/生成LaTeX.py。
+% 独立文件：XeLaTeX 编译两次即可，不需要 input 或外部代码文件。
+\documentclass[UTF8,fontset=fandol,a4paper,twoside]{ctexart}
+\usepackage[inner=11mm,outer=9mm,top=11mm,bottom=12mm,
+    headheight=11pt,headsep=3mm,footskip=6mm]{geometry}
+\usepackage{amsmath,amssymb,multicol,listings,xcolor,enumitem,fancyhdr,titlesec}
+\usepackage[hidelinks,unicode]{hyperref}
+\setmonofont{lmmono10-regular.otf}[BoldFont=lmmonolt10-bold.otf]
+\setCJKmonofont{FandolFang-Regular}[BoldFont=FandolHei-Regular]
+\definecolor{ink}{gray}{0.18}
+\setlength{\columnsep}{6mm}
+\setlength{\columnseprule}{0.2pt}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1pt}
+\setlength{\multicolsep}{3pt}
+\setlength{\abovedisplayskip}{3pt}
+\setlength{\belowdisplayskip}{3pt}
+\setlength{\abovedisplayshortskip}{2pt}
+\setlength{\belowdisplayshortskip}{2pt}
+\setlist[itemize]{nosep,leftmargin=1.1em,topsep=1pt}
+\titleformat{\section}{\fontsize{11}{12}\selectfont\bfseries}{\thesection}{0.4em}{}
+\titleformat{\subsection}{\fontsize{9}{10}\selectfont\bfseries}{\thesubsection}{0.4em}{}
+\titlespacing*{\section}{0pt}{7pt}{3pt}
+\titlespacing*{\subsection}{0pt}{5pt}{2pt}
+\setcounter{tocdepth}{2}
+\makeatletter
+\renewcommand{\l@section}{\@dottedtocline{1}{0em}{1.6em}}
+\renewcommand{\l@subsection}{\@dottedtocline{2}{0.8em}{2.7em}}
+\makeatother
+\pagestyle{fancy}\fancyhf{}
+\fancyhead[LE,RO]{\fontsize{7.5}{9}\selectfont\thepage}
+\fancyhead[LO,RE]{\fontsize{7.5}{9}\selectfont ICPC 算法手册\quad\nouppercase{\leftmark}}
+\renewcommand{\headrulewidth}{0.2pt}
+\renewcommand{\sectionmark}[1]{\markboth{\thesection\ #1}{}}
+\lstset{language=C++,basicstyle=\ttfamily\fontsize{@CODE@}{@LEAD@}\selectfont,
+    keywordstyle=\bfseries,commentstyle=\color{ink},stringstyle=\color{ink},
+    numbers=none,frame=none,columns=fullflexible,keepspaces=true,
+    tabsize=4,showstringspaces=false,showspaces=false,escapeinside={(*@}{@*)},
+    breaklines=true,breakatwhitespace=false,breakindent=1em,
+    aboveskip=2pt,belowskip=3pt,
+    literate={Σ}{{$\Sigma$}}1 {∑}{{$\sum$}}1 {Δ}{{$\Delta$}}1
+    {α}{{$\alpha$}}1 {π}{{$\pi$}}1 {φ}{{$\varphi$}}1 {θ}{{$\theta$}}1
+    {μ}{{$\mu$}}1 {σ}{{$\sigma$}}1 {Π}{{$\Pi$}}1 {∏}{{$\prod$}}1
+    {≤}{{$\le$}}1 {≥}{{$\ge$}}1 {≠}{{$\ne$}}1 {≈}{{$\approx$}}1
+    {×}{{$\times$}}1 {∈}{{$\in$}}1 {∞}{{$\infty$}}1
+    {≡}{{$\equiv$}}1 {⊆}{{$\subseteq$}}1
+    {→}{{$\to$}}1 {⇒}{{$\Rightarrow$}}1 {⊕}{{$\oplus$}}1
+    {²}{{$^2$}}1 {³}{{$^3$}}1 {√}{{$\sqrt{\ }$}}1
+}
+\newcommand{\topic}[1]{\par\smallskip\textbf{#1}\par\nobreak}
+\newcommand{\note}[1]{{\fontsize{8}{9.5}\selectfont #1\par}}
+\begin{document}
+\fontsize{8.3}{9.8}\selectfont
+'''
+
+FORMULAS = {
+    '01-基础与技巧/高维差分.cpp': r'''
+\note{令 $x=(x_1,\ldots,x_D)$，$e_i$ 为单位向量，$b\in\{0,1\}^D$，
+$|b|=\sum b_i$。任一坐标为 0 时，数组及中间阶段的值均为 0。}
+\textbf{差分与直接还原}
+\begin{align*}
+d(x)&=\sum_{b\in\{0,1\}^D}(-1)^{|b|}a(x-b),\\
+a(x)&=d(x)+\sum_{b\ne0}(-1)^{|b|+1}a(x-b).
+\end{align*}
+\textbf{逐维递推：$O(DS)$，$S$ 为格数}
+\begin{align*}
+G_0(x)&=a(x),\\
+G_i(x)&=G_{i-1}(x)-G_{i-1}(x-e_i),\quad G_D=d,\\
+F_0(x)&=d(x),\\
+F_i(x)&=F_{i-1}(x)+F_i(x-e_i),\quad F_D=a.
+\end{align*}
+\note{原地建表沿当前维倒序，还原正序。直接容斥还原为 $O(2^D S)$。}
+\textbf{闭区域加 $v$：$2^D$ 个角点}
+\[
+p_i=\begin{cases}l_i,&b_i=0,\\r_i+1,&b_i=1,\end{cases}
+\qquad d(p)\mathrel{+}=(-1)^{|b|}v.
+\]
+\note{各维预留第 0 层及右端点加 1。全零初始可直接修改；结果只还原一次。
+下方三维代码是逐维递推的具体写法。}
+''',
+    '01-基础与技巧/位运算技巧.cpp': r'''
+\note{对齐块 $[b,b+L)$：$L=2^k$，$b\equiv0\pmod L$，区间在无符号 64 位范围内。}
+\[
+H=b\mathbin{\mathtt{xor}}(v\mathbin{\mathtt{\&}}\mathord{\sim}(L-1)),
+\]
+\[
+\sum_{x=b}^{b+L-1}(x\mathbin{\mathtt{xor}}v)=LH+\frac{L(L-1)}2.
+\]
+\note{乘积和结果使用 128 位；低 $k$ 位在异或后仍遍历一次。}
+''',
+    '06-动态规划/概率期望DP.cpp': r'''
+\textbf{自环移项、线性性、尾和}
+\[
+E=c+pE+\sum_jq_jE_j
+\quad\Longrightarrow\quad E=\frac{c+\sum_jq_jE_j}{1-p}.
+\]
+\[
+\mathbb E\Bigl[\sum_iX_i\Bigr]=\sum_i\mathbb E[X_i],\qquad
+\mathbb E[T]=\sum_{k\ge0}\Pr(T>k).
+\]
+\note{第一式要求 $p<1$ 且期望有限；尾和适用于非负整数随机变量。
+无需独立性即可使用期望线性性。}
+\note{若 $S$ 是已取得的项目集合，每步等概率抽取 $n$ 项中的一项：}
+\[
+E[S]=\frac{n+\sum_{i\notin S}E[S\cup\{i\}]}{n-|S|},
+\quad E[\text{完成状态}]=0.
+\]
+\note{稳态 move-to-front 模型中，若 $p_i+p_j>0$，
+一对项目的期望逆序贡献为 $p_ip_j/(p_i+p_j)$；零概率对贡献为 0。}
+''',
+    '05-数学/多项式求逆与ln_exp.cpp': r'''
+\note{Bell 数的指数生成函数；最终系数乘 $n!$，模数须允许所需分母求逆。}
+\[
+\sum_{n\ge0}B_n\frac{x^n}{n!}=\exp(e^x-1).
+\]
+''',
+    '05-数学/容斥原理与排列组合.cpp': r'''
+\textbf{范德蒙德卷积}
+\[
+\sum_j\binom rj\binom s{k-j}=\binom{r+s}k.
+\]
+\note{对 $a_1\le\cdots\le a_n$，枚举所有子集，$a_i$ 作为子集第 $j$ 小元素的次数为
+$\binom{i-1}{j-1}2^{n-i}$。若该位置权重依次为 $1,1,2,4,\ldots$，总系数为}
+\[
+\frac{3^{i-1}+1}{2}\,2^{n-i}.
+\]
+\note{两个不同指定对象分别禁放两个指定端点，$k\ge2$：
+$k!-2(k-1)!+(k-2)!$。模意义除法须可逆。}
+''',
+    '08-计算几何/闵可夫斯基和.cpp': r'''
+\note{平面凸区域面积 $S$、周长 $L$，先加半径 $r$ 的圆盘，再加半径 $R$ 的三维球：}
+\begin{align*}
+S'&=S+Lr+\pi r^2,\qquad L'=L+2\pi r,\\
+V&=2RS'+\frac\pi2 R^2L'+\frac{4\pi}3R^3.
+\end{align*}
+\note{二维圆盘和三维球的半径不能直接相加。}
+''',
+}
+
+SPECIAL_NOTES = r'''
+\topic{WQS：数量限制变罚项}
+令 $F(k)$ 为恰选 $k$ 次的最小代价，
+$G(\lambda)=\min_k\{F(k)+\lambda k\}$。
+若 $F$ 离散凸，且 $\lambda$ 支持目标 $K$（或 $K$ 位于并列最优数量之间），则
+\[
+F(K)=G(\lambda)-\lambda K.
+\]
+罚项增大时最优次数不增；并列时统一取更多次数。
+仅次数单调不够：$F(0)=F(2)=0,F(1)=10$ 时只能恢复下凸包。
+若单次 DP 为 $O(T)$，二分罚项为 $O(T\log W)$；须证明范围与凸性。
+\topic{Burnside / P\'olya：对称下计数}
+有限群 $G$ 作用于合法方案集合：
+\[
+\#\text{轨道}=\frac1{|G|}\sum_{g\in G}\operatorname{Fix}(g).
+\]
+自由用 $c$ 色染位置时，$\operatorname{Fix}(g)=c^{\#\text{轮换}}$；
+有颜色数量限制时须重新数不动方案。$n\ge1$，令
+\[
+R=\sum_{i=0}^{n-1}c^{\gcd(n,i)}
+=\sum_{d\mid n}\varphi(d)c^{n/d}.
+\]
+只认旋转的项链数为 $R/n$；允许翻转的手链数为 $(R+H)/(2n)$，其中
+\[
+H=\begin{cases}
+nc^{(n+1)/2},&n\text{ 奇},\\
+\frac n2\bigl(c^{n/2+1}+c^{n/2}\bigr),&n\text{ 偶}.
+\end{cases}
+\]
+模 $M$ 除以 $|G|$：互素时用逆元；否则可先模 $M|G|$ 计算分子，再整数除以 $|G|$。
+例如 $n=6,c=2$：项链 14，手链 13。
+'''
+
+def escape(s, breakable=False):
+    m = {'\\': r'\textbackslash{}', '&': r'\&', '%': r'\%', '$': r'\$',
+         '#': r'\#', '_': r'\_', '{': r'\{', '}': r'\}',
+         '~': r'\textasciitilde{}', '^': r'\textasciicircum{}'}
+    symbols = {'μ': r'\mu', 'σ': r'\sigma', 'φ': r'\varphi', 'Σ': r'\Sigma',
+               'Π': r'\Pi', '∏': r'\prod', '≤': r'\le', '≥': r'\ge',
+               '≡': r'\equiv', '⊆': r'\subseteq', '∈': r'\in',
+               'π': r'\pi', 'α': r'\alpha', 'Δ': r'\Delta',
+               '∞': r'\infty', '²': '^2', '³': '^3', '−': '-',
+               '×': r'\times', '≠': r'\ne', '∑': r'\sum'}
+    out = []
+    for c in s:
+        out.append(r'\ensuremath{' + symbols[c] + '}' if c in symbols else m.get(c, c))
+        if breakable and c in '[](),=+/-':
+            out.append(r'\allowbreak{}')
+    return ''.join(out)
+
+def inline(s):
+    s = re.sub(r'\[([^\]]+)\]\([^)]+\)', r'\1', s)
+    # 先分段再转义，避免误转义新插入的 LaTeX 命令。
+    parts = re.split(r'(\*\*.*?\*\*|`[^`]*`)', s)
+    out = []
+    for p in parts:
+        if p.startswith('**') and p.endswith('**'):
+            out.append(r'\textbf{' + escape(p[2:-2], True) + '}')
+        elif p.startswith('`') and p.endswith('`'):
+            out.append(r'\texttt{' + escape(p[1:-1], True) + '}')
+        else:
+            out.append(escape(p, True))
+    return ''.join(out)
+
+def clean_code(s, rel):
+    drop = re.compile(r'^\s*(?:#include\s*<bits/stdc\+\+\.h>|using namespace std;|'
+                      r'typedef long long ll;|using ll\s*=\s*long long;)\s*$')
+    if rel == '01-基础与技巧/高维差分.cpp':
+        s = s.split('// D 维统一公式：')[0]
+    lines = [l.rstrip() for l in s.splitlines() if not drop.match(l)]
+    # xeCJK 的 listings 适配对部分符号不应用 literate；只处理注释中的数学字符。
+    for i, line in enumerate(lines):
+        if '//' not in line:
+            continue
+        code, sep, comment = line.partition('//')
+        for char, symbol in {'σ': r'\sigma', '≡': r'\equiv', '⊆': r'\subseteq'}.items():
+            comment = comment.replace(char, '(*@$' + symbol + '$@*)')
+        lines[i] = code + sep + comment
+    # 只收紧空行；函数体、声明、容量和算法注释均不截断。
+    return re.sub(r'\n\s*\n+', '\n', '\n'.join(lines)).strip()
+
+def notes(md, common=False):
+    out = []
+    if common:
+        a, sep, b = md.partition('## WQS 与 Burnside / Pólya')
+        md = a
+        tail = b.partition('## 扩展欧拉、LGV 与建模补充')[2] if sep else ''
+    else:
+        tail = ''
+    started = False
+    for l in md.splitlines():
+        if l.startswith('## '):
+            started = True
+            out.append(r'\topic{' + escape(l[3:]) + '}')
+        elif l.startswith('### '):
+            out.append(r'\par\textbf{' + escape(l[4:]) + r'}\quad')
+        elif started and l.startswith('- '):
+            if '**你的题**' in l or '**模板**' in l:
+                continue
+            out.append(inline(l[2:]) + r'\par')
+    if common:
+        out.append(SPECIAL_NOTES)
+        out.append(r'\topic{扩展欧拉、LGV 与建模补充}')
+        for l in tail.splitlines():
+            if l.startswith('- '):
+                out.append(inline(l[2:]) + r'\par\smallskip')
+    return '\n'.join(out)
+
+def main():
+    cfg = json.loads(CFG.read_text(encoding='utf-8-sig'))
+    excluded = set(cfg.get('exclude', []))
+    all_files = [p for d, _ in CHAPTERS for p in sorted((ROOT / d).glob('*.cpp'))]
+    all_rel = {p.relative_to(ROOT).as_posix() for p in all_files}
+    unknown = excluded - all_rel
+    if unknown:
+        raise ValueError('Unknown excluded files: ' + ','.join(sorted(unknown)))
+    total = len(all_files) - len(excluded)
+    pre = PREAMBLE.replace('@CODE@', str(cfg['code_font_pt'])).replace('@LEAD@', str(cfg['code_leading_pt']))
+    tex = [pre, r'\begin{center}{\fontsize{15}{17}\selectfont\bfseries ICPC 算法手册}\quad'
+           r'\small 2026-10-02\end{center}',
+           r'\note{双栏完整实现版\quad ' + str(total) +
+           r' 份模板。各模板独立使用；同名全局量和函数按题目取舍，不将整本直接拼接编译。'
+           r'公共头文件与 \texttt{ll} 定义仅在此列出，其他容量、类型和依赖保留在各模板中。}',
+           r'\begin{lstlisting}', '#include<bits/stdc++.h>\nusing namespace std;\ntypedef long long ll;',
+           r'\end{lstlisting}', r'\begin{multicols}{2}\tableofcontents\end{multicols}',
+           r'\clearpage\begin{multicols}{2}']
+    emitted = []
+    for directory, title in CHAPTERS:
+        chosen = [p for p in all_files if p.parent.name == directory
+                  and p.relative_to(ROOT).as_posix() not in excluded]
+        if not chosen:
+            continue
+        tex.append(r'\section{' + title + '}')
+        for p in chosen:
+            rel = p.relative_to(ROOT).as_posix()
+            tex.append('% SOURCE: ' + rel)
+            tex.append(r'\subsection{' + escape(p.stem) + '}')
+            tex.append(FORMULAS.get(rel, ''))
+            body = clean_code(p.read_text(encoding='utf-8-sig'), rel)
+            if r'\end{lstlisting}' in body:
+                raise ValueError('Listing delimiter in ' + rel)
+            tex.extend([r'\begin{lstlisting}', body, r'\end{lstlisting}'])
+            emitted.append(rel)
+    if cfg.get('include_notes', True):
+        tex.append(r'\section{模型判据与常用结论}')
+        tex.append(notes((ROOT / '结论速查.md').read_text(encoding='utf-8-sig')))
+        tex.append(notes((ROOT / '结论速查' / 'ICPC常用结论.md').read_text(encoding='utf-8-sig'), True))
+    tex.extend([r'\end{multicols}', r'\end{document}'])
+    OUT.write_text('\n'.join(tex) + '\n', encoding='utf-8')
+    print(f'Generated {OUT.name.encode("ascii", "backslashreplace").decode()}: {total} complete templates')
+    print(f'{OUT.stat().st_size} bytes; omitted {len(excluded)}; no external inputs')
+    assert len(emitted) == total
+
+if __name__ == '__main__':
+    main()

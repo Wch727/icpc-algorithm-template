@@ -1,9 +1,11 @@
-// 三库（洛谷 + AtCoder + Codeforces）合并覆盖核对：哪些标签在库里没有模板
+// 旧三库标签集合统计；未逐文件校验，不作为当前模板覆盖率。
 // 用法: node _台账\三库覆盖.mjs
 import fs from 'node:fs';
 import path from 'node:path';
 
 const DIR = import.meta.dirname;
+const HISTORY = path.join(DIR, '历史记录');
+fs.mkdirSync(HISTORY, {recursive: true});
 const raw = fs.readFileSync(path.join(DIR, '总台账.csv'), 'utf8').replace(/^\ufeff/, '');
 const rows = raw.trim().split(/\r?\n/).slice(1).map(l => {
     const m = l.match(/^([^,]+),([^,]+),"((?:[^"]|"")*)"?,?([^,]*),(.*)$/);
@@ -279,5 +281,6 @@ const md = ['# 三库合并 · 模板覆盖核对', '',
     gaps.length ? '## 缺模板的标签\n\n| 标签 | 题数 |\n|---|---|\n' + gaps.map(([t, n]) => `| ${t} | ${n} |`).join('\n')
         : '## 结论\n\n**所有算法标签都能在库里找到对应模板**（或属模拟/枚举/语法这类本来就没有模板的题）。', '',
     `## 只涉及模拟/枚举/语法的题（${noTpl.length} 题）`, '', noTpl.slice(0, 60).join(' ｜ ') + (noTpl.length > 60 ? ' …' : ''), ''];
-fs.writeFileSync(path.join(DIR, '三库覆盖报告.md'), md.join('\n'), 'utf8');
-console.log('\n报告写入 _台账/三库覆盖报告.md');
+md.splice(1, 0, '\n> 历史标签统计，不能代表当前模板覆盖率。当前状态见 [维护说明](../维护说明.md)。\n');
+fs.writeFileSync(path.join(HISTORY, '三库覆盖报告.md'), md.join('\n'), 'utf8');
+console.log('\n报告写入 _台账/历史记录/三库覆盖报告.md');

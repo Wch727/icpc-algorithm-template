@@ -1,10 +1,13 @@
 // 覆盖分析：把题目台账的标签统计出来，对照模板库给出缺口清单
-// 用法: node _台账\覆盖分析.mjs   ->  生成 _台账\标签覆盖报告.md
+// 旧洛谷标签统计；输出历史快照，不作为当前模板覆盖率。
+// 用法: node _台账\覆盖分析.mjs
 import fs from 'node:fs';
 import path from 'node:path';
 
 const DIR = import.meta.dirname;
 const ROOT = path.join(DIR, '..');
+const HISTORY = path.join(DIR, '历史记录');
+fs.mkdirSync(HISTORY, {recursive: true});
 const raw = fs.readFileSync(path.join(DIR, '题目台账.csv'), 'utf8').replace(/^\ufeff/, '');
 const rows = raw.trim().split(/\r?\n/).slice(1).map(l => {
     const m = l.match(/^([^,]+),("(?:[^"]|"")*"|[^,]*),(\d+),([^,]*),(.*)$/);
@@ -29,14 +32,14 @@ for (const r of rows) for (const t of r.tags) {
 
 // 标签 -> 库内对应文件（'—' 表示暂缺）
 const MAP = {
-    '模拟': '（无需模板）', '枚举': '（无需模板）', '贪心': '01-基础与技巧/反悔贪心.cpp', '排序': '01-基础与技巧/快速排序与快速选择.cpp',
-    '二分': '01-基础与技巧/二分答案.cpp', '三分': '01-基础与技巧/三分法.cpp', '递归': '07-搜索/DFS与剪枝.cpp',
+    '模拟': '（无需模板）', '枚举': '（无需模板）', '贪心': '01-基础与技巧/反悔贪心.cpp', '排序': '01-基础与技巧/STL容器速查.cpp',
+    '二分': '（无需单独模板）', '三分': '01-基础与技巧/三分法.cpp', '递归': '07-搜索/DFS与剪枝.cpp',
     '搜索': '07-搜索/DFS与剪枝.cpp', '深度优先搜索 DFS': '07-搜索/DFS与剪枝.cpp', '广度优先搜索 BFS': '07-搜索/BFS最短路.cpp',
     '迭代加深搜索': '07-搜索/迭代加深与IDA星.cpp', '启发式迭代加深搜索 IDA*': '07-搜索/迭代加深与IDA星.cpp',
     'A* 算法': '07-搜索/A星与K短路.cpp', '启发式搜索': '07-搜索/A星与K短路.cpp', '剪枝': '07-搜索/DFS与剪枝.cpp',
     '记忆化搜索': '01-基础与技巧/记忆化搜索.cpp', '折半搜索 meet in the middle': '07-搜索/折半搜索.cpp',
-    '分治': '01-基础与技巧/分治.cpp', 'cdq 分治': '01-基础与技巧/分治.cpp',
-    '动态规划 DP': '06-动态规划/（九个文件）', '线性 DP': '06-动态规划/最长上升子序列LIS.cpp',
+    '分治': '（按题目选择结构，不设独立模板）', 'cdq 分治': '02-数据结构/CDQ分治(三维偏序).cpp',
+    '动态规划 DP': '（见 06-动态规划 章节）', '线性 DP': '06-动态规划/递推与线性DP.cpp',
     '背包 DP': '06-动态规划/背包(01完全多重).cpp', '区间 DP': '06-动态规划/区间DP.cpp', '树形 DP': '06-动态规划/树形DP.cpp',
     '状压 DP': '06-动态规划/状压DP.cpp', '数位 DP': '06-动态规划/数位DP.cpp', '动态规划优化': '06-动态规划/单调队列优化DP.cpp',
     '单调队列': '01-基础与技巧/单调队列.cpp', '单调栈': '01-基础与技巧/单调栈.cpp', '队列': '01-基础与技巧/STL容器速查.cpp',
@@ -53,7 +56,7 @@ const MAP = {
     '树套树': '02-数据结构/树套树(树状数组套主席树).cpp', '扫描线': '02-数据结构/扫描线(矩形面积并).cpp',
     '字符串': '03-字符串/（六个文件）', 'KMP 算法': '03-字符串/KMP.cpp', 'Manacher 算法': '03-字符串/Manacher.cpp',
     '后缀自动机 SAM': '03-字符串/后缀自动机SAM.cpp', '回文自动机': '03-字符串/回文自动机PAM.cpp',
-    '图论': '04-图论/（十九个文件）', '图论建模': '04-图论/存图(vector邻接表).cpp', '图遍历': '04-图论/存图(vector邻接表).cpp',
+    '图论': '（见 04-图论 章节）', '图论建模': '04-图论/存图(vector邻接表).cpp', '图遍历': '04-图论/存图(vector邻接表).cpp',
     '最短路': '04-图论/Dijkstra.cpp', 'Floyd 算法': '04-图论/Floyd.cpp', '拓扑排序': '04-图论/拓扑排序.cpp',
     '生成树': '04-图论/最小生成树Kruskal.cpp', '强连通分量': '04-图论/Tarjan强连通分量.cpp', 'Tarjan': '04-图论/Tarjan强连通分量.cpp',
     '最近公共祖先 LCA': '04-图论/LCA(倍增).cpp', '倍增': '04-图论/LCA(倍增).cpp', '二分图': '04-图论/二分图判定.cpp',
@@ -70,7 +73,7 @@ const MAP = {
     '矩阵加速': '05-数学/矩阵快速幂.cpp', '矩阵运算': '05-数学/矩阵快速幂.cpp', '线性递推': '05-数学/矩阵快速幂.cpp',
     'Fibonacci 数列': '05-数学/矩阵快速幂.cpp', '快速傅里叶变换 FFT': '05-数学/FFT.cpp', '快速数论变换 NTT': '05-数学/NTT.cpp',
     '博弈论': '05-数学/博弈论(Nim与SG).cpp', '概率论': '06-动态规划/概率期望DP.cpp', '期望': '06-动态规划/概率期望DP.cpp',
-    '进制': '01-基础与技巧/进制转换.cpp', '前缀和': '01-基础与技巧/前缀和与差分.cpp', '差分': '01-基础与技巧/前缀和与差分.cpp',
+    '进制': '（无需单独模板）', '前缀和': '（无需单独模板）', '差分': '01-基础与技巧/二维差分.cpp',
     '离散化': '01-基础与技巧/离散化.cpp', '双指针 two-pointer': '01-基础与技巧/双指针.cpp',
     '递推': '06-动态规划/递推与线性DP.cpp', '构造': '（思维题，无固定模板）',
     '位运算': '01-基础与技巧/位运算技巧.cpp', 'bitset': '09-其他/bitset优化技巧.cpp', '高精度': '01-基础与技巧/高精度BigInt.cpp',
@@ -108,7 +111,8 @@ for (const [tag, n, file] of covered) md.push(`| ${tag} | ${n} | ${file}${exists
 md.push('\n## 台账里出现、但库里还没有对应模板的标签\n');
 md.push(gaps.length ? gaps.map(([t, n]) => `- ${t}（${n} 题）`).join('\n') : '- 无');
 md.push('\n');
-fs.writeFileSync(path.join(DIR, '标签覆盖报告.md'), md.join('\n'), 'utf8');
+md.splice(1, 0, '\n> 历史标签统计，不能代表当前模板覆盖率。当前状态见 [维护说明](../维护说明.md)。\n');
+fs.writeFileSync(path.join(HISTORY, '标签覆盖报告.md'), md.join('\n'), 'utf8');
 
 // ---- 题目级对照：每道题的算法标签 → 模板文件 ----
 const perRow = [];
@@ -136,7 +140,7 @@ const perOut = ['id,名称,难度,算法标签,对应模板'];
 for (const r of perRow) {
     perOut.push([r.id, '"' + r.name.replace(/"/g, '""') + '"', r.diffName, r.algo.join(';'), r.files].join(','));
 }
-fs.writeFileSync(path.join(DIR, '题目-模板对照.csv'), '\ufeff' + perOut.join('\n') + '\n', 'utf8');
+fs.writeFileSync(path.join(HISTORY, '洛谷题目-模板对照.csv'), '\ufeff' + perOut.join('\n') + '\n', 'utf8');
 
 console.log(`报告已生成：${covered.length} 个标签有模板对应，${gaps.length} 个标签暂缺`);
 const noAlgoCnt = perRow.filter(r => !r.algo.length).length;
