@@ -24,7 +24,7 @@ PREAMBLE = r'''% 自动生成；修改模板或打印配置后运行 _台账/生
 \documentclass[UTF8,fontset=fandol,a4paper,twoside]{ctexart}
 \usepackage[inner=11mm,outer=9mm,top=11mm,bottom=12mm,
     headheight=11pt,headsep=3mm,footskip=6mm]{geometry}
-\usepackage{amsmath,amssymb,multicol,listings,xcolor,enumitem,fancyhdr,titlesec}
+\usepackage{amsmath,amssymb,multicol,listings,xcolor,enumitem,fancyhdr,titlesec,tabularx}
 \usepackage[hidelinks,unicode]{hyperref}
 \setmonofont{lmmono10-regular.otf}[BoldFont=lmmonolt10-bold.otf]
 \setCJKmonofont{FandolFang-Regular}[BoldFont=FandolHei-Regular]
@@ -204,7 +204,7 @@ def escape(s, breakable=False):
     out = []
     for c in s:
         out.append(r'\ensuremath{' + symbols[c] + '}' if c in symbols else m.get(c, c))
-        if breakable and c in '[](),=+/-':
+        if breakable and c in '[](),=+/-<>.':
             out.append(r'\allowbreak{}')
     return ''.join(out)
 
@@ -266,20 +266,57 @@ def notes(md, common=False):
                 out.append(inline(l[2:]) + r'\par\smallskip')
     return '\n'.join(out)
 
+def reference(md):
+    """两列表格按小节排版；保留短写法，不转成示例函数。"""
+    out = []
+    table = False
+    for line in md.splitlines():
+        if table and not line.startswith('|'):
+            out.append(r'\hline\end{tabularx}\par\endgroup')
+            table = False
+        if line.startswith('# ') or not line.strip():
+            continue
+        if line.startswith('## '):
+            out.append(r'\topic{' + escape(line[3:]) + '}')
+        elif line.startswith('|'):
+            cells = [s.strip() for s in line.strip('|').split('|')]
+            if all(re.fullmatch(r':?-+:?', s) for s in cells):
+                continue
+            if not table:
+                out.extend([r'\begingroup\fontsize{7.8}{9}\selectfont',
+                            r'\renewcommand{\arraystretch}{1.05}',
+                            r'\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{0.45\linewidth}'
+                            r'@{\hspace{4pt}}>{\raggedright\arraybackslash}X@{}}\hline',
+                            r'\textbf{' + escape(cells[0]) + '} & '
+                            r'\textbf{' + escape(cells[1]) + r'}\\\hline'])
+                table = True
+            else:
+                out.append(inline(cells[0]) + ' & ' + inline(cells[1]) + r'\\[2pt]')
+        else:
+            out.append(r'\note{' + inline(line) + '}')
+    if table:
+        out.append(r'\hline\end{tabularx}\par\endgroup')
+    return '\n'.join(out)
+
+
 def main():
     cfg = json.loads(CFG.read_text(encoding='utf-8-sig'))
     excluded = set(cfg.get('exclude', []))
-    all_files = [p for d, _ in CHAPTERS for p in sorted((ROOT / d).glob('*.cpp'))]
+    all_files = [p for d, _ in CHAPTERS for p in sorted((ROOT / d).iterdir())
+                 if p.suffix in ('.cpp', '.md')]
     all_rel = {p.relative_to(ROOT).as_posix() for p in all_files}
     unknown = excluded - all_rel
     if unknown:
         raise ValueError('Unknown excluded files: ' + ','.join(sorted(unknown)))
     total = len(all_files) - len(excluded)
+    code_total = sum(p.suffix == '.cpp' and p.relative_to(ROOT).as_posix() not in excluded
+                     for p in all_files)
+    ref_total = total - code_total
     pre = PREAMBLE.replace('@CODE@', str(cfg['code_font_pt'])).replace('@LEAD@', str(cfg['code_leading_pt']))
     tex = [pre, r'\begin{center}{\fontsize{15}{17}\selectfont\bfseries ICPC 算法手册}\quad'
            r'\small 2026-10-02\end{center}',
-           r'\note{双栏完整实现版\quad ' + str(total) +
-           r' 份模板。各模板独立使用；同名全局量和函数按题目取舍，不将整本直接拼接编译。'
+           r'\note{双栏完整实现版\quad ' + str(code_total) + ' 份代码模板、' + str(ref_total) +
+           r' 份速查表。各模板独立使用；同名全局量和函数按题目取舍，不将整本直接拼接编译。'
            r'公共头文件与 \texttt{ll} 定义仅在此列出，其他容量、类型和依赖保留在各模板中。}',
            r'\begin{lstlisting}', '#include<bits/stdc++.h>\nusing namespace std;\ntypedef long long ll;',
            r'\end{lstlisting}', r'\begin{multicols}{2}\tableofcontents\end{multicols}',
@@ -295,6 +332,10 @@ def main():
             rel = p.relative_to(ROOT).as_posix()
             tex.append('% SOURCE: ' + rel)
             tex.append(r'\subsection{' + escape(p.stem) + '}')
+            if p.suffix == '.md':
+                tex.append(reference(p.read_text(encoding='utf-8-sig')))
+                emitted.append(rel)
+                continue
             tex.append(FORMULAS.get(rel, ''))
             body = clean_code(p.read_text(encoding='utf-8-sig'), rel)
             if r'\end{lstlisting}' in body:
@@ -307,7 +348,8 @@ def main():
         tex.append(notes((ROOT / '结论速查' / 'ICPC常用结论.md').read_text(encoding='utf-8-sig'), True))
     tex.extend([r'\end{multicols}', r'\end{document}'])
     OUT.write_text('\n'.join(tex) + '\n', encoding='utf-8')
-    print(f'Generated {OUT.name.encode("ascii", "backslashreplace").decode()}: {total} complete templates')
+    print(f'Generated {OUT.name.encode("ascii", "backslashreplace").decode()}: '
+          f'{code_total} complete templates, {ref_total} reference tables')
     print(f'{OUT.stat().st_size} bytes; omitted {len(excluded)}; no external inputs')
     assert len(emitted) == total
 

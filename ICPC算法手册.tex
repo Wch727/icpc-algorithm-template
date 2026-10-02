@@ -3,7 +3,7 @@
 \documentclass[UTF8,fontset=fandol,a4paper,twoside]{ctexart}
 \usepackage[inner=11mm,outer=9mm,top=11mm,bottom=12mm,
     headheight=11pt,headsep=3mm,footskip=6mm]{geometry}
-\usepackage{amsmath,amssymb,multicol,listings,xcolor,enumitem,fancyhdr,titlesec}
+\usepackage{amsmath,amssymb,multicol,listings,xcolor,enumitem,fancyhdr,titlesec,tabularx}
 \usepackage[hidelinks,unicode]{hyperref}
 \setmonofont{lmmono10-regular.otf}[BoldFont=lmmonolt10-bold.otf]
 \setCJKmonofont{FandolFang-Regular}[BoldFont=FandolHei-Regular]
@@ -53,7 +53,7 @@
 \fontsize{8.3}{9.8}\selectfont
 
 \begin{center}{\fontsize{15}{17}\selectfont\bfseries ICPC 算法手册}\quad\small 2026-10-02\end{center}
-\note{双栏完整实现版\quad 200 份模板。各模板独立使用；同名全局量和函数按题目取舍，不将整本直接拼接编译。公共头文件与 \texttt{ll} 定义仅在此列出，其他容量、类型和依赖保留在各模板中。}
+\note{双栏完整实现版\quad 199 份代码模板、1 份速查表。各模板独立使用；同名全局量和函数按题目取舍，不将整本直接拼接编译。公共头文件与 \texttt{ll} 定义仅在此列出，其他容量、类型和依赖保留在各模板中。}
 \begin{lstlisting}
 #include<bits/stdc++.h>
 using namespace std;
@@ -62,146 +62,69 @@ typedef long long ll;
 \begin{multicols}{2}\tableofcontents\end{multicols}
 \clearpage\begin{multicols}{2}
 \section{基础与技巧}
-% SOURCE: 01-基础与技巧/STL容器速查.cpp
+% SOURCE: 01-基础与技巧/STL容器速查.md
 \subsection{STL容器速查}
-
-\begin{lstlisting}
-// 以下按容器分区，抄需要的操作即可；下标从 0 开始，迭代器区间均为 [l,r)。
-struct Node
-{
-    int val,id;
-};
-// 堆：比较器返回 true 表示 a 的优先级低于 b；相等时必须返回 false。
-struct CmpSmall
-{
-    bool operator()(const Node &a,const Node &b)const
-    {
-        if(a.val!=b.val)return a.val>b.val;
-        return a.id>b.id;
-    }
-};
-struct CmpMulti // 先 id 大，再 val 小
-{
-    bool operator()(const Node &a,const Node &b)const
-    {
-        if(a.id!=b.id)return a.id<b.id;
-        return a.val>b.val;
-    }
-};
-struct CmpPair // set：按 (val,id) 升序，两个字段均相等才视为重复
-{
-    bool operator()(const Node &a,const Node &b)const
-    {
-        if(a.val!=b.val)return a.val<b.val;
-        return a.id<b.id;
-    }
-};
-void stl_usage() // 各块是独立示例，无需复制外层函数
-{
-    // vector、排序、去重、二分：O(n log n) 排序，O(log n) 二分
-    {
-        vector<int> v={3,1,3,2};
-        sort(v.begin(),v.end());
-        v.erase(unique(v.begin(),v.end()),v.end()); // unique 只移动元素，不改变 size
-        int l=lower_bound(v.begin(),v.end(),2)-v.begin(); // 第一个 >=2
-        int r=upper_bound(v.begin(),v.end(),2)-v.begin(); // 第一个 >2
-        cout<<r-l<<'\n'; // 有序数组中 2 的个数；找不到时迭代器可能是 end()
-        v.erase(v.begin()+l,v.begin()+r); // 删除半开区间，后面的元素前移
-        v.reserve(100); // 只预留容量，不增加 size，不能直接访问 v[99]
-    }
-    // 第 k 小、部分排序、排列、累加
-    {
-        vector<int> v={5,1,4,2,3};
-        int k=3; // 1<=k<=size
-        nth_element(v.begin(),v.begin()+k-1,v.end()); // 第 k 小就位，其余不保证有序
-        cout<<v[k-1]<<'\n';
-        partial_sort(v.begin(),v.begin()+k,v.end()); // 最小 k 个升序，O(n log k)
-        cout<<accumulate(v.begin(),v.end(),0LL)<<'\n'; // 初值决定累加类型
-        reverse(v.begin(),v.end());
-        sort(v.begin(),v.end(),greater<int>()); // 降序
-        vector<int> p={1,1,2};
-        do{cout<<p[0]<<p[1]<<p[2]<<' ';}while(next_permutation(p.begin(),p.end()));
-        cout<<'\n'; // 枚举全部排列前先升序；重复元素会自动去重
-    }
-    // set / multiset：插入、删除、查找 O(log n)
-    {
-        set<int> s={1,3,5};
-        int x=3;
-        auto it=s.lower_bound(x); // 用成员函数，别用 lower_bound(s.begin(),s.end(),x)
-        if(it!=s.end())cout<<*it<<'\n'; // >=x 的后继
-        if(it!=s.begin())cout<<*prev(it)<<'\n'; // <x 的前驱
-        it=s.upper_bound(x); // >x；end() 不能解引用
-        if(it!=s.end())s.erase(it); // 删除当前元素后，原 it 失效
-        multiset<int> ms={2,2,3};
-        it=ms.find(2);
-        if(it!=ms.end())ms.erase(it); // 只删一个 2；ms.erase(2) 会删掉所有 2
-        auto range=ms.equal_range(2); // [first,second) 包含所有等于 2 的元素
-        cout<<distance(range.first,range.second)<<'\n'; // 迭代器计数是线性的
-        set<Node,CmpPair> custom; // 比较器等价的元素只保留一个
-        custom.insert({4,1});
-    }
-    // map：按键有序 O(log n)；unordered_map：均摊 O(1)，最坏 O(n)
-    {
-        map<int,ll> mp;
-        mp[7]+=3; // 不存在会先插入默认值 0；仅查找用 find
-        auto it=mp.find(7);
-        if(it!=mp.end())cout<<it->second<<'\n';
-        cout<<mp.count(8)<<'\n'; // 是否存在，0 或 1；不会插入
-        for(auto it=mp.begin();it!=mp.end();)
-            if(it->second==0)it=mp.erase(it); // 删除时用返回的下一迭代器
-            else ++it;
-        unordered_map<ll,int> cnt;
-        cnt.max_load_factor(0.7); // reserve 前设置，降低装载因子
-        cnt.reserve(1000);
-        cnt[123]++;
-        cnt.erase(123); // 遍历顺序不确定；rehash 会使迭代器失效
-    }
-    // priority_queue：插入/弹出 O(log n)，top O(1)；pop 不返回值
-    {
-        priority_queue<int> big; // 大根堆
-        priority_queue<int,vector<int>,greater<int> > small; // 小根堆
-        priority_queue<pair<ll,int>,vector<pair<ll,int> >,greater<pair<ll,int> > > q;
-        q.push({10,2}),q.push({10,1}); // pair 字典序：先距离，再编号
-        cout<<q.top().second<<'\n';
-        q.pop();
-        priority_queue<Node,vector<Node>,CmpSmall> custom;
-        custom.push({4,2}),custom.push({4,1});
-        cout<<custom.top().id<<'\n';
-        big.push(2),small.push(2); // 堆不支持按值删除或直接修改元素
-    }
-    // string：substr 是 (起点,长度)，不是左右端点
-    {
-        string s="ababa";
-        cout<<s.substr(1,3)<<'\n'; // bab
-        size_t pos=s.find("ba");
-        if(pos!=string::npos)cout<<pos<<'\n'; // find 失败返回 npos，不是普通 int 下标
-        s.erase(1,2); // 从下标 1 起删除 2 个字符
-        s.insert(1,"xy");
-        s.replace(1,2,"z"); // 从下标 1 起替换 2 个字符
-        cout<<s<<'\n';
-    }
-    // deque / stack / queue：端点操作 O(1)，读取或弹出前保证非空
-    {
-        deque<int> dq={2,3};
-        dq.push_front(1),dq.push_back(4);
-        dq.pop_front(),dq.pop_back();
-        cout<<dq.front()<<' '<<dq.back()<<'\n'; // deque 支持随机下标
-        stack<int> st;
-        st.push(1);cout<<st.top()<<'\n';st.pop();
-        queue<int> q;
-        q.push(1);cout<<q.front()<<'\n';q.pop();
-    }
-    // bitset：容量为编译期常量；位编号从低位 0 开始
-    {
-        bitset<16> b(5),c(3);
-        b.set(4),b.reset(0),b.flip(1); // 不带位置参数则操作全部位
-        cout<<b.count()<<' '<<b.any()<<' '<<b.all()<<' '<<b.none()<<'\n';
-        cout<<(b&c)<<' '<<(b|c)<<' '<<(b^c)<<'\n';
-        cout<<(b<<2)<<'\n'; // 空位补 0，越界位丢弃；逻辑值读取用 b[i] 或 b.test(i)
-        cout<<b.to_ullong()<<'\n'; // 高位不能放进 ull 时会抛出异常
-    }
-}
-\end{lstlisting}
+\note{下标从 0 起，迭代器区间为 \texttt{[\allowbreak{}l,\allowbreak{}r)\allowbreak{}}；读取端点或弹出前保证非空，不解引用 \texttt{end(\allowbreak{})\allowbreak{}}。各容器共有的 \texttt{size(\allowbreak{})\allowbreak{}}、\texttt{empty(\allowbreak{})\allowbreak{}} 不逐一重复。下文 \texttt{n} 为元素数，\texttt{k} 为所取数量。}
+\topic{vector 与区间修改}
+\begingroup\fontsize{7.8}{9}\selectfont
+\renewcommand{\arraystretch}{1.05}
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{0.45\linewidth}@{\hspace{4pt}}>{\raggedright\arraybackslash}X@{}}\hline
+\textbf{写法} & \textbf{作用、条件与复杂度}\\\hline
+\texttt{v.\allowbreak{}reserve(\allowbreak{}n)\allowbreak{}} /\allowbreak{} \texttt{v.\allowbreak{}resize(\allowbreak{}n,\allowbreak{}x)\allowbreak{}} & 前者只预留容量，不增加 size；后者改变 size，新增元素填 x。\\[2pt]
+\texttt{v.\allowbreak{}erase(\allowbreak{}l,\allowbreak{}r)\allowbreak{}} /\allowbreak{} \texttt{v.\allowbreak{}insert(\allowbreak{}it,\allowbreak{}x)\allowbreak{}} & 删除半开迭代器区间 /\allowbreak{} 在 it 前插入。移动后续元素，O(\allowbreak{}n)\allowbreak{}。\\[2pt]
+\texttt{v.\allowbreak{}erase(\allowbreak{}remove(\allowbreak{}v.\allowbreak{}begin(\allowbreak{})\allowbreak{},\allowbreak{}v.\allowbreak{}end(\allowbreak{})\allowbreak{},\allowbreak{}x)\allowbreak{},\allowbreak{}v.\allowbreak{}end(\allowbreak{})\allowbreak{})\allowbreak{}} & 删除所有等于 x 的项，O(\allowbreak{}n)\allowbreak{}；remove 只移动元素，须配合 erase。\\[2pt]
+迭代器失效 & vector 扩容使全部迭代器、指针、引用失效；未扩容的插入及删除使操作位置及之后失效。clear 不释放容量。\\[2pt]
+\hline\end{tabularx}\par\endgroup
+\topic{排序、查找与数值算法}
+\begingroup\fontsize{7.8}{9}\selectfont
+\renewcommand{\arraystretch}{1.05}
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{0.45\linewidth}@{\hspace{4pt}}>{\raggedright\arraybackslash}X@{}}\hline
+\textbf{写法} & \textbf{作用、条件与复杂度}\\\hline
+\texttt{sort(\allowbreak{}l,\allowbreak{}r,\allowbreak{}cmp)\allowbreak{}} /\allowbreak{} \texttt{stable\_sort(\allowbreak{}l,\allowbreak{}r,\allowbreak{}cmp)\allowbreak{}} & 排序 /\allowbreak{} 保留等价元素原顺序。sort 为 O(\allowbreak{}n log n)\allowbreak{}；stable\_sort 有足够辅助内存时相同，否则 O(\allowbreak{}n log\ensuremath{^2} n)\allowbreak{}。\\[2pt]
+\texttt{v.\allowbreak{}erase(\allowbreak{}unique(\allowbreak{}v.\allowbreak{}begin(\allowbreak{})\allowbreak{},\allowbreak{}v.\allowbreak{}end(\allowbreak{})\allowbreak{})\allowbreak{},\allowbreak{}v.\allowbreak{}end(\allowbreak{})\allowbreak{})\allowbreak{}} & 去相邻重复，O(\allowbreak{}n)\allowbreak{}。全局去重须先排序；unique 不改变 size。\\[2pt]
+\texttt{lower\_bound(\allowbreak{}l,\allowbreak{}r,\allowbreak{}x)\allowbreak{}} /\allowbreak{} \texttt{upper\_bound(\allowbreak{}l,\allowbreak{}r,\allowbreak{}x)\allowbreak{}} & 非降序区间中首个 \ensuremath{\ge}x /\allowbreak{} >\allowbreak{}x 的迭代器；随机访问时 O(\allowbreak{}log n)\allowbreak{}。降序数据须同时传匹配比较器。\\[2pt]
+\texttt{equal\_range(\allowbreak{}l,\allowbreak{}r,\allowbreak{}x)\allowbreak{}} & 返回等于 x 的半开区间；vector 中两端相减就是出现次数。\\[2pt]
+\texttt{nth\_element(\allowbreak{}l,\allowbreak{}l+\allowbreak{}k-\allowbreak{}1,\allowbreak{}r)\allowbreak{}} & 1\ensuremath{\le}k\ensuremath{\le}n；第 k 小就位，两侧分别不大于 /\allowbreak{} 不小于它，内部无序，平均 O(\allowbreak{}n)\allowbreak{}。\\[2pt]
+\texttt{partial\_sort(\allowbreak{}l,\allowbreak{}l+\allowbreak{}k,\allowbreak{}r)\allowbreak{}} & 最小 k 项排好序，其余无序；0\ensuremath{\le}k\ensuremath{\le}n，O(\allowbreak{}n log k)\allowbreak{}，k\ensuremath{\le}1 时 O(\allowbreak{}n)\allowbreak{}。\\[2pt]
+\texttt{next\_permutation(\allowbreak{}l,\allowbreak{}r)\allowbreak{}} & 下一个字典序排列，O(\allowbreak{}n)\allowbreak{}；枚举全部排列须先升序。重复元素自然去重，返回 false 时重置为最小排列。\\[2pt]
+\texttt{accumulate(\allowbreak{}l,\allowbreak{}r,\allowbreak{}0LL)\allowbreak{}} & 累加，O(\allowbreak{}n)\allowbreak{}；初值决定累加类型，写 0 会按 int 累加。\\[2pt]
+\texttt{rotate(\allowbreak{}l,\allowbreak{}m,\allowbreak{}r)\allowbreak{}} & 把 \texttt{[\allowbreak{}m,\allowbreak{}r)\allowbreak{}} 移到 \texttt{[\allowbreak{}l,\allowbreak{}m)\allowbreak{}} 前，两段内部顺序不变，O(\allowbreak{}n)\allowbreak{}。\\[2pt]
+\hline\end{tabularx}\par\endgroup
+\topic{set / multiset / map}
+\begingroup\fontsize{7.8}{9}\selectfont
+\renewcommand{\arraystretch}{1.05}
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{0.45\linewidth}@{\hspace{4pt}}>{\raggedright\arraybackslash}X@{}}\hline
+\textbf{写法} & \textbf{作用、条件与复杂度}\\\hline
+\texttt{s.\allowbreak{}lower\_bound(\allowbreak{}x)\allowbreak{}} /\allowbreak{} \texttt{s.\allowbreak{}upper\_bound(\allowbreak{}x)\allowbreak{}} & 首个 \ensuremath{\ge}x /\allowbreak{} >\allowbreak{}x；O(\allowbreak{}log n)\allowbreak{}。必须用成员函数，通用二分在树迭代器上移动为 O(\allowbreak{}n)\allowbreak{}。\\[2pt]
+\texttt{it=\allowbreak{}s.\allowbreak{}lower\_bound(\allowbreak{}x)\allowbreak{}}；\texttt{prev(\allowbreak{}it)\allowbreak{}} & it 是 \ensuremath{\ge}x 的后继（需 it!=\allowbreak{}end）；prev(\allowbreak{}it)\allowbreak{} 是 <\allowbreak{}x 的前驱（需 it!=\allowbreak{}begin），包括 it=\allowbreak{}end 的情况。\\[2pt]
+\texttt{ms.\allowbreak{}erase(\allowbreak{}x)\allowbreak{}} /\allowbreak{} \texttt{ms.\allowbreak{}erase(\allowbreak{}it)\allowbreak{}} & 前者删除所有相等项，O(\allowbreak{}log n+\allowbreak{}个数)\allowbreak{}；后者只删一项，均摊 O(\allowbreak{}1)\allowbreak{}，it 须有效。\\[2pt]
+\texttt{ms.\allowbreak{}count(\allowbreak{}x)\allowbreak{}} /\allowbreak{} \texttt{ms.\allowbreak{}equal\_range(\allowbreak{}x)\allowbreak{}} & 计数 /\allowbreak{} 相等项区间，O(\allowbreak{}log n+\allowbreak{}个数)\allowbreak{} /\allowbreak{} O(\allowbreak{}log n)\allowbreak{}。遍历或 distance 该区间仍需 O(\allowbreak{}个数)\allowbreak{}。\\[2pt]
+\texttt{mp[\allowbreak{}x]\allowbreak{}} /\allowbreak{} \texttt{mp.\allowbreak{}find(\allowbreak{}x)\allowbreak{}} & 前者在缺键时插入默认值；后者只查找，缺键返回 end。均为 O(\allowbreak{}log n)\allowbreak{}。\\[2pt]
+\texttt{it=\allowbreak{}s.\allowbreak{}erase(\allowbreak{}it)\allowbreak{}} & 删除时取返回的下一迭代器；树容器插入不使旧迭代器失效，删除仅使被删元素失效。\\[2pt]
+\hline\end{tabularx}\par\endgroup
+\topic{比较与堆}
+\begingroup\fontsize{7.8}{9}\selectfont
+\renewcommand{\arraystretch}{1.05}
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{0.45\linewidth}@{\hspace{4pt}}>{\raggedright\arraybackslash}X@{}}\hline
+\textbf{写法} & \textbf{作用、条件与复杂度}\\\hline
+\texttt{pair} /\allowbreak{} \texttt{tuple} /\allowbreak{} \texttt{tie(\allowbreak{}a.\allowbreak{}x,\allowbreak{}a.\allowbreak{}y)\allowbreak{}} & 默认字典序；tie 可省掉手写多关键字比较。\texttt{auto [\allowbreak{}x,\allowbreak{}y]\allowbreak{}=\allowbreak{}p} 是复制，\texttt{auto \&[\allowbreak{}x,\allowbreak{}y]\allowbreak{}=\allowbreak{}p} 可修改原对象。\\[2pt]
+\texttt{return tie(\allowbreak{}a.\allowbreak{}x,\allowbreak{}a.\allowbreak{}y)\allowbreak{}<\allowbreak{}tie(\allowbreak{}b.\allowbreak{}x,\allowbreak{}b.\allowbreak{}y)\allowbreak{};} & sort /\allowbreak{} set 按 (\allowbreak{}x,\allowbreak{}y)\allowbreak{} 升序；比较器必须严格弱序，相等时返回 false，不能用 \ensuremath{\le}。set 以 cmp(\allowbreak{}a,\allowbreak{}b)\allowbreak{} 与 cmp(\allowbreak{}b,\allowbreak{}a)\allowbreak{} 均为 false 判等。\\[2pt]
+\texttt{priority\_queue<\allowbreak{}T>\allowbreak{} q} & 默认大根堆；top 为 O(\allowbreak{}1)\allowbreak{}，push /\allowbreak{} pop 为 O(\allowbreak{}log n)\allowbreak{}，pop 不返回值。\\[2pt]
+\texttt{priority\_queue<\allowbreak{}T,\allowbreak{}vector<\allowbreak{}T>\allowbreak{},\allowbreak{}greater<\allowbreak{}T>\allowbreak{}>\allowbreak{} q} & 小根堆；T 为 pair 时，先取 first 小，再取 second 小。\\[2pt]
+\texttt{return tie(\allowbreak{}a.\allowbreak{}x,\allowbreak{}a.\allowbreak{}y)\allowbreak{}>\allowbreak{}tie(\allowbreak{}b.\allowbreak{}x,\allowbreak{}b.\allowbreak{}y)\allowbreak{};} & 堆的比较器表示 a 优先级低于 b；此式使 (\allowbreak{}x,\allowbreak{}y)\allowbreak{} 最小者在顶。堆不能按值删除或直接修改；可另记有效性并懒删除。\\[2pt]
+\hline\end{tabularx}\par\endgroup
+\topic{哈希、字符串与其他容器}
+\begingroup\fontsize{7.8}{9}\selectfont
+\renewcommand{\arraystretch}{1.05}
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{0.45\linewidth}@{\hspace{4pt}}>{\raggedright\arraybackslash}X@{}}\hline
+\textbf{写法} & \textbf{作用、条件与复杂度}\\\hline
+\texttt{h.\allowbreak{}max\_load\_factor(\allowbreak{}0.\allowbreak{}7)\allowbreak{}}；\texttt{h.\allowbreak{}reserve(\allowbreak{}n)\allowbreak{}} & unordered 容器先设负载因子，再按元素数预留；查增删平均 O(\allowbreak{}1)\allowbreak{}、最坏 O(\allowbreak{}n)\allowbreak{}，无顺序。不是抗碰撞保证。\\[2pt]
+rehash 的失效规则 & rehash 使迭代器失效，元素引用 /\allowbreak{} 指针仍有效；插入可能触发 rehash，删除仅使被删元素失效。\\[2pt]
+\texttt{s.\allowbreak{}substr(\allowbreak{}pos,\allowbreak{}len)\allowbreak{}} /\allowbreak{} \texttt{s.\allowbreak{}erase(\allowbreak{}pos,\allowbreak{}len)\allowbreak{}} & 第二参数是长度；到末尾为止，不是右端点。substr 复制结果，erase 移动后续字符。\\[2pt]
+\texttt{s.\allowbreak{}find(\allowbreak{}t,\allowbreak{}pos)\allowbreak{}} & 从 pos 开始查找子串，失败用 \texttt{string::npos} 判断，不存入普通 int 后与 -\allowbreak{}1 混用。\\[2pt]
+\texttt{deque} /\allowbreak{} \texttt{stack} /\allowbreak{} \texttt{queue} & deque 两端增删 O(\allowbreak{}1)\allowbreak{}，支持下标；stack 用 top，queue 用 front /\allowbreak{} back，push /\allowbreak{} pop 不返回元素。deque 两端插入使迭代器失效，旧元素引用仍有效；中间插删使两者均失效。\\[2pt]
+\texttt{bitset<\allowbreak{}N>\allowbreak{}} & 位编号从低位 0 起，容量是编译期常量；\texttt{to\_ullong(\allowbreak{})\allowbreak{}} 的数值装不下会抛异常。批量位运算与 DP 用法见 bitset 技巧。\\[2pt]
+\hline\end{tabularx}\par\endgroup
 % SOURCE: 01-基础与技巧/三分法.cpp
 \subsection{三分法}
 
