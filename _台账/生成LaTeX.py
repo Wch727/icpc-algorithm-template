@@ -222,7 +222,7 @@ def inline(s):
             out.append(escape(p, True))
     return ''.join(out)
 
-def clean_code(s, rel):
+def clean_code(s, rel, preserve_indent=False):
     drop = re.compile(r'^\s*(?:#include\s*<bits/stdc\+\+\.h>|using namespace std;|'
                       r'typedef long long ll;|using ll\s*=\s*long long;)\s*$')
     if rel == '01-基础与技巧/高维差分.cpp':
@@ -237,7 +237,102 @@ def clean_code(s, rel):
             comment = comment.replace(char, '(*@$' + symbol + '$@*)')
         lines[i] = code + sep + comment
     # 只收紧空行；函数体、声明、容量和算法注释均不截断。
-    return re.sub(r'\n\s*\n+', '\n', '\n'.join(lines)).strip()
+    body = re.sub(r'\n\s*\n+', '\n', '\n'.join(lines))
+    return body.strip('\n') if preserve_indent else body.strip()
+
+
+def explain(text):
+    if text.startswith('例：n 件物品恰选 k 件'):
+        return (r'\note{n 件物品恰选 k 件，使总分子与总分母的比最大。'
+                r'a 可表示价值，b 表示重量，要求每个 b 为正。'
+                r'这是总和之比，不能按各物品比值直接取最大的 k 件。}'
+                r'\[\frac{\sum a_i}{\sum b_i}\ge x'
+                r'\quad\Longleftrightarrow\quad\sum(a_i-xb_i)\ge0.\]'
+                r'\note{猜比值 x 后，取最大的 k 个新权值 a-xb：和非负表示有方案达到 x。'
+                r'二分范围取单项比值的最小值与最大值；100 轮排序判定为 $O(100n\log n)$。}')
+    if '贡献 a[j]*(j-L)*(R-j)' in text:
+        return (r'\note{所有非空子数组最小值之和，$O(n)$。'
+                r'对位置 j，L 是左侧首个严格更小位置，R 是右侧首个小于等于的位置。'
+                r'两端分别有 j-L 与 R-j 种选择：}'
+                r'\[\operatorname{contrib}_j=a_j(j-L)(R-j).\]'
+                r'\note{乘积及总和须在 \texttt{ll} 范围内。}')
+    if text.startswith('沿用 D:'):
+        text = '按已知数量读取合法整数，输入须在 ll 范围内；EOF 返回 0，不能据此区分文件结束与整数零。'
+    if text.startswith('无锁版本可按平台'):
+        text = '无锁读写接口须按所用平台选取。'
+    if text.startswith('DP 示例：f[0]=0'):
+        return (r'\topic{有界前驱 DP}'
+                r'\note{a 从 1 起，k 至少为 1；先过期、再转移、最后加入 i。'
+                r'初始候选 0 不可漏，不能让 i 转移到自己。}'
+                r'\[f_0=0,\qquad f_i=a_i+\max_{\max(0,i-k)\le j<i}f_j.\]')
+    if text.startswith('[') and text.endswith(']'):
+        return r'\topic{' + inline(text[1:-1]) + '}'
+    return r'\note{' + inline(text) + '}'
+
+
+def manual_blocks(source, rel):
+    """第一章：模块说明独立排成正文，语句附近的注释保留在代码里。
+
+    原 cpp 仍为复制与测试的入口；这里只重排手册，不修改实现。
+    BigInt 的各区在同一个 struct 中，打印时可由正文隔开。
+    """
+    if rel == '01-基础与技巧/高维差分.cpp':
+        source = source.split('// D 维统一公式：')[0]
+    blocks, code, prose = [], [], []
+    depth = 0
+
+    def flush_code():
+        body = clean_code('\n'.join(code), rel, preserve_indent=True)
+        if body:
+            blocks.append(('code', body))
+        code.clear()
+
+    def flush_prose():
+        if prose:
+            blocks.append(('text', ' '.join(prose)))
+            prose.clear()
+
+    for line in source.splitlines():
+        comment = re.match(r'^\s*//\s*(.*)$', line)
+        section = (rel.endswith('/高精度BigInt.cpp') and depth == 1
+                   and comment and re.match(r'^\[\d+ ', comment[1]))
+        if comment and (depth == 0 or section):
+            # 第 0 区的标题排在 struct 开始之前，避免只有两行的开括号代码块。
+            if not (section and comment[1].startswith('[0 ')):
+                flush_code()
+            prose.append(comment[1])
+            continue
+        if not line.strip():
+            flush_prose()
+            code.append('')
+            continue
+        flush_prose()
+        code.append(line)
+        # 忽略字符串、字符常量和行注释中的花括号。
+        lexical = re.sub(r'"(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\'', '', line)
+        lexical = lexical.split('//', 1)[0]
+        depth += lexical.count('{') - lexical.count('}')
+    flush_code()
+    flush_prose()
+    if depth:
+        raise ValueError('Unbalanced code sections in ' + rel)
+    return blocks
+
+
+def render_template(source, rel):
+    if rel.startswith('01-基础与技巧/'):
+        blocks = manual_blocks(source, rel)
+    else:
+        blocks = [('code', clean_code(source, rel))]
+    out = []
+    for kind, body in blocks:
+        if kind == 'text':
+            out.append(explain(body))
+        else:
+            if r'\end{lstlisting}' in body:
+                raise ValueError('Listing delimiter in ' + rel)
+            out.extend([r'\begin{lstlisting}', body, r'\end{lstlisting}'])
+    return '\n'.join(out)
 
 def notes(md, common=False):
     out = []
@@ -337,10 +432,7 @@ def main():
                 emitted.append(rel)
                 continue
             tex.append(FORMULAS.get(rel, ''))
-            body = clean_code(p.read_text(encoding='utf-8-sig'), rel)
-            if r'\end{lstlisting}' in body:
-                raise ValueError('Listing delimiter in ' + rel)
-            tex.extend([r'\begin{lstlisting}', body, r'\end{lstlisting}'])
+            tex.append(render_template(p.read_text(encoding='utf-8-sig'), rel))
             emitted.append(rel)
     if cfg.get('include_notes', True):
         tex.append(r'\section{模型判据与常用结论}')

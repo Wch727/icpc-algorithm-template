@@ -128,10 +128,8 @@ rehash 的失效规则 & rehash 使迭代器失效，元素引用 /\allowbreak{}
 % SOURCE: 01-基础与技巧/三分法.cpp
 \subsection{三分法}
 
+\note{求最小值：最优点/\allowbreak{}最优区间左侧严格下降，右侧严格上升；求最大值则反过来。 多个局部极值、非最优处的平台不能直接套；单调函数也可用，最优点在端点。 均返回极值位置；函数值用 f/\allowbreak{}g 再算。若能直接求导或推出最优点，优先直接求。}
 \begin{lstlisting}
-// 求最小值：最优点/最优区间左侧严格下降，右侧严格上升；求最大值则反过来。
-// 多个局部极值、非最优处的平台不能直接套；单调函数也可用，最优点在端点。
-// 均返回极值位置；函数值用 f/g 再算。若能直接求导或推出最优点，优先直接求。
 double f(double x);
 double ternary_min(double l,double r)
 {
@@ -143,8 +141,9 @@ double ternary_min(double l,double r)
     }
     return (l+r)/2;
 }
-// 100 轮后区间约为原来的 (2/3)^100，按初始范围及要求调整次数。
-// 每轮调用两次 f；函数很贵时可用黄金分割复用一个点的函数值。
+\end{lstlisting}
+\note{100 轮后区间约为原来的 (\allowbreak{}2/\allowbreak{}3)\allowbreak{}\textasciicircum{}100，按初始范围及要求调整次数。 每轮调用两次 f；函数很贵时可用黄金分割复用一个点的函数值。}
+\begin{lstlisting}
 ll g(ll x); // 整数自变量的目标函数；值类型按题意改，r-l 须不溢出。
 ll ternary_int(ll l,ll r)
 {
@@ -158,9 +157,8 @@ ll ternary_int(ll l,ll r)
     for(ll i=l;i<r;i++)if(g(i+1)<g(pos))pos=i+1;
     return pos;
 }
-// 整数区间最后剩至多 4 个点，必须枚举；不能照搬固定轮数的实数版。
-// 求最大值：实数版的 < 改成 >；整数版两处 < 都改成 >（循环条件不改）。
 \end{lstlisting}
+\note{整数区间最后剩至多 4 个点，必须枚举；不能照搬固定轮数的实数版。 求最大值：实数版的 <\allowbreak{} 改成 >\allowbreak{}；整数版两处 <\allowbreak{} 都改成 >\allowbreak{}（循环条件不改）。}
 % SOURCE: 01-基础与技巧/二维差分.cpp
 \subsection{二维差分}
 
@@ -168,7 +166,9 @@ ll ternary_int(ll l,ll r)
 const int N=1005;
 int n,m;
 ll a[N][N],d[N][N]; // 1-indexed，预留第 0 行/列和 n+1、m+1
-// 原数组非零时先建差分；原数组全零时直接清 d，再做修改。
+\end{lstlisting}
+\note{原数组非零时先建差分；原数组全零时直接清 d，再做修改。}
+\begin{lstlisting}
 void build()
 {
     memset(d,0,sizeof d);
@@ -176,7 +176,9 @@ void build()
         for(int j=1;j<=m;j++)
             d[i][j]=a[i][j]-a[i-1][j]-a[i][j-1]+a[i-1][j-1];
 }
-// O(1)，闭矩形 [x1,x2] × [y1,y2] 加 v。
+\end{lstlisting}
+\note{O(\allowbreak{}1)\allowbreak{}，闭矩形 [\allowbreak{}x1,\allowbreak{}x2]\allowbreak{} \ensuremath{\times} [\allowbreak{}y1,\allowbreak{}y2]\allowbreak{} 加 v。}
+\begin{lstlisting}
 void add(int x1,int y1,int x2,int y2,ll v)
 {
     d[x1][y1]+=v;
@@ -184,7 +186,9 @@ void add(int x1,int y1,int x2,int y2,ll v)
     d[x1][y2+1]-=v;
     d[x2+1][y2+1]+=v;
 }
-// O(nm)，所有修改结束后还原一次，结果写入 a。
+\end{lstlisting}
+\note{O(\allowbreak{}nm)\allowbreak{}，所有修改结束后还原一次，结果写入 a。}
+\begin{lstlisting}
 void restore()
 {
     for(int i=1;i<=n;i++)
@@ -194,8 +198,8 @@ void restore()
             a[i][j]=d[i][j];
         }
 }
-// 流程：build -> 多次 add -> restore；不要重复 restore。
 \end{lstlisting}
+\note{流程：build -\allowbreak{}>\allowbreak{} 多次 add -\allowbreak{}>\allowbreak{} restore；不要重复 restore。}
 % SOURCE: 01-基础与技巧/位运算技巧.cpp
 \subsection{位运算技巧}
 
@@ -214,15 +218,19 @@ ull lowbit(ull x){return x&(-x);}
 bool is_pow2(ull x){return x>0&&(x&(x-1))==0;}
 int bit_count(ull x){return __builtin_popcountll(x);}
 int bit_length(ull x){return x?64-__builtin_clzll(x):0;}
-// __builtin_ctzll(x)：最低位 1 的编号；clzll/ctzll 都不能直接传 0。
-// O(popcount(x))，从低到高枚举所有为 1 的位编号。
+\end{lstlisting}
+\note{\_\_builtin\_ctzll(\allowbreak{}x)\allowbreak{}：最低位 1 的编号；clzll/\allowbreak{}ctzll 都不能直接传 0。}
+\note{O(\allowbreak{}popcount(\allowbreak{}x)\allowbreak{})\allowbreak{}，从低到高枚举所有为 1 的位编号。}
+\begin{lstlisting}
 vector<int> set_bits(ull x)
 {
     vector<int> res;
     for(;x;x&=x-1)res.push_back(__builtin_ctzll(x));
     return res;
 }
-// 单个 mask 的子集共 2^popcount(mask) 个，含 mask 和 0。
+\end{lstlisting}
+\note{单个 mask 的子集共 2\textasciicircum{}popcount(\allowbreak{}mask)\allowbreak{} 个，含 mask 和 0。}
+\begin{lstlisting}
 vector<ull> submasks(ull mask)
 {
     vector<ull> res;
@@ -233,7 +241,9 @@ vector<ull> submasks(ull mask)
     }
     return res;
 }
-// 枚举 bits 位全集内包含 mask 的所有超集，0<=bits<=63，mask<2^bits。
+\end{lstlisting}
+\note{枚举 bits 位全集内包含 mask 的所有超集，0<\allowbreak{}=\allowbreak{}bits<\allowbreak{}=\allowbreak{}63，mask<\allowbreak{}2\textasciicircum{}bits。}
+\begin{lstlisting}
 vector<ull> supermasks(ull mask,int bits)
 {
     ull all=(1ULL<<bits)-1;
@@ -245,15 +255,18 @@ vector<ull> supermasks(ull mask,int bits)
     }
     return res;
 }
-// 枚举所有 mask 的所有子集共 O(3^bits)，不是 O(4^bits)。
-// 上述枚举内的 push_back 可直接换成题目操作，不必存下所有结果。
-// Gosper：下一更大的、置位数相同的掩码；0 或已无法用 ull 表示下一项时返回 0。
+\end{lstlisting}
+\note{枚举所有 mask 的所有子集共 O(\allowbreak{}3\textasciicircum{}bits)\allowbreak{}，不是 O(\allowbreak{}4\textasciicircum{}bits)\allowbreak{}。 上述枚举内的 push\_back 可直接换成题目操作，不必存下所有结果。}
+\note{Gosper：下一更大的、置位数相同的掩码；0 或已无法用 ull 表示下一项时返回 0。}
+\begin{lstlisting}
 ull next_combination(ull x)
 {
     ull t=lowbit(x),y=x+t;
     return y?y|(((x^y)>>2)/t):0;
 }
-// 枚举 bits 位中恰好选 k 位的掩码，O(C(bits,k))；0<=k<=bits<=63。
+\end{lstlisting}
+\note{枚举 bits 位中恰好选 k 位的掩码，O(\allowbreak{}C(\allowbreak{}bits,\allowbreak{}k)\allowbreak{})\allowbreak{}；0<\allowbreak{}=\allowbreak{}k<\allowbreak{}=\allowbreak{}bits<\allowbreak{}=\allowbreak{}63。}
+\begin{lstlisting}
 vector<ull> combinations(int bits,int k)
 {
     if(k==0)return {0};
@@ -262,19 +275,24 @@ vector<ull> combinations(int bits,int k)
     for(ull s=(1ULL<<k)-1;s&&s<limit;s=next_combination(s))res.push_back(s);
     return res;
 }
-// SOS DP：f[mask] 变为所有子集原值之和，O(bits*2^bits)，f.size()==2^bits。
+\end{lstlisting}
+\note{SOS DP：f[\allowbreak{}mask]\allowbreak{} 变为所有子集原值之和，O(\allowbreak{}bits*2\textasciicircum{}bits)\allowbreak{}，f.\allowbreak{}size(\allowbreak{})\allowbreak{}=\allowbreak{}=\allowbreak{}2\textasciicircum{}bits。}
+\begin{lstlisting}
 void sos_sum(vector<ll> &f,int bits)
 {
     for(int i=0;i<bits;i++)
         for(size_t s=0;s<f.size();s++)
             if(s&(1ULL<<i))f[s]+=f[s^(1ULL<<i)];
 }
-// 子集和逆变换：+= 改为 -=；超集和：条件改成 !(s&(1ULL<<i))，来源改成 s|(1ULL<<i)。
-// 0^1^...^n 按 n%4 为 n、1、n+1、0；[l,r] 异或用 xor_prefix(r)^xor_prefix(l-1)。
+\end{lstlisting}
+\note{子集和逆变换：+\allowbreak{}=\allowbreak{} 改为 -\allowbreak{}=\allowbreak{}；超集和：条件改成 !(\allowbreak{}s\&(\allowbreak{}1ULL<\allowbreak{}<\allowbreak{}i)\allowbreak{})\allowbreak{}，来源改成 s|(\allowbreak{}1ULL<\allowbreak{}<\allowbreak{}i)\allowbreak{}。}
+\note{0\textasciicircum{}1\textasciicircum{}.\allowbreak{}.\allowbreak{}.\allowbreak{}\textasciicircum{}n 按 n\%4 为 n、1、n+\allowbreak{}1、0；[\allowbreak{}l,\allowbreak{}r]\allowbreak{} 异或用 xor\_prefix(\allowbreak{}r)\allowbreak{}\textasciicircum{}xor\_prefix(\allowbreak{}l-\allowbreak{}1)\allowbreak{}。}
+\begin{lstlisting}
 ull xor_prefix(ull n){return n%4==0?n:(n%4==1?1:(n%4==2?n+1:0));}
-// l=0 时直接 xor_prefix(r)，避免 l-1 下溢；有符号移位不作为掩码使用。
-// 对齐块 [b,b+len)：len=2^k，b%len=0，0<=k<64，且整个区间在 ull 值域内。
-// 低 k 位异或后仍是一个全排列；高位恒定，可 O(1) 求 sum((b+i)^v)。
+\end{lstlisting}
+\note{l=\allowbreak{}0 时直接 xor\_prefix(\allowbreak{}r)\allowbreak{}，避免 l-\allowbreak{}1 下溢；有符号移位不作为掩码使用。}
+\note{对齐块 [\allowbreak{}b,\allowbreak{}b+\allowbreak{}len)\allowbreak{}：len=\allowbreak{}2\textasciicircum{}k，b\%len=\allowbreak{}0，0<\allowbreak{}=\allowbreak{}k<\allowbreak{}64，且整个区间在 ull 值域内。 低 k 位异或后仍是一个全排列；高位恒定，可 O(\allowbreak{}1)\allowbreak{} 求 sum(\allowbreak{}(\allowbreak{}b+\allowbreak{}i)\allowbreak{}\textasciicircum{}v)\allowbreak{}。}
+\begin{lstlisting}
 unsigned __int128 xor_block_sum(ull b,ull len,ull v)
 {
     assert(is_pow2(len)&&b%len==0&&b<=ULLONG_MAX-(len-1));
@@ -284,13 +302,8 @@ unsigned __int128 xor_block_sum(ull b,ull len,ull v)
 % SOURCE: 01-基础与技巧/分数规划.cpp
 \subsection{分数规划}
 
+\note{n 件物品恰选 k 件，使总分子与总分母的比最大。a 可表示价值，b 表示重量，要求每个 b 为正。这是总和之比，不能按各物品比值直接取最大的 k 件。}\[\frac{\sum a_i}{\sum b_i}\ge x\quad\Longleftrightarrow\quad\sum(a_i-xb_i)\ge0.\]\note{猜比值 x 后，取最大的 k 个新权值 a-xb：和非负表示有方案达到 x。二分范围取单项比值的最小值与最大值；100 轮排序判定为 $O(100n\log n)$。}
 \begin{lstlisting}
-// 例：n 件物品恰选 k 件，最大化 sum(a)/sum(b)，要求每个 b[i]>0。
-// 如 a 是价值、b 是重量，求所选物品“总价值 / 总重量”的最大值。
-// 求的是总和之比，不是各物品 a[i]/b[i] 的平均数，也不能直接选比值最大的 k 件。
-// 猜比值 x：sum(a)/sum(b)>=x <=> sum(a-x*b)>=0。
-// 因而取最大的 k 个 a[i]-x*b[i]：和 >=0 表示有方案达到 x，否则 x 太大。
-// 二分边界取 min/max(a[i]/b[i])；O(100*n log n)。
 const int N=100005;
 int n,k; // 物品数、必须选取的件数，1<=k<=n；数组下标从 1 开始。
 double a[N],b[N],c[N]; // a：分子属性（收益）；b：分母属性（成本，>0）；c：判定时的新权值。
@@ -314,15 +327,17 @@ double fractional()
     }
     return l;
 }
-// 其他约束只改 check 内的选取方式，不可直接套“取最大的 k 项”。
 \end{lstlisting}
+\note{其他约束只改 check 内的选取方式，不可直接套“取最大的 k 项”。}
 % SOURCE: 01-基础与技巧/单调栈.cpp
 \subsection{单调栈}
 
 \begin{lstlisting}
 const int N=1000005;
 int n,a[N],st[N],top,ans[N];
-// O(n)，右边第一个严格更大的下标，不存在为 0。
+\end{lstlisting}
+\note{O(\allowbreak{}n)\allowbreak{}，右边第一个严格更大的下标，不存在为 0。}
+\begin{lstlisting}
 void right_greater()
 {
     top=0;
@@ -333,7 +348,9 @@ void right_greater()
         st[++top]=i;
     }
 }
-// O(n)，左边第一个严格更小的下标，不存在为 0。
+\end{lstlisting}
+\note{O(\allowbreak{}n)\allowbreak{}，左边第一个严格更小的下标，不存在为 0。}
+\begin{lstlisting}
 void left_less()
 {
     top=0;
@@ -344,10 +361,10 @@ void left_less()
         st[++top]=i;
     }
 }
-// 右侧写法：弹栈时给旧元素赋答案；左侧写法：弹栈后给当前元素赋答案。
-// 修改比较方向可求较大/较小；是否包含等号由题意决定。
-// 柱状图最大矩形：a[1..n] 为非负高度，柱宽为 1，O(n)。
-// 弹出 j 时，右边界 i、左边界为弹出后的栈顶 L，可覆盖 [L+1,i-1]。
+\end{lstlisting}
+\note{右侧写法：弹栈时给旧元素赋答案；左侧写法：弹栈后给当前元素赋答案。 修改比较方向可求较大/\allowbreak{}较小；是否包含等号由题意决定。}
+\note{柱状图最大矩形：a[\allowbreak{}1.\allowbreak{}.\allowbreak{}n]\allowbreak{} 为非负高度，柱宽为 1，O(\allowbreak{}n)\allowbreak{}。 弹出 j 时，右边界 i、左边界为弹出后的栈顶 L，可覆盖 [\allowbreak{}L+\allowbreak{}1,\allowbreak{}i-\allowbreak{}1]\allowbreak{}。}
+\begin{lstlisting}
 ll histogram()
 {
     top=0;
@@ -363,10 +380,10 @@ ll histogram()
     }
     return res;
 }
-// n+1 只负责清空栈，不访问 a[n+1]；等高柱合并后由更靠右的柱继续扩展。
-// 所有非空子数组的最小值之和，O(n)，乘积/总和须在 ll 范围内。
-// j 左侧第一个 < a[j] 的位置为 L，右侧第一个 <= a[j] 的位置为 R。
-// 左端点有 j-L 种，右端点有 R-j 种，贡献 a[j]*(j-L)*(R-j)。
+\end{lstlisting}
+\note{n+\allowbreak{}1 只负责清空栈，不访问 a[\allowbreak{}n+\allowbreak{}1]\allowbreak{}；等高柱合并后由更靠右的柱继续扩展。}
+\note{所有非空子数组最小值之和，$O(n)$。对位置 j，L 是左侧首个严格更小位置，R 是右侧首个小于等于的位置。两端分别有 j-L 与 R-j 种选择：}\[\operatorname{contrib}_j=a_j(j-L)(R-j).\]\note{乘积及总和须在 \texttt{ll} 范围内。}
+\begin{lstlisting}
 ll sum_min()
 {
     top=0;
@@ -382,20 +399,18 @@ ll sum_min()
     }
     return res;
 }
-// 一侧严格、一侧非严格，把相同最小值归给最右位置，避免重复或遗漏。
-// 求最大值之和：>= 改为 <=；子数组极差之和 = 最大值之和 - 最小值之和。
 \end{lstlisting}
+\note{一侧严格、一侧非严格，把相同最小值归给最右位置，避免重复或遗漏。 求最大值之和：>\allowbreak{}=\allowbreak{} 改为 <\allowbreak{}=\allowbreak{}；子数组极差之和 =\allowbreak{} 最大值之和 -\allowbreak{} 最小值之和。}
 % SOURCE: 01-基础与技巧/单调队列.cpp
 \subsection{单调队列}
 
+\note{q 存候选下标；每个候选最多入队、出队一次，总 O(\allowbreak{}n)\allowbreak{}。 适用：候选按入队顺序失效，过期后不再有效；队首始终是当前最优候选。 新候选在旧候选剩余有效期内始终有效且不劣，才能永久删除旧候选。 若候选优劣随查询改变、可能反转，不能直接套这个循环。}
 \begin{lstlisting}
-// q 存候选下标；每个候选最多入队、出队一次，总 O(n)。
-// 适用：候选按入队顺序失效，过期后不再有效；队首始终是当前最优候选。
-// 新候选在旧候选剩余有效期内始终有效且不劣，才能永久删除旧候选。
-// 若候选优劣随查询改变、可能反转，不能直接套这个循环。
 const int N=1000005;
 int n,k,a[N],ans[N];
-// 窗口最小值，下标从 1 开始，1<=k<=n；先加入 i，再查询包含 i 的窗口。
+\end{lstlisting}
+\note{窗口最小值，下标从 1 开始，1<\allowbreak{}=\allowbreak{}k<\allowbreak{}=\allowbreak{}n；先加入 i，再查询包含 i 的窗口。}
+\begin{lstlisting}
 void solve()
 {
     deque<int> q;
@@ -407,13 +422,10 @@ void solve()
         ans[i]=q.front(); // 记录当前最优候选下标；具体取值/转移在这里改
     }
 }
-// 窗口 [max(1,i-k+1),i]；求最大值把队尾比较 >= 改为 <=。
-// 上述非严格比较保留相等值中最新的下标；改成 > / < 则保留最早的下标。
-// ans[i] 存下标，窗口值为 a[ans[i]]；只要完整窗口时，i>=k 才记录答案。
-// 自定义题目：将队首条件换成 expired(id,i)，队尾条件换成 check(old,now)。
-// expired 判断是否失效，check 判断新候选能否永久淘汰旧候选，须满足上面的适用条件。
-// DP 示例：f[0]=0，f[i]=a[i]+max{f[j] | max(0,i-k)<=j<i}，a 下标从 1 开始，k>=1。
-// 先过期、再转移、最后加入 i；初始候选 0 不可漏，不能让 i 转移到自己。
+\end{lstlisting}
+\note{窗口 [\allowbreak{}max(\allowbreak{}1,\allowbreak{}i-\allowbreak{}k+\allowbreak{}1)\allowbreak{},\allowbreak{}i]\allowbreak{}；求最大值把队尾比较 >\allowbreak{}=\allowbreak{} 改为 <\allowbreak{}=\allowbreak{}。 上述非严格比较保留相等值中最新的下标；改成 >\allowbreak{} /\allowbreak{} <\allowbreak{} 则保留最早的下标。 ans[\allowbreak{}i]\allowbreak{} 存下标，窗口值为 a[\allowbreak{}ans[\allowbreak{}i]\allowbreak{}]\allowbreak{}；只要完整窗口时，i>\allowbreak{}=\allowbreak{}k 才记录答案。 自定义题目：将队首条件换成 expired(\allowbreak{}id,\allowbreak{}i)\allowbreak{}，队尾条件换成 check(\allowbreak{}old,\allowbreak{}now)\allowbreak{}。 expired 判断是否失效，check 判断新候选能否永久淘汰旧候选，须满足上面的适用条件。}
+\topic{有界前驱 DP}\note{a 从 1 起，k 至少为 1；先过期、再转移、最后加入 i。初始候选 0 不可漏，不能让 i 转移到自己。}\[f_0=0,\qquad f_i=a_i+\max_{\max(0,i-k)\le j<i}f_j.\]
+\begin{lstlisting}
 vector<ll> dp(const vector<ll> &a,int k)
 {
     int n=(int)a.size()-1;
@@ -428,15 +440,14 @@ vector<ll> dp(const vector<ll> &a,int k)
     }
     return f;
 }
-// 按题目改转移值、有效区间及队尾比较；只把可达状态入队，空队时当前状态不可达。
 \end{lstlisting}
+\note{按题目改转移值、有效区间及队尾比较；只把可达状态入队，空队时当前状态不可达。}
 % SOURCE: 01-基础与技巧/双指针.cpp
 \subsection{双指针}
 
+\note{适用：有序数组两数和、满足条件的最短连续窗口；各指针只向一个方向走。 vector/\allowbreak{}string 都为 0-\allowbreak{}indexed；指针单调保证总扫描线性，窗口计数允许为负表示多余。}
+\note{O(\allowbreak{}n)\allowbreak{}、额外空间 O(\allowbreak{}1)\allowbreak{}；a 必须非降序，target 为目标和，返回两个不同的 0-\allowbreak{}based 下标。}
 \begin{lstlisting}
-// 适用：有序数组两数和、满足条件的最短连续窗口；各指针只向一个方向走。
-// vector/string 都为 0-indexed；指针单调保证总扫描线性，窗口计数允许为负表示多余。
-// O(n)、额外空间 O(1)；a 必须非降序，target 为目标和，返回两个不同的 0-based 下标。
 pair<int,int> two_sum(const vector<int> &a,int target)
 {
     int l=0,r=(int)a.size()-1;
@@ -449,8 +460,9 @@ pair<int,int> two_sum(const vector<int> &a,int target)
     }
     return {-1,-1};
 }
-// O(|s|+|t|)、空间 O(256)；s 是文本、t 是需求多重集，窗口 [l,r] 两端均包含。
-// unsigned char 避免高位字节作为负下标；先扩大至满足，再收缩直到缺少一个所需字符。
+\end{lstlisting}
+\note{O(\allowbreak{}|s|+\allowbreak{}|t|)\allowbreak{}、空间 O(\allowbreak{}256)\allowbreak{}；s 是文本、t 是需求多重集，窗口 [\allowbreak{}l,\allowbreak{}r]\allowbreak{} 两端均包含。 unsigned char 避免高位字节作为负下标；先扩大至满足，再收缩直到缺少一个所需字符。}
+\begin{lstlisting}
 int min_cover(const string &s,const string &t)
 {
     if(t.empty())return 0;
@@ -473,15 +485,10 @@ int min_cover(const string &s,const string &t)
 % SOURCE: 01-基础与技巧/反悔贪心.cpp
 \subsection{反悔贪心}
 
+\note{重复权值哈夫曼：最小 w 有 c 个时，批量 floor(\allowbreak{}c/\allowbreak{}2)\allowbreak{} 次合并，代价 2*w*floor(\allowbreak{}c/\allowbreak{}2)\allowbreak{}，生成 2*w。 c 为奇数时，余下一个 w 与当前次小配对；原权排序后与新生成的单调队列取两边最小。 若每种符号必须编码，零权符号也不能扔掉；计数与总代价用足够宽的整数。}
+\note{按截止时间排序，堆保存已选任务；放不下时撤销最不值得保留的。 收益最大：踢最低收益，用小根堆；件数最多：踢最长耗时，用大根堆。 两种模型均为 O(\allowbreak{}n log n)\allowbreak{}，不能推广为任意耗时、任意收益的调度。}
+\note{1.\allowbreak{} 单位时长，最大化收益（P2949）：d>\allowbreak{}=\allowbreak{}0、p>\allowbreak{}=\allowbreak{}0。 到截止时刻 d 最多选 d 件，小根堆维护已选任务的收益。}
 \begin{lstlisting}
-// 重复权值哈夫曼：最小 w 有 c 个时，批量 floor(c/2) 次合并，代价 2*w*floor(c/2)，生成 2*w。
-// c 为奇数时，余下一个 w 与当前次小配对；原权排序后与新生成的单调队列取两边最小。
-// 若每种符号必须编码，零权符号也不能扔掉；计数与总代价用足够宽的整数。
-// 按截止时间排序，堆保存已选任务；放不下时撤销最不值得保留的。
-// 收益最大：踢最低收益，用小根堆；件数最多：踢最长耗时，用大根堆。
-// 两种模型均为 O(n log n)，不能推广为任意耗时、任意收益的调度。
-// 1. 单位时长，最大化收益（P2949）：d>=0、p>=0。
-// 到截止时刻 d 最多选 d 件，小根堆维护已选任务的收益。
 struct Job
 {
     int d,p;
@@ -498,10 +505,10 @@ ll job_schedule(vector<Job> v)
     }
     return ans;
 }
-// 为什么能撤销：此前任务已可行，本轮只可能多出一件；删除任意一件都恢复可行。
-// 同样腾出一个时段，删最低收益损失最小；后续截止时间不会更早。
-// 2. 不同耗时，最大化件数（P4053）：t>0、d>=0，从时刻 0 起可安排任务。
-// tot 为已选总耗时；任务按截止时间顺序执行，大根堆保存耗时。
+\end{lstlisting}
+\note{为什么能撤销：此前任务已可行，本轮只可能多出一件；删除任意一件都恢复可行。 同样腾出一个时段，删最低收益损失最小；后续截止时间不会更早。}
+\note{2.\allowbreak{} 不同耗时，最大化件数（P4053）：t>\allowbreak{}0、d>\allowbreak{}=\allowbreak{}0，从时刻 0 起可安排任务。 tot 为已选总耗时；任务按截止时间顺序执行，大根堆保存耗时。}
+\begin{lstlisting}
 struct Task
 {
     ll t,d;
@@ -527,17 +534,13 @@ int task_schedule(vector<Task> v)
     }
     return (int)q.size();
 }
-// 替换为何可行：移除旧任务后，其余任务只会提前；新任务放在当前末尾。
-// 新耗时更短，所以新 tot 小于旧 tot，而旧 tot<=当前截止时间。
-// 同样的件数，删最长任务能省下最多时间；新任务不更短时直接跳过。
-// 例：(耗时,截止)=(4,4),(2,5),(3,6)：先选 4，再换成 2，最后可选 2 和 3。
-// 不同耗时还要求收益最大时，以上两种堆策略都不保证最优。
 \end{lstlisting}
+\note{替换为何可行：移除旧任务后，其余任务只会提前；新任务放在当前末尾。 新耗时更短，所以新 tot 小于旧 tot，而旧 tot<\allowbreak{}=\allowbreak{}当前截止时间。 同样的件数，删最长任务能省下最多时间；新任务不更短时直接跳过。 例：(\allowbreak{}耗时,\allowbreak{}截止)\allowbreak{}=\allowbreak{}(\allowbreak{}4,\allowbreak{}4)\allowbreak{},\allowbreak{}(\allowbreak{}2,\allowbreak{}5)\allowbreak{},\allowbreak{}(\allowbreak{}3,\allowbreak{}6)\allowbreak{}：先选 4，再换成 2，最后可选 2 和 3。 不同耗时还要求收益最大时，以上两种堆策略都不保证最优。}
 % SOURCE: 01-基础与技巧/快读快写.cpp
 \subsection{快读快写}
 
+\note{按已知数量读取合法整数，输入须在 ll 范围内；EOF 返回 0，不能据此区分文件结束与整数零。}
 \begin{lstlisting}
-// 沿用 D:\code 中的 readd/print；按已知数量读入，输入须合法且在 ll 范围内。
 inline ll readd()
 {
     int c;
@@ -566,14 +569,13 @@ void print(ll x)
         putchar(x%10+'0');
     }
 }
-// 用法：n=readd(); print(ans); putchar('\n'); 不自动输出空格或换行。
-// 无锁版本可按平台替换 getchar/putchar，参见 D:\code\luogu\P10815.cpp。
 \end{lstlisting}
+\note{用法：n=\allowbreak{}readd(\allowbreak{})\allowbreak{}; print(\allowbreak{}ans)\allowbreak{}; putchar(\allowbreak{}'\textbackslash{}n')\allowbreak{}; 不自动输出空格或换行。 无锁版本可按平台替换 getchar/\allowbreak{}putchar，参见 D:\textbackslash{}code\textbackslash{}luogu\textbackslash{}P10815.\allowbreak{}cpp。}
 % SOURCE: 01-基础与技巧/离散化.cpp
 \subsection{离散化}
 
+\note{排序去重 O(\allowbreak{}n log n)\allowbreak{}，映射 O(\allowbreak{}log n)\allowbreak{}；保留大小关系，不保留实际距离。}
 \begin{lstlisting}
-// 排序去重 O(n log n)，映射 O(log n)；保留大小关系，不保留实际距离。
 const int N=1000005;
 int n,id[N];
 ll a[N];
@@ -587,18 +589,13 @@ void discrete()
     for(int i=1;i<=n;i++)
         id[i]=lower_bound(b.begin(),b.end(),a[i])-b.begin()+1;
 }
-// id[i] 是 1-based 排名，原数组 a 不变；排名 r 的原值为 b[r-1]。
 \end{lstlisting}
+\note{id[\allowbreak{}i]\allowbreak{} 是 1-\allowbreak{}based 排名，原数组 a 不变；排名 r 的原值为 b[\allowbreak{}r-\allowbreak{}1]\allowbreak{}。}
 % SOURCE: 01-基础与技巧/记忆化搜索.cpp
 \subsection{记忆化搜索}
 
+\note{滑雪：从 (\allowbreak{}x,\allowbreak{}y)\allowbreak{} 出发只能走向严格更低的相邻格子，求最长路径。 状态：dfs(\allowbreak{}x,\allowbreak{}y)\allowbreak{} 为从该格出发的最长路径长度，包含当前格；转移取下一格答案 +\allowbreak{}1。 缓存下标须包含影响后续结果的全部信息；剩余次数、已选集合等若有影响也要入状态。 f[\allowbreak{}x]\allowbreak{}[\allowbreak{}y]\allowbreak{}=\allowbreak{}0 表示未计算；每个状态算一次，O(\allowbreak{}nm)\allowbreak{}，最坏递归深度 O(\allowbreak{}nm)\allowbreak{}。 本题答案至少为 1；答案可能为 0/\allowbreak{}负数时，用独立 vis 标记或不会与答案重合的哨兵。 高度严格下降保证无环；存在循环依赖时，缓存或访问标记本身不能解决状态转移。}
 \begin{lstlisting}
-// 滑雪：从 (x,y) 出发只能走向严格更低的相邻格子，求最长路径。
-// 状态：dfs(x,y) 为从该格出发的最长路径长度，包含当前格；转移取下一格答案 +1。
-// 缓存下标须包含影响后续结果的全部信息；剩余次数、已选集合等若有影响也要入状态。
-// f[x][y]=0 表示未计算；每个状态算一次，O(nm)，最坏递归深度 O(nm)。
-// 本题答案至少为 1；答案可能为 0/负数时，用独立 vis 标记或不会与答案重合的哨兵。
-// 高度严格下降保证无环；存在循环依赖时，缓存或访问标记本身不能解决状态转移。
 const int N=1005;
 int n,m,h[N][N],f[N][N];
 int dx[4]={0,0,1,-1},dy[4]={1,-1,0,0};
@@ -622,13 +619,13 @@ int solve()
         for(int j=1;j<=m;j++)ans=max(ans,dfs(i,j));
     return ans;
 }
-// 多测或修改输入后须清缓存；长链可能爆栈，可按高度从低到高排序后迭代转移。
 \end{lstlisting}
+\note{多测或修改输入后须清缓存；长链可能爆栈，可按高度从低到高排序后迭代转移。}
 % SOURCE: 01-基础与技巧/逆序对.cpp
 \subsection{逆序对}
 
+\note{O(\allowbreak{}n log n)\allowbreak{}，统计严格逆序对；会将 a[\allowbreak{}l.\allowbreak{}.\allowbreak{}r]\allowbreak{} 排好序。}
 \begin{lstlisting}
-// O(n log n)，统计严格逆序对；会将 a[l..r] 排好序。
 const int N=1000005;
 int a[N],tmp[N];
 ll count_inv(int l,int r)// 相等不算逆序对
@@ -651,13 +648,11 @@ ll count_inv(int l,int r)// 相等不算逆序对
 % SOURCE: 01-基础与技巧/高精度BigInt.cpp
 \subsection{高精度BigInt}
 
+\note{按区复制：非负加法 0+\allowbreak{}1，用 add\_abs；普通 a+\allowbreak{}b 复制 0+\allowbreak{}1+\allowbreak{}2+\allowbreak{}3。 仅乘法：0+\allowbreak{}4 或 0+\allowbreak{}5；除法/\allowbreak{}取模：0+\allowbreak{}2+\allowbreak{}4+\allowbreak{}6；比较：0+\allowbreak{}7。 各区放在同一个 struct BigInt 内，不需要的区整块省略。}
+\topic{0 公共：存储、构造、去零、绝对值比较、输出}
 \begin{lstlisting}
-// 按区复制：非负加法 0+1，用 add_abs；普通 a+b 复制 0+1+2+3。
-// 仅乘法：0+4 或 0+5；除法/取模：0+2+4+6；比较：0+7。
-// 各区放在同一个 struct BigInt 内，不需要的区整块省略。
 struct BigInt
 {
-    // [0 公共：存储、构造、去零、绝对值比较、输出]
     vector<int> d;
     int len,sign; // d[0] 为最低位，十进制；sign=1 正，-1 负，零统一为正
     BigInt():d(1,0),len(1),sign(1){}
@@ -719,7 +714,9 @@ struct BigInt
         for(int i=len-1;i>=0;i--)s+=(char)('0'+d[i]);
         return s;
     }
-    // [1 绝对值加法：仅需 0，O(n)]
+\end{lstlisting}
+\topic{1 绝对值加法：仅需 0，O(\allowbreak{}n)\allowbreak{}}
+\begin{lstlisting}
     static BigInt add_abs(const BigInt& a,const BigInt& b)// 只用绝对值相加
     {
         BigInt res;
@@ -735,7 +732,9 @@ struct BigInt
         res.trim();
         return res;
     }
-    // [2 绝对值减法：仅需 0，要求 |a|>=|b|，O(n)]
+\end{lstlisting}
+\topic{2 绝对值减法：仅需 0，要求 |a|>\allowbreak{}=\allowbreak{}|b|，O(\allowbreak{}n)\allowbreak{}}
+\begin{lstlisting}
     static BigInt sub_abs(const BigInt& a,const BigInt& b)// 只用绝对值，返回 |a|-|b|（要求 |a|>=|b|）
     {
         BigInt res;
@@ -752,7 +751,9 @@ struct BigInt
         res.trim();
         return res;
     }
-    // [3 带符号加减：需 0+1+2，O(n)]
+\end{lstlisting}
+\topic{3 带符号加减：需 0+\allowbreak{}1+\allowbreak{}2，O(\allowbreak{}n)\allowbreak{}}
+\begin{lstlisting}
     BigInt operator-()const// 取相反数
     {
         BigInt res=*this;
@@ -781,7 +782,9 @@ struct BigInt
         if(!t.is_zero())t.sign=-b.sign;
         return *this+t;
     }
-    // [4 高精乘 int：仅需 0，O(n)]
+\end{lstlisting}
+\topic{4 高精乘 int：仅需 0，O(\allowbreak{}n)\allowbreak{}}
+\begin{lstlisting}
     BigInt operator*(int v)const// 高精乘低精，除法试商时用
     {
         BigInt res;
@@ -802,7 +805,9 @@ struct BigInt
         res.trim();
         return res;
     }
-    // [5 高精乘高精：仅需 0，O(nm)]
+\end{lstlisting}
+\topic{5 高精乘高精：仅需 0，O(\allowbreak{}nm)\allowbreak{}}
+\begin{lstlisting}
     BigInt operator*(const BigInt& b)const// 高精乘高精
     {
         BigInt res;
@@ -824,7 +829,9 @@ struct BigInt
         res.trim();
         return res;
     }
-    // [6 除法与取模：需 0+2+4，无需加法区和高精乘高精区，O(nm)]
+\end{lstlisting}
+\topic{6 除法与取模：需 0+\allowbreak{}2+\allowbreak{}4，无需加法区和高精乘高精区，O(\allowbreak{}nm)\allowbreak{}}
+\begin{lstlisting}
     static pair<BigInt,BigInt> divmod_abs(const BigInt& a,const BigInt& b)// 只用绝对值，返回 {商,余数}
     {
         if(a.abs_less(b))return make_pair(BigInt(0),a);
@@ -864,7 +871,9 @@ struct BigInt
     }
     BigInt operator/(const BigInt& b)const{return divmod(*this,b).first;}
     BigInt operator%(const BigInt& b)const{return divmod(*this,b).second;}
-    // [7 比较重载：仅需 0，按需选用]
+\end{lstlisting}
+\topic{7 比较重载：仅需 0，按需选用}
+\begin{lstlisting}
     bool operator<(const BigInt& b)const
     {
         if(sign!=b.sign)return sign<b.sign;
@@ -914,8 +923,9 @@ p_i=\begin{cases}l_i,&b_i=0,\\r_i+1,&b_i=1,\end{cases}
 const int N=105;
 int n,m,k;
 ll d[N][N][N]; // 1-indexed；各维预留 0 和右端点+1，按题目调整大小
-// 非零初始值直接填 d，再建差分；全零起始清 d 后跳过 build。
-// 建差分沿每一维倒序做相邻相减，避免覆盖尚未使用的原值。
+\end{lstlisting}
+\note{非零初始值直接填 d，再建差分；全零起始清 d 后跳过 build。 建差分沿每一维倒序做相邻相减，避免覆盖尚未使用的原值。}
+\begin{lstlisting}
 void build()
 {
     for(int x=n;x>=1;x--)for(int y=1;y<=m;y++)for(int z=1;z<=k;z++)
@@ -925,8 +935,9 @@ void build()
     for(int x=1;x<=n;x++)for(int y=1;y<=m;y++)for(int z=k;z>=1;z--)
         d[x][y][z]-=d[x][y][z-1];
 }
-// 闭长方体 [x1,x2] × [y1,y2] × [z1,z2] 加 v，修改八个角点。
-// 每选一个右端点+1，符号翻转一次：0/2 个取正，1/3 个取负。
+\end{lstlisting}
+\note{闭长方体 [\allowbreak{}x1,\allowbreak{}x2]\allowbreak{} \ensuremath{\times} [\allowbreak{}y1,\allowbreak{}y2]\allowbreak{} \ensuremath{\times} [\allowbreak{}z1,\allowbreak{}z2]\allowbreak{} 加 v，修改八个角点。 每选一个右端点+\allowbreak{}1，符号翻转一次：0/\allowbreak{}2 个取正，1/\allowbreak{}3 个取负。}
+\begin{lstlisting}
 void add(int x1,int y1,int z1,int x2,int y2,int z2,ll v)
 {
     ++x2,++y2,++z2;
@@ -935,7 +946,9 @@ void add(int x1,int y1,int z1,int x2,int y2,int z2,ll v)
     d[x2][y2][z1]+=v; d[x2][y1][z2]+=v; d[x1][y2][z2]+=v;
     d[x2][y2][z2]-=v;
 }
-// 修改结束后，沿每一维正序做前缀和；结果仍在 d，只还原一次。
+\end{lstlisting}
+\note{修改结束后，沿每一维正序做前缀和；结果仍在 d，只还原一次。}
+\begin{lstlisting}
 void restore()
 {
     for(int x=1;x<=n;x++)for(int y=1;y<=m;y++)for(int z=1;z<=k;z++)
@@ -945,9 +958,8 @@ void restore()
     for(int x=1;x<=n;x++)for(int y=1;y<=m;y++)for(int z=1;z<=k;z++)
         d[x][y][z]+=d[x][y][z-1];
 }
-// 三维建表/还原 O(nmk)，修改 O(1)；D 维建表/还原 O(D*S)，S 为格数。
-// 空间随各维长度相乘；这里静态数组约 8.8 MiB，须保证 n+1,m+1,k+1<N。
 \end{lstlisting}
+\note{三维建表/\allowbreak{}还原 O(\allowbreak{}nmk)\allowbreak{}，修改 O(\allowbreak{}1)\allowbreak{}；D 维建表/\allowbreak{}还原 O(\allowbreak{}D*S)\allowbreak{}，S 为格数。 空间随各维长度相乘；这里静态数组约 8.\allowbreak{}8 MiB，须保证 n+\allowbreak{}1,\allowbreak{}m+\allowbreak{}1,\allowbreak{}k+\allowbreak{}1<\allowbreak{}N。}
 \section{数据结构}
 % SOURCE: 02-数据结构/01Trie(最大异或).cpp
 \subsection{01Trie(最大异或)}
