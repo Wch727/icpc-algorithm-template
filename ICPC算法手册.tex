@@ -521,37 +521,6 @@ int task_schedule()
 }
 \end{lstlisting}
 \note{替换为何可行：移除旧任务后，其余任务只会提前；新任务放在当前末尾。 新耗时更短，所以新 tot 小于旧 tot，而旧 tot<\allowbreak{}=\allowbreak{}当前截止时间。 同样的件数，删最长任务能省下最多时间；新任务不更短时直接跳过。 例：(\allowbreak{}耗时,\allowbreak{}截止)\allowbreak{}=\allowbreak{}(\allowbreak{}4,\allowbreak{}4)\allowbreak{},\allowbreak{}(\allowbreak{}2,\allowbreak{}5)\allowbreak{},\allowbreak{}(\allowbreak{}3,\allowbreak{}6)\allowbreak{}：先选 4，再换成 2，最后可选 2 和 3。 不同耗时还要求收益最大时，以上两种堆策略都不保证最优。}
-% SOURCE: 01-基础与技巧/记忆化搜索.cpp
-\subsection{记忆化搜索}
-
-\note{h[\allowbreak{}1.\allowbreak{}.\allowbreak{}n]\allowbreak{}[\allowbreak{}1.\allowbreak{}.\allowbreak{}m]\allowbreak{}是高度，f[\allowbreak{}i]\allowbreak{}[\allowbreak{}j]\allowbreak{}是从该格出发的最长下降路径；0表示尚未计算。dx、dy为四邻方向。高度严格下降保证无环，换地图清空f，搜索结果包含起点本身。}
-\note{滑雪：从 (\allowbreak{}x,\allowbreak{}y)\allowbreak{} 出发只能走向严格更低的相邻格子，求最长路径。 状态：dfs(\allowbreak{}x,\allowbreak{}y)\allowbreak{} 为从该格出发的最长路径长度，包含当前格；转移取下一格答案 +\allowbreak{}1。 缓存下标须包含影响后续结果的全部信息；剩余次数、已选集合等若有影响也要入状态。 f[\allowbreak{}x]\allowbreak{}[\allowbreak{}y]\allowbreak{}=\allowbreak{}0 表示未计算；每个状态算一次，O(\allowbreak{}nm)\allowbreak{}，最坏递归深度 O(\allowbreak{}nm)\allowbreak{}。 本题答案至少为 1；答案可能为 0/\allowbreak{}负数时，用独立 vis 标记或不会与答案重合的哨兵。 高度严格下降保证无环；存在循环依赖时，缓存或访问标记本身不能解决状态转移。}
-\begin{lstlisting}
-const int N=1005;
-int n,m,h[N][N],f[N][N];
-int dx[4]={0,0,1,-1},dy[4]={1,-1,0,0};
-int dfs(int x,int y)
-{
-    if(f[x][y])return f[x][y];
-    f[x][y]=1;
-    for(int i=0;i<4;i++)
-    {
-        int nx=x+dx[i],ny=y+dy[i];
-        if(nx<1||nx>n||ny<1||ny>m||h[nx][ny]>=h[x][y])continue;
-        f[x][y]=max(f[x][y],dfs(nx,ny)+1);
-    }
-    return f[x][y];
-}
-int solve()
-{
-    memset(f,0,sizeof f);
-    int ans=0;
-    for(int i=1;i<=n;i++)
-        for(int j=1;j<=m;j++)ans=max(ans,dfs(i,j));
-    return ans;
-}
-\end{lstlisting}
-\note{多测或修改输入后须清缓存；长链可能爆栈，可按高度从低到高排序后迭代转移。}
 % SOURCE: 01-基础与技巧/二维差分.cpp
 \subsection{二维差分}
 
@@ -662,6 +631,37 @@ void restore()
 }
 \end{lstlisting}
 \note{三维建表/\allowbreak{}还原 O(\allowbreak{}nmk)\allowbreak{}，修改 O(\allowbreak{}1)\allowbreak{}；D 维建表/\allowbreak{}还原 O(\allowbreak{}D*S)\allowbreak{}，S 为格数。 空间随各维长度相乘；这里静态数组约 8.\allowbreak{}8 MiB，须保证 n+\allowbreak{}1,\allowbreak{}m+\allowbreak{}1,\allowbreak{}k+\allowbreak{}1<\allowbreak{}N。}
+% SOURCE: 01-基础与技巧/记忆化搜索.cpp
+\subsection{记忆化搜索}
+
+\note{h[\allowbreak{}1.\allowbreak{}.\allowbreak{}n]\allowbreak{}[\allowbreak{}1.\allowbreak{}.\allowbreak{}m]\allowbreak{}是高度，f[\allowbreak{}i]\allowbreak{}[\allowbreak{}j]\allowbreak{}是从该格出发的最长下降路径；0表示尚未计算。dx、dy为四邻方向。高度严格下降保证无环，换地图清空f，搜索结果包含起点本身。}
+\note{滑雪：从 (\allowbreak{}x,\allowbreak{}y)\allowbreak{} 出发只能走向严格更低的相邻格子，求最长路径。 状态：dfs(\allowbreak{}x,\allowbreak{}y)\allowbreak{} 为从该格出发的最长路径长度，包含当前格；转移取下一格答案 +\allowbreak{}1。 缓存下标须包含影响后续结果的全部信息；剩余次数、已选集合等若有影响也要入状态。 f[\allowbreak{}x]\allowbreak{}[\allowbreak{}y]\allowbreak{}=\allowbreak{}0 表示未计算；每个状态算一次，O(\allowbreak{}nm)\allowbreak{}，最坏递归深度 O(\allowbreak{}nm)\allowbreak{}。 本题答案至少为 1；答案可能为 0/\allowbreak{}负数时，用独立 vis 标记或不会与答案重合的哨兵。 高度严格下降保证无环；存在循环依赖时，缓存或访问标记本身不能解决状态转移。}
+\begin{lstlisting}
+const int N=1005;
+int n,m,h[N][N],f[N][N];
+int dx[4]={0,0,1,-1},dy[4]={1,-1,0,0};
+int dfs(int x,int y)
+{
+    if(f[x][y])return f[x][y];
+    f[x][y]=1;
+    for(int i=0;i<4;i++)
+    {
+        int nx=x+dx[i],ny=y+dy[i];
+        if(nx<1||nx>n||ny<1||ny>m||h[nx][ny]>=h[x][y])continue;
+        f[x][y]=max(f[x][y],dfs(nx,ny)+1);
+    }
+    return f[x][y];
+}
+int solve()
+{
+    memset(f,0,sizeof f);
+    int ans=0;
+    for(int i=1;i<=n;i++)
+        for(int j=1;j<=m;j++)ans=max(ans,dfs(i,j));
+    return ans;
+}
+\end{lstlisting}
+\note{多测或修改输入后须清缓存；长链可能爆栈，可按高度从低到高排序后迭代转移。}
 % SOURCE: 01-基础与技巧/三分法.cpp
 \subsection{三分法}
 
@@ -1251,6 +1251,62 @@ int n;
 ll a[205],br[205];
 SegmentTree<ll,205> seg;
 \end{lstlisting}
+% SOURCE: 02-数据结构/ST表.cpp
+\subsection{ST表}
+
+\note{a[\allowbreak{}1.\allowbreak{}.\allowbreak{}n]\allowbreak{}是静态输入，stx/\allowbreak{}stn分别为最大/\allowbreak{}最小值ST表；对象中的f[\allowbreak{}i]\allowbreak{}[\allowbreak{}k]\allowbreak{}覆盖从i开始的2\textasciicircum{}k项，lg为向下取整对数。build(\allowbreak{}n,\allowbreak{}a)\allowbreak{}复制输入到表，修改原数组不会更新查询；容量模板参数按实际规模设置。}
+\begin{lstlisting}
+const int N=100005;
+\end{lstlisting}
+\note{ST 表：静态区间最值(\allowbreak{}RMQ)\allowbreak{}，n log n 预处理，O(\allowbreak{}1)\allowbreak{} 查询，不支持修改 查询用两段长度为 2\textasciicircum{}k 的区间覆盖 [\allowbreak{}l,\allowbreak{}r]\allowbreak{}，可重叠}
+\begin{lstlisting}
+template<typename T,int NMAX=N,int LOG=18>
+struct STmax
+{
+    T f[NMAX][LOG];
+    int lg[NMAX],n;
+    void build(int n_,T *src)
+    {
+        n=n_;
+        lg[1]=0;
+        for(int i=2;i<=n;i++)lg[i]=lg[i>>1]+1;//预处理 log2 向下取整
+        for(int i=1;i<=n;i++)f[i][0]=src[i];
+        for(int j=1;(1<<j)<=n;j++)
+            for(int i=1;i+(1<<j)-1<=n;i++)
+                f[i][j]=max(f[i][j-1],f[i+(1<<(j-1))][j-1]);
+    }
+    T query(int l,int r)
+    {
+        int k=lg[r-l+1];
+        return max(f[l][k],f[r-(1<<k)+1][k]);
+    }
+};
+template<typename T,int NMAX=N,int LOG=18>
+struct STmin
+{
+    T f[NMAX][LOG];
+    int lg[NMAX],n;
+    void build(int n_,T *src)
+    {
+        n=n_;
+        lg[1]=0;
+        for(int i=2;i<=n;i++)lg[i]=lg[i>>1]+1;
+        for(int i=1;i<=n;i++)f[i][0]=src[i];
+        for(int j=1;(1<<j)<=n;j++)
+            for(int i=1;i+(1<<j)-1<=n;i++)
+                f[i][j]=min(f[i][j-1],f[i+(1<<(j-1))][j-1]);
+    }
+    T query(int l,int r)
+    {
+        int k=lg[r-l+1];
+        return min(f[l][k],f[r-(1<<k)+1][k]);
+    }
+};
+int n;
+int a[105];
+STmax<int,105,8> stx;
+STmin<int,105,8> stn;
+\end{lstlisting}
 % SOURCE: 02-数据结构/并查集.cpp
 \subsection{并查集}
 
@@ -1375,62 +1431,6 @@ struct WeightDSU
         return norm(d[y]-d[x]);
     }
 };
-\end{lstlisting}
-% SOURCE: 02-数据结构/ST表.cpp
-\subsection{ST表}
-
-\note{a[\allowbreak{}1.\allowbreak{}.\allowbreak{}n]\allowbreak{}是静态输入，stx/\allowbreak{}stn分别为最大/\allowbreak{}最小值ST表；对象中的f[\allowbreak{}i]\allowbreak{}[\allowbreak{}k]\allowbreak{}覆盖从i开始的2\textasciicircum{}k项，lg为向下取整对数。build(\allowbreak{}n,\allowbreak{}a)\allowbreak{}复制输入到表，修改原数组不会更新查询；容量模板参数按实际规模设置。}
-\begin{lstlisting}
-const int N=100005;
-\end{lstlisting}
-\note{ST 表：静态区间最值(\allowbreak{}RMQ)\allowbreak{}，n log n 预处理，O(\allowbreak{}1)\allowbreak{} 查询，不支持修改 查询用两段长度为 2\textasciicircum{}k 的区间覆盖 [\allowbreak{}l,\allowbreak{}r]\allowbreak{}，可重叠}
-\begin{lstlisting}
-template<typename T,int NMAX=N,int LOG=18>
-struct STmax
-{
-    T f[NMAX][LOG];
-    int lg[NMAX],n;
-    void build(int n_,T *src)
-    {
-        n=n_;
-        lg[1]=0;
-        for(int i=2;i<=n;i++)lg[i]=lg[i>>1]+1;//预处理 log2 向下取整
-        for(int i=1;i<=n;i++)f[i][0]=src[i];
-        for(int j=1;(1<<j)<=n;j++)
-            for(int i=1;i+(1<<j)-1<=n;i++)
-                f[i][j]=max(f[i][j-1],f[i+(1<<(j-1))][j-1]);
-    }
-    T query(int l,int r)
-    {
-        int k=lg[r-l+1];
-        return max(f[l][k],f[r-(1<<k)+1][k]);
-    }
-};
-template<typename T,int NMAX=N,int LOG=18>
-struct STmin
-{
-    T f[NMAX][LOG];
-    int lg[NMAX],n;
-    void build(int n_,T *src)
-    {
-        n=n_;
-        lg[1]=0;
-        for(int i=2;i<=n;i++)lg[i]=lg[i>>1]+1;
-        for(int i=1;i<=n;i++)f[i][0]=src[i];
-        for(int j=1;(1<<j)<=n;j++)
-            for(int i=1;i+(1<<j)-1<=n;i++)
-                f[i][j]=min(f[i][j-1],f[i+(1<<(j-1))][j-1]);
-    }
-    T query(int l,int r)
-    {
-        int k=lg[r-l+1];
-        return min(f[l][k],f[r-(1<<k)+1][k]);
-    }
-};
-int n;
-int a[105];
-STmax<int,105,8> stx;
-STmin<int,105,8> stn;
 \end{lstlisting}
 % SOURCE: 02-数据结构/树链剖分.cpp
 \subsection{树链剖分}
@@ -1801,112 +1801,6 @@ struct DynSeg{
 \begin{lstlisting}
 const ll V=1000000000;//值域 1..1e9
 const int XN=4005;    // 对拍用到的坐标个数
-\end{lstlisting}
-% SOURCE: 02-数据结构/线段树合并.cpp
-\subsection{线段树合并}
-
-\note{adj存树的邻点，add\_edge只加一个方向，无向树须调用两次。col[\allowbreak{}u]\allowbreak{}为颜色，root[\allowbreak{}u]\allowbreak{}为子树权值线段树根，ans[\allowbreak{}u]\allowbreak{}为不同颜色数；子树合并进父根后，旧根不可再当独立版本使用。换树清空adj，重置节点池、根和答案。}
-\note{线段树合并（权值线段树合并）：求每个子树内不同颜色数 /\allowbreak{} 每个权值出现次数 建树 O(\allowbreak{}n log n)\allowbreak{}；合并总复杂度 O(\allowbreak{}结点总数)\allowbreak{} =\allowbreak{} O(\allowbreak{}n log n)\allowbreak{} 关键性质：merge 里只要有一边是空就直接返回另一边， 否则两边都不空 -\allowbreak{}>\allowbreak{} 当前这个结点被丢弃，每个结点一生只会被丢一次， 所以所有 merge 加起来是 O(\allowbreak{}总结点数)\allowbreak{}，均摊到一次合并是 O(\allowbreak{}log n)\allowbreak{} 坑：合并是「破坏性」的，merge(\allowbreak{}a,\allowbreak{}b)\allowbreak{} 之后 b 的子结点已经被挂到 a 上，b 不能再单独用}
-\begin{lstlisting}
-const int N=100005;
-const int LOG=18;      // log2(N)+1
-const int MAXNODE=N*(LOG+1);//n 个叶子各建一条到根的链
-int n,col[N];
-vector<int> adj[N];
-void add_edge(int u,int v)
-{
-    adj[u].push_back(v);
-}
-struct MergeSeg{
-    int ls[MAXNODE],rs[MAXNODE],sum[MAXNODE],cnt[MAXNODE],tot;//cnt 是这段里被占用的叶子数
-    void init(){tot=0;}
-    int new_node()
-    {
-        ++tot;
-        ls[tot]=rs[tot]=sum[tot]=cnt[tot]=0;
-        return tot;
-    }
-    // 在位置 pos 插入 cnt 个（叶子），返回根，O(log n)
-    int insert(int p,int l,int r,int pos,int c)
-    {
-        if(!p)p=new_node();
-        if(l==r)
-        {
-            if(sum[p]==0)cnt[p]=1;//这个叶子原来没有颜色，现在有了，占用数 +1
-            sum[p]+=c;
-            return p;
-        }
-        int mid=(l+r)>>1;
-        if(pos<=mid)ls[p]=insert(ls[p],l,mid,pos,c);
-        else rs[p]=insert(rs[p],mid+1,r,pos,c);
-        sum[p]=sum[ls[p]]+sum[rs[p]];
-        cnt[p]=cnt[ls[p]]+cnt[rs[p]];
-        return p;
-    }
-    // 把 b 合并进 a，返回合并后的根，均摊 O(log n)；要求 a、b 表示的颜色集合不交
-    // cnt 是「这段里被占用的叶子数（不同颜色数）」
-    // 关键：递归会把子树的 cnt 改掉，所以先把 ca、cb 和两个儿子的原值存下来，
-    //       再用「合并前两边之和 - 合并后的交集叶子数」推出共有几种颜色
-    int merge(int a,int b)
-    {
-        if(!a||!b)return a|b;       // 有一边空，直接接过去；b 空则只剩 a
-        int ca=cnt[a],cb=cnt[b];
-        int la=ls[a],lb=ls[b],ra=rs[a],rb=rs[b];
-        if(!la&&!lb&&!ra&&!rb)      // 两个都是叶子结点（同一个颜色），并成一个
-        {
-            sum[a]+=sum[b],cnt[a]=1;
-            return a;
-        }
-        int cla=cnt[la],clb=cnt[lb],cra=cnt[ra],crb=cnt[rb];
-        int mla=merge(la,lb),mra=merge(ra,rb);
-        ls[a]=mla,rs[a]=mra;
-        int dup=(cla+clb-cnt[mla])+(cra+crb-cnt[mra]);//两边都有的颜色数
-        sum[a]=sum[mla]+sum[mra];
-        cnt[a]=ca+cb-dup;
-        return a;
-    }
-    // 不同颜色数 = 权值线段树里 sum>0 的叶子个数，直接返回维护好的 cnt
-    int count_distinct(int a){return cnt[a];}
-}seg;
-int ans[N];//每个子树内不同颜色数
-int root[N];//每个点对应的权值线段树根
-\end{lstlisting}
-\note{自底向上：把自己的颜色建树，再把每个儿子的树合并进来，最后统计根上的 sum}
-\begin{lstlisting}
-void dfs(int u,int fa)
-{
-    root[u]=seg.insert(0,1,n,col[u],1);
-    for(int v:adj[u])
-    {
-        if(v==fa)continue;
-        dfs(v,u);
-        root[u]=seg.merge(root[u],root[v]);
-    }
-    ans[u]=seg.count_distinct(root[u]);
-}
-\end{lstlisting}
-% SOURCE: 02-数据结构/线段树分裂与合并.cpp
-\subsection{线段树分裂与合并}
-
-\note{节点池t存左右儿子和频数和，0为空根；多棵树用不同根编号共享池。split通过引用修改原根并返回抽出的区间根，merge消耗两棵旧树；非持久化，旧根不能继续独立操作，计数不可减成负数。}
-\note{动态权值线段树，多重集频数非负；拆出 [\allowbreak{}L,\allowbreak{}R]\allowbreak{} 返回新根，原根按引用更新。 split O(\allowbreak{}log \ensuremath{\sigma})\allowbreak{} 边界节点，merge 摊还 O(\allowbreak{}总节点数)\allowbreak{}；所有操作是破坏性的，根不能共享节点。 节点用 vector 扩容；递归调用不得持有 vector 元素引用。值域 0.\allowbreak{}.\allowbreak{}\ensuremath{\sigma}-\allowbreak{}1。}
-\begin{lstlisting}
-struct SplitMergeSeg
-{
-    struct Node{int l=0,r=0;long long sum=0;};vector<Node> t={{}};int sigma;
-    SplitMergeSeg(int sigma):sigma(sigma){assert(sigma>0);}
-    int node(){t.push_back({});return t.size()-1;}
-    void pull(int p){t[p].sum=t[t[p].l].sum+t[t[p].r].sum;}
-    int add(int p,int l,int r,int x,int delta){if(!p)p=node();if(l==r){t[p].sum+=delta;assert(t[p].sum>=0);return p;}int m=(l+r)/2;if(x<=m){int q=add(t[p].l,l,m,x,delta);t[p].l=q;}else{int q=add(t[p].r,m+1,r,x,delta);t[p].r=q;}pull(p);return p;}
-    int split(int &p,int l,int r,int L,int R)
-    {
-        if(!p||R<l||r<L)return 0;if(L<=l&&r<=R){int q=p;p=0;return q;}
-        int q=node(),m=(l+r)/2,a=t[p].l,b=t[p].r;
-        int x=split(a,l,m,L,R),y=split(b,m+1,r,L,R);
-        t[p].l=a;t[p].r=b;t[q].l=x;t[q].r=y;pull(p);pull(q);return q;
-    }
-    int merge(int a,int b,int l,int r){if(!a||!b)return a?a:b;if(l==r)t[a].sum+=t[b].sum;else{int m=(l+r)/2;t[a].l=merge(t[a].l,t[b].l,l,m);t[a].r=merge(t[a].r,t[b].r,m+1,r);pull(a);}return a;}
-};
 \end{lstlisting}
 % SOURCE: 02-数据结构/扫描线(矩形面积并).cpp
 \subsection{扫描线(矩形面积并)}
@@ -2583,6 +2477,319 @@ vector<int> dynamic_connectivity()
     return ans;
 }
 \end{lstlisting}
+% SOURCE: 02-数据结构/线段树合并.cpp
+\subsection{线段树合并}
+
+\note{adj存树的邻点，add\_edge只加一个方向，无向树须调用两次。col[\allowbreak{}u]\allowbreak{}为颜色，root[\allowbreak{}u]\allowbreak{}为子树权值线段树根，ans[\allowbreak{}u]\allowbreak{}为不同颜色数；子树合并进父根后，旧根不可再当独立版本使用。换树清空adj，重置节点池、根和答案。}
+\note{线段树合并（权值线段树合并）：求每个子树内不同颜色数 /\allowbreak{} 每个权值出现次数 建树 O(\allowbreak{}n log n)\allowbreak{}；合并总复杂度 O(\allowbreak{}结点总数)\allowbreak{} =\allowbreak{} O(\allowbreak{}n log n)\allowbreak{} 关键性质：merge 里只要有一边是空就直接返回另一边， 否则两边都不空 -\allowbreak{}>\allowbreak{} 当前这个结点被丢弃，每个结点一生只会被丢一次， 所以所有 merge 加起来是 O(\allowbreak{}总结点数)\allowbreak{}，均摊到一次合并是 O(\allowbreak{}log n)\allowbreak{} 坑：合并是「破坏性」的，merge(\allowbreak{}a,\allowbreak{}b)\allowbreak{} 之后 b 的子结点已经被挂到 a 上，b 不能再单独用}
+\begin{lstlisting}
+const int N=100005;
+const int LOG=18;      // log2(N)+1
+const int MAXNODE=N*(LOG+1);//n 个叶子各建一条到根的链
+int n,col[N];
+vector<int> adj[N];
+void add_edge(int u,int v)
+{
+    adj[u].push_back(v);
+}
+struct MergeSeg{
+    int ls[MAXNODE],rs[MAXNODE],sum[MAXNODE],cnt[MAXNODE],tot;//cnt 是这段里被占用的叶子数
+    void init(){tot=0;}
+    int new_node()
+    {
+        ++tot;
+        ls[tot]=rs[tot]=sum[tot]=cnt[tot]=0;
+        return tot;
+    }
+    // 在位置 pos 插入 cnt 个（叶子），返回根，O(log n)
+    int insert(int p,int l,int r,int pos,int c)
+    {
+        if(!p)p=new_node();
+        if(l==r)
+        {
+            if(sum[p]==0)cnt[p]=1;//这个叶子原来没有颜色，现在有了，占用数 +1
+            sum[p]+=c;
+            return p;
+        }
+        int mid=(l+r)>>1;
+        if(pos<=mid)ls[p]=insert(ls[p],l,mid,pos,c);
+        else rs[p]=insert(rs[p],mid+1,r,pos,c);
+        sum[p]=sum[ls[p]]+sum[rs[p]];
+        cnt[p]=cnt[ls[p]]+cnt[rs[p]];
+        return p;
+    }
+    // 把 b 合并进 a，返回合并后的根，均摊 O(log n)；要求 a、b 表示的颜色集合不交
+    // cnt 是「这段里被占用的叶子数（不同颜色数）」
+    // 关键：递归会把子树的 cnt 改掉，所以先把 ca、cb 和两个儿子的原值存下来，
+    //       再用「合并前两边之和 - 合并后的交集叶子数」推出共有几种颜色
+    int merge(int a,int b)
+    {
+        if(!a||!b)return a|b;       // 有一边空，直接接过去；b 空则只剩 a
+        int ca=cnt[a],cb=cnt[b];
+        int la=ls[a],lb=ls[b],ra=rs[a],rb=rs[b];
+        if(!la&&!lb&&!ra&&!rb)      // 两个都是叶子结点（同一个颜色），并成一个
+        {
+            sum[a]+=sum[b],cnt[a]=1;
+            return a;
+        }
+        int cla=cnt[la],clb=cnt[lb],cra=cnt[ra],crb=cnt[rb];
+        int mla=merge(la,lb),mra=merge(ra,rb);
+        ls[a]=mla,rs[a]=mra;
+        int dup=(cla+clb-cnt[mla])+(cra+crb-cnt[mra]);//两边都有的颜色数
+        sum[a]=sum[mla]+sum[mra];
+        cnt[a]=ca+cb-dup;
+        return a;
+    }
+    // 不同颜色数 = 权值线段树里 sum>0 的叶子个数，直接返回维护好的 cnt
+    int count_distinct(int a){return cnt[a];}
+}seg;
+int ans[N];//每个子树内不同颜色数
+int root[N];//每个点对应的权值线段树根
+\end{lstlisting}
+\note{自底向上：把自己的颜色建树，再把每个儿子的树合并进来，最后统计根上的 sum}
+\begin{lstlisting}
+void dfs(int u,int fa)
+{
+    root[u]=seg.insert(0,1,n,col[u],1);
+    for(int v:adj[u])
+    {
+        if(v==fa)continue;
+        dfs(v,u);
+        root[u]=seg.merge(root[u],root[v]);
+    }
+    ans[u]=seg.count_distinct(root[u]);
+}
+\end{lstlisting}
+% SOURCE: 02-数据结构/线段树分裂与合并.cpp
+\subsection{线段树分裂与合并}
+
+\note{节点池t存左右儿子和频数和，0为空根；多棵树用不同根编号共享池。split通过引用修改原根并返回抽出的区间根，merge消耗两棵旧树；非持久化，旧根不能继续独立操作，计数不可减成负数。}
+\note{动态权值线段树，多重集频数非负；拆出 [\allowbreak{}L,\allowbreak{}R]\allowbreak{} 返回新根，原根按引用更新。 split O(\allowbreak{}log \ensuremath{\sigma})\allowbreak{} 边界节点，merge 摊还 O(\allowbreak{}总节点数)\allowbreak{}；所有操作是破坏性的，根不能共享节点。 节点用 vector 扩容；递归调用不得持有 vector 元素引用。值域 0.\allowbreak{}.\allowbreak{}\ensuremath{\sigma}-\allowbreak{}1。}
+\begin{lstlisting}
+struct SplitMergeSeg
+{
+    struct Node{int l=0,r=0;long long sum=0;};vector<Node> t={{}};int sigma;
+    SplitMergeSeg(int sigma):sigma(sigma){assert(sigma>0);}
+    int node(){t.push_back({});return t.size()-1;}
+    void pull(int p){t[p].sum=t[t[p].l].sum+t[t[p].r].sum;}
+    int add(int p,int l,int r,int x,int delta){if(!p)p=node();if(l==r){t[p].sum+=delta;assert(t[p].sum>=0);return p;}int m=(l+r)/2;if(x<=m){int q=add(t[p].l,l,m,x,delta);t[p].l=q;}else{int q=add(t[p].r,m+1,r,x,delta);t[p].r=q;}pull(p);return p;}
+    int split(int &p,int l,int r,int L,int R)
+    {
+        if(!p||R<l||r<L)return 0;if(L<=l&&r<=R){int q=p;p=0;return q;}
+        int q=node(),m=(l+r)/2,a=t[p].l,b=t[p].r;
+        int x=split(a,l,m,L,R),y=split(b,m+1,r,L,R);
+        t[p].l=a;t[p].r=b;t[q].l=x;t[q].r=y;pull(p);pull(q);return q;
+    }
+    int merge(int a,int b,int l,int r){if(!a||!b)return a?a:b;if(l==r)t[a].sum+=t[b].sum;else{int m=(l+r)/2;t[a].l=merge(t[a].l,t[b].l,l,m);t[a].r=merge(t[a].r,t[b].r,m+1,r);pull(a);}return a;}
+};
+\end{lstlisting}
+% SOURCE: 02-数据结构/李超树.cpp
+\subsection{李超树}
+
+\note{Line\{a,\allowbreak{}b,\allowbreak{}c\}表示(\allowbreak{}a*x+\allowbreak{}b)\allowbreak{}/\allowbreak{}c，c>\allowbreak{}0，c=\allowbreak{}0为空直线；对象保存节点和查询域。better用交叉乘积比较；连续整数域和离散坐标按各入口选择，域外查询不可套用。}
+\begin{lstlisting}
+typedef __int128 lll;
+struct Line
+{
+    ll a,b,c;
+    Line(ll a_=0,ll b_=0,ll c_=0):a(a_),b(b_),c(c_){}
+};
+\end{lstlisting}
+\note{分母为正；交叉乘积必须在 \_\_int128 范围内}
+\begin{lstlisting}
+bool better(const Line &a,const Line &b,ll x)
+{
+    if(!a.c)return false;
+    if(!b.c)return true;
+    return ((lll)a.a*x+a.b)*b.c>((lll)b.a*x+b.b)*a.c;
+}
+\end{lstlisting}
+\note{动态开点，连续整数域与离散坐标共用；每次操作 O(\allowbreak{}log V)\allowbreak{}}
+\begin{lstlisting}
+struct LiChao
+{
+    struct Node
+    {
+        int lc=0,rc=0;
+        Line s;
+    };
+    vector<Node> tr;
+    vector<ll> xs;
+    ll lo,hi;
+    void init(ll l,ll r)
+    {
+        assert(l<=r);
+        lo=l,hi=r,xs.clear(),tr.assign(2,Node());
+    }
+    void init(vector<ll> v)
+    {
+        assert(!v.empty());
+        sort(v.begin(),v.end());
+        v.erase(unique(v.begin(),v.end()),v.end());
+        init(0,(ll)v.size()-1);
+        xs=move(v);
+    }
+    ll coord(ll x)
+    {
+        return xs.empty()?x:xs[x];
+    }
+    void insert(Line s)
+    {
+        assert(s.c>0);
+        insert(s,lo,hi,1);
+    }
+    void insert(Line s,ll l,ll r,int p)
+    {
+        if(!tr[p].s.c)
+        {
+            tr[p].s=s;
+            return;
+        }
+        ll mid=(ll)((lll)l+((lll)r-l)/2);
+        bool bl=better(s,tr[p].s,coord(l)),bm=better(s,tr[p].s,coord(mid));
+        if(bm)swap(s,tr[p].s);
+        if(l==r)return;
+        bool left=bl!=bm;
+        int q=left?tr[p].lc:tr[p].rc;
+        if(!q)
+        {
+            q=(int)tr.size();
+            tr.push_back(Node());
+            if(left)tr[p].lc=q;
+            else tr[p].rc=q;
+        }
+        if(left)insert(s,l,mid,q);
+        else insert(s,mid+1,r,q);
+    }
+    // 返回最优直线，避免把分数截断成整数
+    Line query(ll x)
+    {
+        ll id=x;
+        if(!xs.empty())
+        {
+            id=lower_bound(xs.begin(),xs.end(),x)-xs.begin();
+            assert(id<(ll)xs.size()&&xs[id]==x);
+        }
+        assert(lo<=id&&id<=hi);
+        ll l=lo,r=hi;
+        int p=1;
+        Line ans;
+        while(p)
+        {
+            if(better(tr[p].s,ans,x))ans=tr[p].s;
+            if(l==r)break;
+            ll mid=(ll)((lll)l+((lll)r-l)/2);
+            if(id<=mid)p=tr[p].lc,r=mid;
+            else p=tr[p].rc,l=mid+1;
+        }
+        return ans;
+    }
+};
+\end{lstlisting}
+% SOURCE: 02-数据结构/SegmentTreeBeats.cpp
+\subsection{SegmentTreeBeats}
+
+\note{Beats对象保存t：sum、最大/\allowbreak{}次大值及次数、最小/\allowbreak{}次小值及次数、加法标记。输入0起，操作闭区间；update的op按实现选择加、chmin、chmax。只有阈值越过次极值的条件满足时才整段修改，否则递归。}
+\note{区间 chmin/\allowbreak{}chmax/\allowbreak{}add/\allowbreak{}sum，0-\allowbreak{}indexed 闭区间；同时维护严格次大/\allowbreak{}次小、极值个数。 chmin 只有 max2<\allowbreak{}x<\allowbreak{}max1 才能整段更新；否则递归。chmax 对称；加法移动全部极值。 含 add 的通用 Beats 标准摊还界 O(\allowbreak{}(\allowbreak{}n+\allowbreak{}q)\allowbreak{}log\ensuremath{^2}n)\allowbreak{}，空间 O(\allowbreak{}n)\allowbreak{}。值/\allowbreak{}和远离 ±INF。}
+\begin{lstlisting}
+struct Beats
+{
+    static constexpr ll INF=LLONG_MAX/4;
+    struct Node{ll sum=0,mx=-INF,mx2=-INF,mn=INF,mn2=INF,add=0;int cmx=0,cmn=0;};
+    int n;vector<Node> t;
+    Beats(const vector<ll> &a):n(a.size()),t(max(1,4*n)){if(n)build(1,0,n-1,a);}
+    void pull(int p)
+    {
+        auto &a=t[p*2],&b=t[p*2+1],&c=t[p];c.sum=a.sum+b.sum;
+        c.mx=max(a.mx,b.mx);c.cmx=(a.mx==c.mx?a.cmx:0)+(b.mx==c.mx?b.cmx:0);
+        c.mx2=max(a.mx==c.mx?a.mx2:a.mx,b.mx==c.mx?b.mx2:b.mx);
+        c.mn=min(a.mn,b.mn);c.cmn=(a.mn==c.mn?a.cmn:0)+(b.mn==c.mn?b.cmn:0);
+        c.mn2=min(a.mn==c.mn?a.mn2:a.mn,b.mn==c.mn?b.mn2:b.mn);
+    }
+    void build(int p,int l,int r,const vector<ll> &a){if(l==r){t[p].sum=t[p].mn=t[p].mx=a[l];t[p].cmn=t[p].cmx=1;return;}int m=(l+r)/2;build(p*2,l,m,a);build(p*2+1,m+1,r,a);pull(p);}
+    void plus(int p,int len,ll x){auto &a=t[p];a.sum+=len*x;a.mx+=x;a.mn+=x;if(a.mx2!=-INF)a.mx2+=x;if(a.mn2!=INF)a.mn2+=x;a.add+=x;}
+    void lower(int p,ll x){auto &a=t[p];if(a.mx<=x)return;a.sum+=(x-a.mx)*a.cmx;if(a.mn==a.mx)a.mn=x;else if(a.mn2==a.mx)a.mn2=x;a.mx=x;}
+    void upper(int p,ll x){auto &a=t[p];if(a.mn>=x)return;a.sum+=(x-a.mn)*a.cmn;if(a.mx==a.mn)a.mx=x;else if(a.mx2==a.mn)a.mx2=x;a.mn=x;}
+    void push(int p,int l,int r)
+    {
+        int m=(l+r)/2;if(t[p].add){plus(p*2,m-l+1,t[p].add);plus(p*2+1,r-m,t[p].add);t[p].add=0;}
+        for(int c:{p*2,p*2+1}){lower(c,t[p].mx);upper(c,t[p].mn);}
+    }
+    // op=0 加 x，op=1 chmin(x)，op=2 chmax(x)。调用区间必须在 [0,n)。
+    void update(int p,int l,int r,int L,int R,ll x,int op)
+    {
+        if(R<l||r<L||(op==1&&t[p].mx<=x)||(op==2&&t[p].mn>=x))return;
+        if(L<=l&&r<=R)
+        {
+            if(op==0){plus(p,r-l+1,x);return;}
+            if(op==1&&t[p].mx2<x){lower(p,x);return;}
+            if(op==2&&t[p].mn2>x){upper(p,x);return;}
+        }
+        push(p,l,r);int m=(l+r)/2;update(p*2,l,m,L,R,x,op);update(p*2+1,m+1,r,L,R,x,op);pull(p);
+    }
+    ll query(int p,int l,int r,int L,int R){if(R<l||r<L)return 0;if(L<=l&&r<=R)return t[p].sum;push(p,l,r);int m=(l+r)/2;return query(p*2,l,m,L,R)+query(p*2+1,m+1,r,L,R);}
+    void update(int l,int r,ll x,int op){assert(0<=l&&l<=r&&r<n);update(1,0,n-1,l,r,x,op);}
+    ll sum(int l,int r){assert(0<=l&&l<=r&&r<n);return query(1,0,n-1,l,r);}
+};
+\end{lstlisting}
+% SOURCE: 02-数据结构/线段树(区间开方).cpp
+\subsection{线段树(区间开方)}
+
+\note{a[\allowbreak{}1.\allowbreak{}.\allowbreak{}n]\allowbreak{}须非负；seg维护区间和与最大值，最大值<\allowbreak{}=\allowbreak{}1的区间不再变化。br是对照缓冲，操作为整数平方根；大整数不能只依赖double开方后直接截断，应保留实现的校正。}
+\begin{lstlisting}
+const int N=100005;
+\end{lstlisting}
+\note{线段树：区间开方(\allowbreak{}向下取整)\allowbreak{} +\allowbreak{} 区间和 非负整数；64 位整数最多开方 7 次变成 0/\allowbreak{}1，用 flag 剪枝。区间和须不溢出。 均摊复杂度 O(\allowbreak{}(\allowbreak{}n+\allowbreak{}m)\allowbreak{} log n)\allowbreak{}}
+\begin{lstlisting}
+template<typename T,int NMAX=N>
+struct SegmentTree
+{
+    T tr[NMAX*4];
+    bool flag[NMAX*4];//该区间是否全 <=1，是就不用再递归
+    T *src;//建树用的原数组(1-indexed)
+    #define lp (p<<1)
+    #define rp ((p<<1)|1)
+    #define mid ((l+r)>>1)
+    void build(int l,int r,int p)
+    {
+        if(l==r)
+        {
+            tr[p]=src[l],flag[p]=(tr[p]<=1);
+            return;
+        }
+        build(l,mid,lp);
+        build(mid+1,r,rp);
+        tr[p]=tr[lp]+tr[rp],flag[p]=flag[lp]&&flag[rp];
+    }
+    void update(int L,int R,int l,int r,int p)//[L,R] 每个数开方
+    {
+        if(R<l||r<L)return;//无交集
+        if(flag[p])return;//全 0/1，开方不变
+        if(l==r)
+        {
+            T v=tr[p],x=(T)sqrtl((long double)v);
+            while((__int128)x*x>v)--x;
+            while((__int128)(x+1)*(x+1)<=v)++x;
+            tr[p]=x,flag[p]=(x<=1);
+            return;
+        }
+        update(L,R,l,mid,lp);
+        update(L,R,mid+1,r,rp);
+        tr[p]=tr[lp]+tr[rp],flag[p]=flag[lp]&&flag[rp];
+    }
+    T query(int L,int R,int l,int r,int p)
+    {
+        if(L<=l&&r<=R)return tr[p];
+        T res=0;
+        if(L<=mid)res+=query(L,R,l,mid,lp);
+        if(R>mid)res+=query(L,R,mid+1,r,rp);
+        return res;
+    }
+};
+int n;
+ll a[205],br[205];
+SegmentTree<ll,205> seg;
+\end{lstlisting}
 % SOURCE: 02-数据结构/笛卡尔树.cpp
 \subsection{笛卡尔树}
 
@@ -2984,109 +3191,6 @@ struct Splay{
 };
 Splay sp;
 \end{lstlisting}
-% SOURCE: 02-数据结构/李超树.cpp
-\subsection{李超树}
-
-\note{Line\{a,\allowbreak{}b,\allowbreak{}c\}表示(\allowbreak{}a*x+\allowbreak{}b)\allowbreak{}/\allowbreak{}c，c>\allowbreak{}0，c=\allowbreak{}0为空直线；对象保存节点和查询域。better用交叉乘积比较；连续整数域和离散坐标按各入口选择，域外查询不可套用。}
-\begin{lstlisting}
-typedef __int128 lll;
-struct Line
-{
-    ll a,b,c;
-    Line(ll a_=0,ll b_=0,ll c_=0):a(a_),b(b_),c(c_){}
-};
-\end{lstlisting}
-\note{分母为正；交叉乘积必须在 \_\_int128 范围内}
-\begin{lstlisting}
-bool better(const Line &a,const Line &b,ll x)
-{
-    if(!a.c)return false;
-    if(!b.c)return true;
-    return ((lll)a.a*x+a.b)*b.c>((lll)b.a*x+b.b)*a.c;
-}
-\end{lstlisting}
-\note{动态开点，连续整数域与离散坐标共用；每次操作 O(\allowbreak{}log V)\allowbreak{}}
-\begin{lstlisting}
-struct LiChao
-{
-    struct Node
-    {
-        int lc=0,rc=0;
-        Line s;
-    };
-    vector<Node> tr;
-    vector<ll> xs;
-    ll lo,hi;
-    void init(ll l,ll r)
-    {
-        assert(l<=r);
-        lo=l,hi=r,xs.clear(),tr.assign(2,Node());
-    }
-    void init(vector<ll> v)
-    {
-        assert(!v.empty());
-        sort(v.begin(),v.end());
-        v.erase(unique(v.begin(),v.end()),v.end());
-        init(0,(ll)v.size()-1);
-        xs=move(v);
-    }
-    ll coord(ll x)
-    {
-        return xs.empty()?x:xs[x];
-    }
-    void insert(Line s)
-    {
-        assert(s.c>0);
-        insert(s,lo,hi,1);
-    }
-    void insert(Line s,ll l,ll r,int p)
-    {
-        if(!tr[p].s.c)
-        {
-            tr[p].s=s;
-            return;
-        }
-        ll mid=(ll)((lll)l+((lll)r-l)/2);
-        bool bl=better(s,tr[p].s,coord(l)),bm=better(s,tr[p].s,coord(mid));
-        if(bm)swap(s,tr[p].s);
-        if(l==r)return;
-        bool left=bl!=bm;
-        int q=left?tr[p].lc:tr[p].rc;
-        if(!q)
-        {
-            q=(int)tr.size();
-            tr.push_back(Node());
-            if(left)tr[p].lc=q;
-            else tr[p].rc=q;
-        }
-        if(left)insert(s,l,mid,q);
-        else insert(s,mid+1,r,q);
-    }
-    // 返回最优直线，避免把分数截断成整数
-    Line query(ll x)
-    {
-        ll id=x;
-        if(!xs.empty())
-        {
-            id=lower_bound(xs.begin(),xs.end(),x)-xs.begin();
-            assert(id<(ll)xs.size()&&xs[id]==x);
-        }
-        assert(lo<=id&&id<=hi);
-        ll l=lo,r=hi;
-        int p=1;
-        Line ans;
-        while(p)
-        {
-            if(better(tr[p].s,ans,x))ans=tr[p].s;
-            if(l==r)break;
-            ll mid=(ll)((lll)l+((lll)r-l)/2);
-            if(id<=mid)p=tr[p].lc,r=mid;
-            else p=tr[p].rc,l=mid+1;
-        }
-        return ans;
-    }
-};
-\end{lstlisting}
 % SOURCE: 02-数据结构/左偏树(可并堆).cpp
 \subsection{左偏树(可并堆)}
 
@@ -3123,110 +3227,6 @@ struct LeftistHeap
         return p;
     }
 };
-\end{lstlisting}
-% SOURCE: 02-数据结构/SegmentTreeBeats.cpp
-\subsection{SegmentTreeBeats}
-
-\note{Beats对象保存t：sum、最大/\allowbreak{}次大值及次数、最小/\allowbreak{}次小值及次数、加法标记。输入0起，操作闭区间；update的op按实现选择加、chmin、chmax。只有阈值越过次极值的条件满足时才整段修改，否则递归。}
-\note{区间 chmin/\allowbreak{}chmax/\allowbreak{}add/\allowbreak{}sum，0-\allowbreak{}indexed 闭区间；同时维护严格次大/\allowbreak{}次小、极值个数。 chmin 只有 max2<\allowbreak{}x<\allowbreak{}max1 才能整段更新；否则递归。chmax 对称；加法移动全部极值。 含 add 的通用 Beats 标准摊还界 O(\allowbreak{}(\allowbreak{}n+\allowbreak{}q)\allowbreak{}log\ensuremath{^2}n)\allowbreak{}，空间 O(\allowbreak{}n)\allowbreak{}。值/\allowbreak{}和远离 ±INF。}
-\begin{lstlisting}
-struct Beats
-{
-    static constexpr ll INF=LLONG_MAX/4;
-    struct Node{ll sum=0,mx=-INF,mx2=-INF,mn=INF,mn2=INF,add=0;int cmx=0,cmn=0;};
-    int n;vector<Node> t;
-    Beats(const vector<ll> &a):n(a.size()),t(max(1,4*n)){if(n)build(1,0,n-1,a);}
-    void pull(int p)
-    {
-        auto &a=t[p*2],&b=t[p*2+1],&c=t[p];c.sum=a.sum+b.sum;
-        c.mx=max(a.mx,b.mx);c.cmx=(a.mx==c.mx?a.cmx:0)+(b.mx==c.mx?b.cmx:0);
-        c.mx2=max(a.mx==c.mx?a.mx2:a.mx,b.mx==c.mx?b.mx2:b.mx);
-        c.mn=min(a.mn,b.mn);c.cmn=(a.mn==c.mn?a.cmn:0)+(b.mn==c.mn?b.cmn:0);
-        c.mn2=min(a.mn==c.mn?a.mn2:a.mn,b.mn==c.mn?b.mn2:b.mn);
-    }
-    void build(int p,int l,int r,const vector<ll> &a){if(l==r){t[p].sum=t[p].mn=t[p].mx=a[l];t[p].cmn=t[p].cmx=1;return;}int m=(l+r)/2;build(p*2,l,m,a);build(p*2+1,m+1,r,a);pull(p);}
-    void plus(int p,int len,ll x){auto &a=t[p];a.sum+=len*x;a.mx+=x;a.mn+=x;if(a.mx2!=-INF)a.mx2+=x;if(a.mn2!=INF)a.mn2+=x;a.add+=x;}
-    void lower(int p,ll x){auto &a=t[p];if(a.mx<=x)return;a.sum+=(x-a.mx)*a.cmx;if(a.mn==a.mx)a.mn=x;else if(a.mn2==a.mx)a.mn2=x;a.mx=x;}
-    void upper(int p,ll x){auto &a=t[p];if(a.mn>=x)return;a.sum+=(x-a.mn)*a.cmn;if(a.mx==a.mn)a.mx=x;else if(a.mx2==a.mn)a.mx2=x;a.mn=x;}
-    void push(int p,int l,int r)
-    {
-        int m=(l+r)/2;if(t[p].add){plus(p*2,m-l+1,t[p].add);plus(p*2+1,r-m,t[p].add);t[p].add=0;}
-        for(int c:{p*2,p*2+1}){lower(c,t[p].mx);upper(c,t[p].mn);}
-    }
-    // op=0 加 x，op=1 chmin(x)，op=2 chmax(x)。调用区间必须在 [0,n)。
-    void update(int p,int l,int r,int L,int R,ll x,int op)
-    {
-        if(R<l||r<L||(op==1&&t[p].mx<=x)||(op==2&&t[p].mn>=x))return;
-        if(L<=l&&r<=R)
-        {
-            if(op==0){plus(p,r-l+1,x);return;}
-            if(op==1&&t[p].mx2<x){lower(p,x);return;}
-            if(op==2&&t[p].mn2>x){upper(p,x);return;}
-        }
-        push(p,l,r);int m=(l+r)/2;update(p*2,l,m,L,R,x,op);update(p*2+1,m+1,r,L,R,x,op);pull(p);
-    }
-    ll query(int p,int l,int r,int L,int R){if(R<l||r<L)return 0;if(L<=l&&r<=R)return t[p].sum;push(p,l,r);int m=(l+r)/2;return query(p*2,l,m,L,R)+query(p*2+1,m+1,r,L,R);}
-    void update(int l,int r,ll x,int op){assert(0<=l&&l<=r&&r<n);update(1,0,n-1,l,r,x,op);}
-    ll sum(int l,int r){assert(0<=l&&l<=r&&r<n);return query(1,0,n-1,l,r);}
-};
-\end{lstlisting}
-% SOURCE: 02-数据结构/线段树(区间开方).cpp
-\subsection{线段树(区间开方)}
-
-\note{a[\allowbreak{}1.\allowbreak{}.\allowbreak{}n]\allowbreak{}须非负；seg维护区间和与最大值，最大值<\allowbreak{}=\allowbreak{}1的区间不再变化。br是对照缓冲，操作为整数平方根；大整数不能只依赖double开方后直接截断，应保留实现的校正。}
-\begin{lstlisting}
-const int N=100005;
-\end{lstlisting}
-\note{线段树：区间开方(\allowbreak{}向下取整)\allowbreak{} +\allowbreak{} 区间和 非负整数；64 位整数最多开方 7 次变成 0/\allowbreak{}1，用 flag 剪枝。区间和须不溢出。 均摊复杂度 O(\allowbreak{}(\allowbreak{}n+\allowbreak{}m)\allowbreak{} log n)\allowbreak{}}
-\begin{lstlisting}
-template<typename T,int NMAX=N>
-struct SegmentTree
-{
-    T tr[NMAX*4];
-    bool flag[NMAX*4];//该区间是否全 <=1，是就不用再递归
-    T *src;//建树用的原数组(1-indexed)
-    #define lp (p<<1)
-    #define rp ((p<<1)|1)
-    #define mid ((l+r)>>1)
-    void build(int l,int r,int p)
-    {
-        if(l==r)
-        {
-            tr[p]=src[l],flag[p]=(tr[p]<=1);
-            return;
-        }
-        build(l,mid,lp);
-        build(mid+1,r,rp);
-        tr[p]=tr[lp]+tr[rp],flag[p]=flag[lp]&&flag[rp];
-    }
-    void update(int L,int R,int l,int r,int p)//[L,R] 每个数开方
-    {
-        if(R<l||r<L)return;//无交集
-        if(flag[p])return;//全 0/1，开方不变
-        if(l==r)
-        {
-            T v=tr[p],x=(T)sqrtl((long double)v);
-            while((__int128)x*x>v)--x;
-            while((__int128)(x+1)*(x+1)<=v)++x;
-            tr[p]=x,flag[p]=(x<=1);
-            return;
-        }
-        update(L,R,l,mid,lp);
-        update(L,R,mid+1,r,rp);
-        tr[p]=tr[lp]+tr[rp],flag[p]=flag[lp]&&flag[rp];
-    }
-    T query(int L,int R,int l,int r,int p)
-    {
-        if(L<=l&&r<=R)return tr[p];
-        T res=0;
-        if(L<=mid)res+=query(L,R,l,mid,lp);
-        if(R>mid)res+=query(L,R,mid+1,r,rp);
-        return res;
-    }
-};
-int n;
-ll a[205],br[205];
-SegmentTree<ll,205> seg;
 \end{lstlisting}
 % SOURCE: 02-数据结构/树状数组套权值线段树.cpp
 \subsection{树状数组套权值线段树}
@@ -4218,6 +4218,69 @@ struct PrefixLCP
     }
 };
 \end{lstlisting}
+% SOURCE: 03-字符串/最小表示法.cpp
+\subsection{最小表示法}
+
+\note{s为循环串；返回最小循环移位的起点，下标0起。比较通过取模访问，s本身不必复制成两倍；输出时从返回位置循环取字符。}
+\begin{lstlisting}
+const int N=100005;
+int n,m;
+string s;
+\end{lstlisting}
+\note{最小表示法：求长度为 n 的串循环同构串中字典序最小的那个的起始下标 返回原串下标（0 起），比较 s[\allowbreak{}i+\allowbreak{}k]\allowbreak{} 与 s[\allowbreak{}j+\allowbreak{}k]\allowbreak{}，O(\allowbreak{}n)\allowbreak{}}
+\begin{lstlisting}
+int min_show(const string &t)
+{
+    int len=t.length();
+    if(len==0)return 0;
+    int i=0,j=1,k=0;// i,j 为两个候选起点，k 为已匹配长度
+    while(i<len&&j<len&&k<len)
+    {
+        int a=(unsigned char)t[(i+k)%len],b=(unsigned char)t[(j+k)%len];
+        if(a==b)k++;
+        else
+        {
+            if(a>b)i=i+k+1;// i 处更差，跳到 k+1 之后
+            else j=j+k+1;
+            if(i==j)j++;
+            k=0;
+        }
+    }
+    return min(i,j);
+}
+\end{lstlisting}
+\note{返回最小表示的串本身}
+\begin{lstlisting}
+string min_str(const string &t)
+{
+    int p=min_show(t),len=t.length();
+    string r="";
+    for(int i=0;i<len;i++)r+=t[(p+i)%len];
+    return r;
+}
+\end{lstlisting}
+\note{最大表示法：把比较方向反过来即可}
+\begin{lstlisting}
+int max_show(const string &t)
+{
+    int len=t.length();
+    if(len==0)return 0;
+    int i=0,j=1,k=0;
+    while(i<len&&j<len&&k<len)
+    {
+        int a=(unsigned char)t[(i+k)%len],b=(unsigned char)t[(j+k)%len];
+        if(a==b)k++;
+        else
+        {
+            if(a<b)i=i+k+1;
+            else j=j+k+1;
+            if(i==j)j++;
+            k=0;
+        }
+    }
+    return min(i,j);
+}
+\end{lstlisting}
 % SOURCE: 03-字符串/后缀数组.cpp
 \subsection{后缀数组}
 
@@ -4461,69 +4524,6 @@ int longest_pal()
     int ans=0;
     for(int i=2;i<=tot;i++)ans=max(ans,len[i]);
     return ans;
-}
-\end{lstlisting}
-% SOURCE: 03-字符串/最小表示法.cpp
-\subsection{最小表示法}
-
-\note{s为循环串；返回最小循环移位的起点，下标0起。比较通过取模访问，s本身不必复制成两倍；输出时从返回位置循环取字符。}
-\begin{lstlisting}
-const int N=100005;
-int n,m;
-string s;
-\end{lstlisting}
-\note{最小表示法：求长度为 n 的串循环同构串中字典序最小的那个的起始下标 返回原串下标（0 起），比较 s[\allowbreak{}i+\allowbreak{}k]\allowbreak{} 与 s[\allowbreak{}j+\allowbreak{}k]\allowbreak{}，O(\allowbreak{}n)\allowbreak{}}
-\begin{lstlisting}
-int min_show(const string &t)
-{
-    int len=t.length();
-    if(len==0)return 0;
-    int i=0,j=1,k=0;// i,j 为两个候选起点，k 为已匹配长度
-    while(i<len&&j<len&&k<len)
-    {
-        int a=(unsigned char)t[(i+k)%len],b=(unsigned char)t[(j+k)%len];
-        if(a==b)k++;
-        else
-        {
-            if(a>b)i=i+k+1;// i 处更差，跳到 k+1 之后
-            else j=j+k+1;
-            if(i==j)j++;
-            k=0;
-        }
-    }
-    return min(i,j);
-}
-\end{lstlisting}
-\note{返回最小表示的串本身}
-\begin{lstlisting}
-string min_str(const string &t)
-{
-    int p=min_show(t),len=t.length();
-    string r="";
-    for(int i=0;i<len;i++)r+=t[(p+i)%len];
-    return r;
-}
-\end{lstlisting}
-\note{最大表示法：把比较方向反过来即可}
-\begin{lstlisting}
-int max_show(const string &t)
-{
-    int len=t.length();
-    if(len==0)return 0;
-    int i=0,j=1,k=0;
-    while(i<len&&j<len&&k<len)
-    {
-        int a=(unsigned char)t[(i+k)%len],b=(unsigned char)t[(j+k)%len];
-        if(a==b)k++;
-        else
-        {
-            if(a<b)i=i+k+1;
-            else j=j+k+1;
-            if(i==j)j++;
-            k=0;
-        }
-    }
-    return min(i,j);
 }
 \end{lstlisting}
 % SOURCE: 03-字符串/序列自动机.cpp
@@ -5830,6 +5830,128 @@ pair<vector<int>,vector<int>> vertex_cover()
     return ans;
 }
 \end{lstlisting}
+% SOURCE: 04-图论/二分图匹配HopcroftKarp.cpp
+\subsection{二分图匹配HopcroftKarp}
+
+\note{对象n/\allowbreak{}m分别为左右点数，两侧0起；g存左侧出边，a/\allowbreak{}b分别为左右伴侣，-\allowbreak{}1未匹配。距离层和当前弧每轮重建，solve在当前匹配上继续增广，换图重新构造。}
+\note{左侧 n、右侧 m，均从 0 编号；O(\allowbreak{}E sqrt(\allowbreak{}V)\allowbreak{})\allowbreak{}，vector 邻接表只存左到右。 bfs 建最短增广层次，dfs 每轮只找最短路径；返回匹配数，a/\allowbreak{}b 保存双方匹配，-\allowbreak{}1 未匹配。}
+\begin{lstlisting}
+struct HopcroftKarp
+{
+    int n,m,limit;vector<vector<int>> g;vector<int> a,b,d,it;
+    HopcroftKarp(int n,int m):n(n),m(m),g(n),a(n,-1),b(m,-1),d(n),it(n){}
+    bool bfs()
+    {
+        queue<int> q;fill(d.begin(),d.end(),-1);limit=INT_MAX;
+        for(int u=0;u<n;u++)if(a[u]<0)d[u]=0,q.push(u);
+        while(!q.empty())
+        {
+            int u=q.front();q.pop();if(d[u]>=limit)continue;
+            for(int v:g[u])if(b[v]<0)limit=d[u]+1;else if(d[b[v]]<0)d[b[v]]=d[u]+1,q.push(b[v]);
+        }
+        return limit<INT_MAX;
+    }
+    bool dfs(int u)
+    {
+        for(int &i=it[u];i<(int)g[u].size();i++)
+        {
+            int v=g[u][i];
+            if((b[v]<0&&d[u]+1==limit)||(b[v]>=0&&d[b[v]]==d[u]+1&&dfs(b[v])))
+            {a[u]=v;b[v]=u;return true;}
+        }
+        d[u]=-1;return false;
+    }
+    int solve(){int ans=count_if(a.begin(),a.end(),[](int x){return x>=0;});while(bfs()){fill(it.begin(),it.end(),0);for(int u=0;u<n;u++)if(a[u]<0&&dfs(u))ans++;}return ans;}
+};
+\end{lstlisting}
+% SOURCE: 04-图论/KM算法(最大权匹配).cpp
+\subsection{KM算法(最大权匹配)}
+
+\note{w[\allowbreak{}i]\allowbreak{}[\allowbreak{}j]\allowbreak{}为左右各n点的收益，缺边设足够小值且须存在真实完美匹配；lx/\allowbreak{}ly为顶标，slack为右侧松弛，match[\allowbreak{}v]\allowbreak{}为右点伴侣。visx/\allowbreak{}visy为交错树访问状态，结果仍需检查是否选中缺边。}
+\begin{lstlisting}
+const int N=505;
+const ll INF=1e18;
+int n;// 左右各 n 个点
+ll w[N][N];// 边权；不成边的位置先设成很小的数（如 -1e12），要求存在完美匹配
+ll lx[N],ly[N],slack[N];// 左右顶标、右部点的松弛量
+int match[N];// match[v]：右部点 v 匹配的左部点
+int visx[N],visy[N];// 本次增广中，左右部点是否在交错树上
+int dfs(int u)// 从左部点 u 出发增广，只走 lx[u]+ly[v]==w[u][v] 的相等边
+{
+    visx[u]=1;
+    for(int v=1;v<=n;v++)
+    {
+        if(visy[v])continue;
+        ll d=lx[u]+ly[v]-w[u][v];
+        if(d==0)
+        {
+            visy[v]=1;
+            if(!match[v]||dfs(match[v]))// v 空着，或者能让它的搭档换一条路
+            {
+                match[v]=u;
+                return 1;
+            }
+        }
+        else if(d<slack[v])slack[v]=d;// 记下最小差值，供顶标调整用
+    }
+    return 0;
+}
+ll km()// 二分图最大权完美匹配，O(n^4) 最坏；本版反复 DFS，需 O(n^3) 时用保留交错树的增广写法
+{
+    for(int i=1;i<=n;i++)
+    {
+        lx[i]=-INF,ly[i]=0,match[i]=0;
+        for(int j=1;j<=n;j++)lx[i]=max(lx[i],w[i][j]);// 左顶标取该行最大边权
+    }
+    for(int u=1;u<=n;u++)
+    {
+        for(int i=1;i<=n;i++)slack[i]=INF,visx[i]=0,visy[i]=0;
+        while(!dfs(u))// 增广失败就调顶标，直到能找到相等边
+        {
+            ll d=INF;
+            for(int i=1;i<=n;i++)if(!visy[i])d=min(d,slack[i]);
+            for(int i=1;i<=n;i++)
+            {
+                if(visx[i])lx[i]-=d;
+                if(visy[i])ly[i]+=d;
+                else slack[i]-=d;
+            }
+            for(int i=1;i<=n;i++)visx[i]=0,visy[i]=0;
+        }
+    }
+    ll ans=0;
+    for(int v=1;v<=n;v++)ans+=w[match[v]][v];
+    return ans;
+}
+\end{lstlisting}
+% SOURCE: 04-图论/带权二分图匹配Hungarian.cpp
+\subsection{带权二分图匹配Hungarian}
+
+\note{c[\allowbreak{}i]\allowbreak{}[\allowbreak{}j]\allowbreak{}为左i分配给右j的费用，行n、列m且n<\allowbreak{}=\allowbreak{}m，均0起。返回\{最小总费用,\allowbreak{}每行匹配列\}；u,\allowbreak{}v为势能，p为列匹配，way记增广前驱，每次重建。缺边设大费用，最后检查是否选中。}
+\note{最小费用匹配：n 行、m 列，n<\allowbreak{}=\allowbreak{}m，所有行都要分配不同列；O(\allowbreak{}n\ensuremath{^2}m)\allowbreak{}，0-\allowbreak{}indexed。 完整费用矩阵，负费用允许；缺边设大数并在结果中检查是否选中。最大权取负费用。 返回 \{费用,\allowbreak{}每行匹配列\}；费用及势能/\allowbreak{}差值须放入 ll，建议 |cost|*n <\allowbreak{}<\allowbreak{} 1e18。}
+\begin{lstlisting}
+vector<vector<ll>> c;
+pair<ll,vector<int>> hungarian()
+{
+    int n=c.size(),m=n?c[0].size():0;assert(n<=m);
+    vector<ll> u(n+1),v(m+1);vector<int> p(m+1),way(m+1);
+    for(int i=1;i<=n;i++)
+    {
+        p[0]=i;int j0=0;vector<ll> d(m+1,LLONG_MAX/4);vector<bool> used(m+1);
+        do
+        {
+            used[j0]=true;int i0=p[j0],j1=0;ll delta=LLONG_MAX/4;
+            for(int j=1;j<=m;j++)if(!used[j])
+            {ll x=c[i0-1][j-1]-u[i0]-v[j];if(x<d[j])d[j]=x,way[j]=j0;if(d[j]<delta)delta=d[j],j1=j;}
+            for(int j=0;j<=m;j++)if(used[j])u[p[j]]+=delta,v[j]-=delta;else d[j]-=delta;
+            j0=j1;
+        }while(p[j0]);
+        do{int j1=way[j0];p[j0]=p[j1];j0=j1;}while(j0);
+    }
+    vector<int> match(n);for(int j=1;j<=m;j++)if(p[j])match[p[j]-1]=j-1;
+    return {-v[0],match};
+}
+\end{lstlisting}
 % SOURCE: 04-图论/网络流Dinic.cpp
 \subsection{网络流Dinic}
 
@@ -6951,126 +7073,29 @@ struct LongChain
     }
 };
 \end{lstlisting}
-% SOURCE: 04-图论/KM算法(最大权匹配).cpp
-\subsection{KM算法(最大权匹配)}
+% SOURCE: 04-图论/动态点分治.cpp
+\subsection{动态点分治}
 
-\note{w[\allowbreak{}i]\allowbreak{}[\allowbreak{}j]\allowbreak{}为左右各n点的收益，缺边设足够小值且须存在真实完美匹配；lx/\allowbreak{}ly为顶标，slack为右侧松弛，match[\allowbreak{}v]\allowbreak{}为右点伴侣。visx/\allowbreak{}visy为交错树访问状态，结果仍需检查是否选中缺边。}
+\note{对象path[\allowbreak{}u]\allowbreak{}存u到各层重心的距离，on为是否激活，bag[\allowbreak{}c]\allowbreak{}保存激活点到重心c的距离多重集。构造时自动预处理，再set\_active/\allowbreak{}query；重复激活不会叠加，取消时仅删一个副本，无激活点返回INF。}
+\note{点分树：带非负边权树，动态点亮/\allowbreak{}熄灭，查询距最近亮点距离；空集合返回 INF。 0-\allowbreak{}indexed；预存每点到重心祖先的距离，构建 O(\allowbreak{}n log n)\allowbreak{}，切换 O(\allowbreak{}log\ensuremath{^2}n)\allowbreak{}，查询 O(\allowbreak{}log n)\allowbreak{}。 每个重心用 multiset 保存亮点距离；删除一个副本，重复距离不能全删。建树遍历迭代。}
 \begin{lstlisting}
-const int N=505;
-const ll INF=1e18;
-int n;// 左右各 n 个点
-ll w[N][N];// 边权；不成边的位置先设成很小的数（如 -1e12），要求存在完美匹配
-ll lx[N],ly[N],slack[N];// 左右顶标、右部点的松弛量
-int match[N];// match[v]：右部点 v 匹配的左部点
-int visx[N],visy[N];// 本次增广中，左右部点是否在交错树上
-int dfs(int u)// 从左部点 u 出发增广，只走 lx[u]+ly[v]==w[u][v] 的相等边
+struct DynamicCentroid
 {
-    visx[u]=1;
-    for(int v=1;v<=n;v++)
+    using ll=long long;static constexpr ll INF=LLONG_MAX/4;
+    vector<vector<pair<int,ll>>> g,path;vector<bool> removed,on;vector<int> parent,size;vector<multiset<ll>> bag;
+    DynamicCentroid(vector<vector<pair<int,ll>>> g):g(g),path(g.size()),removed(g.size()),on(g.size()),parent(g.size()),size(g.size()),bag(g.size()){if(!g.empty())build(0);}
+    void build(int entry)
     {
-        if(visy[v])continue;
-        ll d=lx[u]+ly[v]-w[u][v];
-        if(d==0)
-        {
-            visy[v]=1;
-            if(!match[v]||dfs(match[v]))// v 空着，或者能让它的搭档换一条路
-            {
-                match[v]=u;
-                return 1;
-            }
-        }
-        else if(d<slack[v])slack[v]=d;// 记下最小差值，供顶标调整用
+        vector<int> order={entry};parent[entry]=-1;
+        for(int i=0;i<(int)order.size();i++){int u=order[i];for(auto [v,w]:g[u])if(!removed[v]&&v!=parent[u])parent[v]=u,order.push_back(v);}
+        int c=entry,total=order.size(),best=total;
+        for(auto it=order.rbegin();it!=order.rend();it++){int u=*it;size[u]=1;int largest=0;for(auto [v,w]:g[u])if(!removed[v]&&parent[v]==u)size[u]+=size[v],largest=max(largest,size[v]);largest=max(largest,total-size[u]);if(largest<best)best=largest,c=u;}
+        vector<tuple<int,int,ll>> q={{c,-1,0}};
+        for(int i=0;i<(int)q.size();i++){auto [u,p,d]=q[i];path[u].push_back({c,d});for(auto [v,w]:g[u])if(!removed[v]&&v!=p)q.push_back({v,u,d+w});}
+        removed[c]=true;for(auto [v,w]:g[c])if(!removed[v])build(v);
     }
-    return 0;
-}
-ll km()// 二分图最大权完美匹配，O(n^4) 最坏；本版反复 DFS，需 O(n^3) 时用保留交错树的增广写法
-{
-    for(int i=1;i<=n;i++)
-    {
-        lx[i]=-INF,ly[i]=0,match[i]=0;
-        for(int j=1;j<=n;j++)lx[i]=max(lx[i],w[i][j]);// 左顶标取该行最大边权
-    }
-    for(int u=1;u<=n;u++)
-    {
-        for(int i=1;i<=n;i++)slack[i]=INF,visx[i]=0,visy[i]=0;
-        while(!dfs(u))// 增广失败就调顶标，直到能找到相等边
-        {
-            ll d=INF;
-            for(int i=1;i<=n;i++)if(!visy[i])d=min(d,slack[i]);
-            for(int i=1;i<=n;i++)
-            {
-                if(visx[i])lx[i]-=d;
-                if(visy[i])ly[i]+=d;
-                else slack[i]-=d;
-            }
-            for(int i=1;i<=n;i++)visx[i]=0,visy[i]=0;
-        }
-    }
-    ll ans=0;
-    for(int v=1;v<=n;v++)ans+=w[match[v]][v];
-    return ans;
-}
-\end{lstlisting}
-% SOURCE: 04-图论/带权二分图匹配Hungarian.cpp
-\subsection{带权二分图匹配Hungarian}
-
-\note{c[\allowbreak{}i]\allowbreak{}[\allowbreak{}j]\allowbreak{}为左i分配给右j的费用，行n、列m且n<\allowbreak{}=\allowbreak{}m，均0起。返回\{最小总费用,\allowbreak{}每行匹配列\}；u,\allowbreak{}v为势能，p为列匹配，way记增广前驱，每次重建。缺边设大费用，最后检查是否选中。}
-\note{最小费用匹配：n 行、m 列，n<\allowbreak{}=\allowbreak{}m，所有行都要分配不同列；O(\allowbreak{}n\ensuremath{^2}m)\allowbreak{}，0-\allowbreak{}indexed。 完整费用矩阵，负费用允许；缺边设大数并在结果中检查是否选中。最大权取负费用。 返回 \{费用,\allowbreak{}每行匹配列\}；费用及势能/\allowbreak{}差值须放入 ll，建议 |cost|*n <\allowbreak{}<\allowbreak{} 1e18。}
-\begin{lstlisting}
-vector<vector<ll>> c;
-pair<ll,vector<int>> hungarian()
-{
-    int n=c.size(),m=n?c[0].size():0;assert(n<=m);
-    vector<ll> u(n+1),v(m+1);vector<int> p(m+1),way(m+1);
-    for(int i=1;i<=n;i++)
-    {
-        p[0]=i;int j0=0;vector<ll> d(m+1,LLONG_MAX/4);vector<bool> used(m+1);
-        do
-        {
-            used[j0]=true;int i0=p[j0],j1=0;ll delta=LLONG_MAX/4;
-            for(int j=1;j<=m;j++)if(!used[j])
-            {ll x=c[i0-1][j-1]-u[i0]-v[j];if(x<d[j])d[j]=x,way[j]=j0;if(d[j]<delta)delta=d[j],j1=j;}
-            for(int j=0;j<=m;j++)if(used[j])u[p[j]]+=delta,v[j]-=delta;else d[j]-=delta;
-            j0=j1;
-        }while(p[j0]);
-        do{int j1=way[j0];p[j0]=p[j1];j0=j1;}while(j0);
-    }
-    vector<int> match(n);for(int j=1;j<=m;j++)if(p[j])match[p[j]-1]=j-1;
-    return {-v[0],match};
-}
-\end{lstlisting}
-% SOURCE: 04-图论/二分图匹配HopcroftKarp.cpp
-\subsection{二分图匹配HopcroftKarp}
-
-\note{对象n/\allowbreak{}m分别为左右点数，两侧0起；g存左侧出边，a/\allowbreak{}b分别为左右伴侣，-\allowbreak{}1未匹配。距离层和当前弧每轮重建，solve在当前匹配上继续增广，换图重新构造。}
-\note{左侧 n、右侧 m，均从 0 编号；O(\allowbreak{}E sqrt(\allowbreak{}V)\allowbreak{})\allowbreak{}，vector 邻接表只存左到右。 bfs 建最短增广层次，dfs 每轮只找最短路径；返回匹配数，a/\allowbreak{}b 保存双方匹配，-\allowbreak{}1 未匹配。}
-\begin{lstlisting}
-struct HopcroftKarp
-{
-    int n,m,limit;vector<vector<int>> g;vector<int> a,b,d,it;
-    HopcroftKarp(int n,int m):n(n),m(m),g(n),a(n,-1),b(m,-1),d(n),it(n){}
-    bool bfs()
-    {
-        queue<int> q;fill(d.begin(),d.end(),-1);limit=INT_MAX;
-        for(int u=0;u<n;u++)if(a[u]<0)d[u]=0,q.push(u);
-        while(!q.empty())
-        {
-            int u=q.front();q.pop();if(d[u]>=limit)continue;
-            for(int v:g[u])if(b[v]<0)limit=d[u]+1;else if(d[b[v]]<0)d[b[v]]=d[u]+1,q.push(b[v]);
-        }
-        return limit<INT_MAX;
-    }
-    bool dfs(int u)
-    {
-        for(int &i=it[u];i<(int)g[u].size();i++)
-        {
-            int v=g[u][i];
-            if((b[v]<0&&d[u]+1==limit)||(b[v]>=0&&d[b[v]]==d[u]+1&&dfs(b[v])))
-            {a[u]=v;b[v]=u;return true;}
-        }
-        d[u]=-1;return false;
-    }
-    int solve(){int ans=count_if(a.begin(),a.end(),[](int x){return x>=0;});while(bfs()){fill(it.begin(),it.end(),0);for(int u=0;u<n;u++)if(a[u]<0&&dfs(u))ans++;}return ans;}
+    void set_active(int u,bool active){if(on[u]==active)return;on[u]=active;for(auto [c,d]:path[u])if(active)bag[c].insert(d);else bag[c].erase(bag[c].find(d));}
+    ll query(int u)const{ll ans=INF;for(auto [c,d]:path[u])if(!bag[c].empty())ans=min(ans,d+*bag[c].begin());return ans;}
 };
 \end{lstlisting}
 % SOURCE: 04-图论/树同构(AHU).cpp
@@ -7153,31 +7178,6 @@ vector<vector<int>> prufer_decode()
     for(int v:code){int u=q.top();q.pop();edge(u,v);if(--d[v]==1)q.push(v);}
     int u=q.top();q.pop();edge(u,q.top());return g;
 }
-\end{lstlisting}
-% SOURCE: 04-图论/动态点分治.cpp
-\subsection{动态点分治}
-
-\note{对象path[\allowbreak{}u]\allowbreak{}存u到各层重心的距离，on为是否激活，bag[\allowbreak{}c]\allowbreak{}保存激活点到重心c的距离多重集。构造时自动预处理，再set\_active/\allowbreak{}query；重复激活不会叠加，取消时仅删一个副本，无激活点返回INF。}
-\note{点分树：带非负边权树，动态点亮/\allowbreak{}熄灭，查询距最近亮点距离；空集合返回 INF。 0-\allowbreak{}indexed；预存每点到重心祖先的距离，构建 O(\allowbreak{}n log n)\allowbreak{}，切换 O(\allowbreak{}log\ensuremath{^2}n)\allowbreak{}，查询 O(\allowbreak{}log n)\allowbreak{}。 每个重心用 multiset 保存亮点距离；删除一个副本，重复距离不能全删。建树遍历迭代。}
-\begin{lstlisting}
-struct DynamicCentroid
-{
-    using ll=long long;static constexpr ll INF=LLONG_MAX/4;
-    vector<vector<pair<int,ll>>> g,path;vector<bool> removed,on;vector<int> parent,size;vector<multiset<ll>> bag;
-    DynamicCentroid(vector<vector<pair<int,ll>>> g):g(g),path(g.size()),removed(g.size()),on(g.size()),parent(g.size()),size(g.size()),bag(g.size()){if(!g.empty())build(0);}
-    void build(int entry)
-    {
-        vector<int> order={entry};parent[entry]=-1;
-        for(int i=0;i<(int)order.size();i++){int u=order[i];for(auto [v,w]:g[u])if(!removed[v]&&v!=parent[u])parent[v]=u,order.push_back(v);}
-        int c=entry,total=order.size(),best=total;
-        for(auto it=order.rbegin();it!=order.rend();it++){int u=*it;size[u]=1;int largest=0;for(auto [v,w]:g[u])if(!removed[v]&&parent[v]==u)size[u]+=size[v],largest=max(largest,size[v]);largest=max(largest,total-size[u]);if(largest<best)best=largest,c=u;}
-        vector<tuple<int,int,ll>> q={{c,-1,0}};
-        for(int i=0;i<(int)q.size();i++){auto [u,p,d]=q[i];path[u].push_back({c,d});for(auto [v,w]:g[u])if(!removed[v]&&v!=p)q.push_back({v,u,d+w});}
-        removed[c]=true;for(auto [v,w]:g[c])if(!removed[v])build(v);
-    }
-    void set_active(int u,bool active){if(on[u]==active)return;on[u]=active;for(auto [c,d]:path[u])if(active)bag[c].insert(d);else bag[c].erase(bag[c].find(d));}
-    ll query(int u)const{ll ans=INF;for(auto [c,d]:path[u])if(!bag[c].empty())ans=min(ans,d+*bag[c].begin());return ans;}
-};
 \end{lstlisting}
 % SOURCE: 04-图论/曼哈顿最小生成树.cpp
 \subsection{曼哈顿最小生成树}
@@ -8083,6 +8083,60 @@ ll bezout_min(ll a,ll b)
     return exgcd(a,b,x,y);
 }
 \end{lstlisting}
+% SOURCE: 05-数学/线性筛与欧拉函数.cpp
+\subsection{线性筛与欧拉函数}
+
+\note{n为筛上界，prime[\allowbreak{}1.\allowbreak{}.\allowbreak{}cnt]\allowbreak{}为素数，vis为合数标记；phi/\allowbreak{}mu为欧拉函数/\allowbreak{}莫比乌斯函数，d为约数数目，dmin为最小质因子指数。1的函数值按实现初始化，多次筛选前重置计数及所用表。}
+\note{适用：批量求 phi/\allowbreak{}mu/\allowbreak{}约数个数，数据上界能放入数组时一次 O(\allowbreak{}n)\allowbreak{} 预处理。 下标：数值范围 1.\allowbreak{}.\allowbreak{}n，1<\allowbreak{}=\allowbreak{}n<\allowbreak{}N；prime[\allowbreak{}1.\allowbreak{}.\allowbreak{}cnt]\allowbreak{} 为升序素数，1 不是素数。 关键：合数只由最小质因子筛一次，遇 i\%prime[\allowbreak{}j]\allowbreak{}=\allowbreak{}=\allowbreak{}0 后必须 break。 状态：dmin[\allowbreak{}i]\allowbreak{} 为最小质因子指数；加同一因子时约数个数仅替换该指数贡献。 易错：重复 get\_prime 前清 vis、prime 与相关表，单改 cnt 不足以重新筛。 结论：phi(\allowbreak{}1)\allowbreak{}=\allowbreak{}mu(\allowbreak{}1)\allowbreak{}=\allowbreak{}d(\allowbreak{}1)\allowbreak{}=\allowbreak{}1；mu=\allowbreak{}0 表示有平方因子，试除参考版是 O(\allowbreak{}sqrt x)\allowbreak{}。}
+\begin{lstlisting}
+const int N=1000006;
+int n;
+int prime[N],cnt;// prime[1..cnt] 存的素数
+bool vis[N];// 合数标记
+int phi[N];// 欧拉函数
+int mu[N];// 莫比乌斯函数
+int d[N];// 约数个数
+int dmin[N];// 最小质因子在该数中的指数
+\end{lstlisting}
+\note{O(\allowbreak{}n)\allowbreak{}，线性筛同时求 phi /\allowbreak{} mu /\allowbreak{} d O(\allowbreak{}n)\allowbreak{}，n 为最大查询值；同因子与新因子两种递推不能混用。}
+\begin{lstlisting}
+void get_prime(int n)
+{
+    cnt=0;
+    fill(vis,vis+n+1,false);
+    vis[1]=true;
+    phi[1]=1,mu[1]=1,d[1]=1,dmin[1]=0;
+    for(int i=2;i<=n;i++)
+    {
+        if(!vis[i])
+        {
+            prime[++cnt]=i;
+            phi[i]=i-1;// 素数的 phi
+            mu[i]=-1;// 素数有 1 个质因子
+            d[i]=2;// 1 和自身
+            dmin[i]=1;
+        }
+        for(int j=1;j<=cnt&&(ll)i*prime[j]<=n;j++)
+        {
+            int t=i*prime[j];
+            vis[t]=true;
+            if(i%prime[j]==0)
+            {
+                // prime[j] 已在 i 里出现过
+                phi[t]=phi[i]*prime[j];
+                mu[t]=0;
+                dmin[t]=dmin[i]+1;
+                d[t]=d[i]/(dmin[i]+1)*(dmin[i]+2);
+                break;// 每个合数只被最小质因子筛一次
+            }
+            phi[t]=phi[i]*(prime[j]-1);
+            mu[t]=-mu[i];
+            dmin[t]=1;
+            d[t]=d[i]*2;
+        }
+    }
+}
+\end{lstlisting}
 % SOURCE: 05-数学/质因数分解与约数.cpp
 \subsection{质因数分解与约数}
 
@@ -8155,60 +8209,6 @@ ll phi_one(ll n)
         }
     if(n>1)r=r/n*(n-1);
     return r;
-}
-\end{lstlisting}
-% SOURCE: 05-数学/线性筛与欧拉函数.cpp
-\subsection{线性筛与欧拉函数}
-
-\note{n为筛上界，prime[\allowbreak{}1.\allowbreak{}.\allowbreak{}cnt]\allowbreak{}为素数，vis为合数标记；phi/\allowbreak{}mu为欧拉函数/\allowbreak{}莫比乌斯函数，d为约数数目，dmin为最小质因子指数。1的函数值按实现初始化，多次筛选前重置计数及所用表。}
-\note{适用：批量求 phi/\allowbreak{}mu/\allowbreak{}约数个数，数据上界能放入数组时一次 O(\allowbreak{}n)\allowbreak{} 预处理。 下标：数值范围 1.\allowbreak{}.\allowbreak{}n，1<\allowbreak{}=\allowbreak{}n<\allowbreak{}N；prime[\allowbreak{}1.\allowbreak{}.\allowbreak{}cnt]\allowbreak{} 为升序素数，1 不是素数。 关键：合数只由最小质因子筛一次，遇 i\%prime[\allowbreak{}j]\allowbreak{}=\allowbreak{}=\allowbreak{}0 后必须 break。 状态：dmin[\allowbreak{}i]\allowbreak{} 为最小质因子指数；加同一因子时约数个数仅替换该指数贡献。 易错：重复 get\_prime 前清 vis、prime 与相关表，单改 cnt 不足以重新筛。 结论：phi(\allowbreak{}1)\allowbreak{}=\allowbreak{}mu(\allowbreak{}1)\allowbreak{}=\allowbreak{}d(\allowbreak{}1)\allowbreak{}=\allowbreak{}1；mu=\allowbreak{}0 表示有平方因子，试除参考版是 O(\allowbreak{}sqrt x)\allowbreak{}。}
-\begin{lstlisting}
-const int N=1000006;
-int n;
-int prime[N],cnt;// prime[1..cnt] 存的素数
-bool vis[N];// 合数标记
-int phi[N];// 欧拉函数
-int mu[N];// 莫比乌斯函数
-int d[N];// 约数个数
-int dmin[N];// 最小质因子在该数中的指数
-\end{lstlisting}
-\note{O(\allowbreak{}n)\allowbreak{}，线性筛同时求 phi /\allowbreak{} mu /\allowbreak{} d O(\allowbreak{}n)\allowbreak{}，n 为最大查询值；同因子与新因子两种递推不能混用。}
-\begin{lstlisting}
-void get_prime(int n)
-{
-    cnt=0;
-    fill(vis,vis+n+1,false);
-    vis[1]=true;
-    phi[1]=1,mu[1]=1,d[1]=1,dmin[1]=0;
-    for(int i=2;i<=n;i++)
-    {
-        if(!vis[i])
-        {
-            prime[++cnt]=i;
-            phi[i]=i-1;// 素数的 phi
-            mu[i]=-1;// 素数有 1 个质因子
-            d[i]=2;// 1 和自身
-            dmin[i]=1;
-        }
-        for(int j=1;j<=cnt&&(ll)i*prime[j]<=n;j++)
-        {
-            int t=i*prime[j];
-            vis[t]=true;
-            if(i%prime[j]==0)
-            {
-                // prime[j] 已在 i 里出现过
-                phi[t]=phi[i]*prime[j];
-                mu[t]=0;
-                dmin[t]=dmin[i]+1;
-                d[t]=d[i]/(dmin[i]+1)*(dmin[i]+2);
-                break;// 每个合数只被最小质因子筛一次
-            }
-            phi[t]=phi[i]*(prime[j]-1);
-            mu[t]=-mu[i];
-            dmin[t]=1;
-            d[t]=d[i]*2;
-        }
-    }
 }
 \end{lstlisting}
 % SOURCE: 05-数学/组合数与Lucas定理.cpp
@@ -8358,6 +8358,135 @@ ll avoid(ll n,const vector<ll> &d)
 }
 \end{lstlisting}
 \note{范德蒙德：sum(\allowbreak{}k)\allowbreak{} C(\allowbreak{}a,\allowbreak{}k)\allowbreak{}C(\allowbreak{}b,\allowbreak{}r-\allowbreak{}k)\allowbreak{}=\allowbreak{}C(\allowbreak{}a+\allowbreak{}b,\allowbreak{}r)\allowbreak{}，越界项为 0。 例 sum(\allowbreak{}k)\allowbreak{} C(\allowbreak{}i-\allowbreak{}1,\allowbreak{}k)\allowbreak{}C(\allowbreak{}n-\allowbreak{}i,\allowbreak{}k)\allowbreak{}=\allowbreak{}C(\allowbreak{}n-\allowbreak{}1,\allowbreak{}n-\allowbreak{}i)\allowbreak{}，常能消去逐中位数枚举。 排序后算子集贡献：第 i 个元素作为子集第 j 个数，系数为 C(\allowbreak{}i-\allowbreak{}1,\allowbreak{}j-\allowbreak{}1)\allowbreak{}*2\textasciicircum{}(\allowbreak{}n-\allowbreak{}i)\allowbreak{}。 若该位置权为 F[\allowbreak{}1]\allowbreak{}=\allowbreak{}1、F[\allowbreak{}j]\allowbreak{}=\allowbreak{}2\textasciicircum{}(\allowbreak{}j-\allowbreak{}2)\allowbreak{}(\allowbreak{}j>\allowbreak{}=\allowbreak{}2)\allowbreak{}，总系数=\allowbreak{}(\allowbreak{}3\textasciicircum{}(\allowbreak{}i-\allowbreak{}1)\allowbreak{}+\allowbreak{}1)\allowbreak{}/\allowbreak{}2*2\textasciicircum{}(\allowbreak{}n-\allowbreak{}i)\allowbreak{}。 “只在最短可行链计数”且两个端点都必须移动：k>\allowbreak{}=\allowbreak{}2 时 k!-\allowbreak{}2(\allowbreak{}k-\allowbreak{}1)\allowbreak{}!+\allowbreak{}(\allowbreak{}k-\allowbreak{}2)\allowbreak{}!；单点另计。 Hall：二分图左侧全匹配 iff 每个左点子集 S 都满足 |N(\allowbreak{}S)\allowbreak{}|>\allowbreak{}=\allowbreak{}|S|；小组数可枚举组子集。 带需求量的组展开成单位点或用流判定，不能只检查单组邻居够不够。}
+% SOURCE: 05-数学/卡特兰数.cpp
+\subsection{卡特兰数}
+
+\note{fact/\allowbreak{}inv\_fact是阶乘与逆阶乘表，mod为模数；组合公式访问到2n，容量须覆盖它。按模运算公式的素数与可逆条件预处理，不能直接把素数模版本用于任意合数。}
+\note{适用：合法括号序列、出栈顺序、不同二叉树形态、不交叉匹配。 参数：n 是成对元素数，Cat[\allowbreak{}0]\allowbreak{}=\allowbreak{}1；阶乘需先预处理到 2*n，且 2*n<\allowbreak{}mod、<\allowbreak{}N。 关键：Cat[\allowbreak{}n]\allowbreak{}=\allowbreak{}C(\allowbreak{}2n,\allowbreak{}n)\allowbreak{}/\allowbreak{}(\allowbreak{}n+\allowbreak{}1)\allowbreak{}；首个匹配分割左右子结构得到递推。 下标：cat\_dp 的 g[\allowbreak{}i]\allowbreak{}[\allowbreak{}j]\allowbreak{} 是剩余未入栈数与栈内数；两者相加不超过初始 n。 易错：mod 必须为素数以求逆；DP 与朴素数组要求 n<\allowbreak{}1005，乘积应在 ll 范围。 复杂度：公式查询 O(\allowbreak{}log mod)\allowbreak{}，双状态 DP 和卷积递推 O(\allowbreak{}n\textasciicircum{}2)\allowbreak{}，空间分别 O(\allowbreak{}n\textasciicircum{}2)\allowbreak{}/\allowbreak{}O(\allowbreak{}n)\allowbreak{}。}
+\begin{lstlisting}
+const int N=1000006;
+ll fact[N],inv_fact[N];
+ll mod=1000000007;
+\end{lstlisting}
+\note{O(\allowbreak{}log n)\allowbreak{}，快速幂 O(\allowbreak{}log n)\allowbreak{}，计算 a 的非负 n 次幂；mod 为正模数。}
+\begin{lstlisting}
+ll qpow(ll a,ll n,ll mod)
+{
+    ll res=1;
+    a%=mod;
+    while(n)
+    {
+        if(n&1)(res*=a)%=mod;
+        (a*=a)%=mod;
+        n>>=1;
+    }
+    return res;
+}
+\end{lstlisting}
+\note{O(\allowbreak{}N)\allowbreak{}，阶乘与阶乘逆元，卡特兰数组合公式要用 O(\allowbreak{}n+\allowbreak{}log p)\allowbreak{}，设置全局 mod=\allowbreak{}p，预处理阶乘 0.\allowbreak{}.\allowbreak{}n；p 为素数且 n<\allowbreak{}p。}
+\begin{lstlisting}
+void C_init(int n,ll p)
+{
+    mod=p;
+    fact[0]=1;
+    for(int i=1;i<=n;i++)fact[i]=fact[i-1]*i%p;
+    inv_fact[n]=qpow(fact[n],p-2,p);
+    for(int i=n;i>=1;i--)inv_fact[i-1]=inv_fact[i]*i%p;
+}
+\end{lstlisting}
+\note{O(\allowbreak{}1)\allowbreak{}，要求 0<\allowbreak{}=\allowbreak{}n<\allowbreak{}p O(\allowbreak{}1)\allowbreak{}，求模当前 mod 的 C(\allowbreak{}n,\allowbreak{}m)\allowbreak{}，n 是阶乘下标而非卡特兰参数。}
+\begin{lstlisting}
+ll C(ll n,ll m)
+{
+    if(m<0||m>n||n<0)return 0;
+    return fact[n]*inv_fact[m]%mod*inv_fact[n-m]%mod;
+}
+\end{lstlisting}
+\note{O(\allowbreak{}n\textasciicircum{}2)\allowbreak{}，出栈序列计数：g[\allowbreak{}i]\allowbreak{}[\allowbreak{}j]\allowbreak{} 表示还有 i 个待入栈、栈内 j 个的方案数 每步可以入栈（i>\allowbreak{}0 -\allowbreak{}>\allowbreak{} (\allowbreak{}i-\allowbreak{}1,\allowbreak{}j+\allowbreak{}1)\allowbreak{}）或出栈（j>\allowbreak{}0 -\allowbreak{}>\allowbreak{} (\allowbreak{}i,\allowbreak{}j-\allowbreak{}1)\allowbreak{}），最终停在 g[\allowbreak{}0]\allowbreak{}[\allowbreak{}0]\allowbreak{} 两个转移的 j 都变小，所以同一行 j 必须从大到小扫 O(\allowbreak{}n\textasciicircum{}2)\allowbreak{}，g[\allowbreak{}n]\allowbreak{}[\allowbreak{}0]\allowbreak{} 起步；i 递减接收入栈转移，固定行 j 递减接收出栈转移。}
+\begin{lstlisting}
+ll cat_dp(int n)
+{
+    static ll g[1005][1005];
+    for(int i=0;i<=n;i++)
+        for(int j=0;j<=n;j++)g[i][j]=0;
+    g[n][0]=1;
+    for(int i=n;i>=0;i--)
+        for(int j=n;j>=0;j--)
+        {
+            if(!g[i][j])continue;
+            if(i>0)g[i-1][j+1]=(g[i-1][j+1]+g[i][j])%mod;// 入栈
+            if(j>0)g[i][j-1]=(g[i][j-1]+g[i][j])%mod;// 出栈
+        }
+    return g[0][0];
+}
+\end{lstlisting}
+\note{O(\allowbreak{}log n)\allowbreak{}，Cat[\allowbreak{}n]\allowbreak{} 的组合公式：C(\allowbreak{}2n,\allowbreak{}n)\allowbreak{}/\allowbreak{}(\allowbreak{}n+\allowbreak{}1)\allowbreak{}，即 C(\allowbreak{}2n,\allowbreak{}n)\allowbreak{}*inv(\allowbreak{}n+\allowbreak{}1)\allowbreak{} O(\allowbreak{}log mod)\allowbreak{}，返回 Cat[\allowbreak{}n]\allowbreak{}；n+\allowbreak{}1 必须可逆且 C 表已覆盖 2*n。}
+\begin{lstlisting}
+ll cat_rec(int n)
+{
+    if(n==0)return 1;
+    return C(2*n,n)*qpow(n+1,mod-2,mod)%mod;
+}
+\end{lstlisting}
+% SOURCE: 05-数学/Stirling数.cpp
+\subsection{Stirling数}
+
+\note{n为上界，mod>\allowbreak{}0，first\_kind选择无符号第一类/\allowbreak{}第二类；返回s[\allowbreak{}i]\allowbreak{}[\allowbreak{}k]\allowbreak{}三角表，s[\allowbreak{}0]\allowbreak{}[\allowbreak{}0]\allowbreak{}=\allowbreak{}1。第一类数排列环，第二类数非空集合块，不能把两种递推系数混用。}
+\note{O(\allowbreak{}n\ensuremath{^2})\allowbreak{} 两类 Stirling 三角：第一类无符号 c(\allowbreak{}n,\allowbreak{}k)\allowbreak{} 排列恰有 k 个环；第二类 S(\allowbreak{}n,\allowbreak{}k)\allowbreak{} 集合分成 k 个非空块。 若只求一行，可滚动压成 O(\allowbreak{}n)\allowbreak{} 空间；有符号第一类乘 (\allowbreak{}-\allowbreak{}1)\allowbreak{}\textasciicircum{}(\allowbreak{}n-\allowbreak{}k)\allowbreak{}。模 mod>\allowbreak{}0。}
+\begin{lstlisting}
+vector<vector<long long>> stirling(int n,long long mod,bool first_kind)
+{
+    assert(n>=0&&mod>0);vector<vector<long long>> s(n+1,vector<long long>(n+1));s[0][0]=1%mod;
+    for(int i=1;i<=n;i++)for(int k=1;k<=i;k++)s[i][k]=(s[i-1][k-1]+(__int128)(first_kind?i-1:k)*s[i-1][k])%mod;
+    return s;
+}
+\end{lstlisting}
+% SOURCE: 05-数学/合数模组合数exLucas.cpp
+\subsection{合数模组合数exLucas}
+
+\note{n、k为组合数参数，mod为任意正模数；按素数幂拆分，分别处理阶乘中该素因子的指数与去因子部分，再CRT合并。缓存表与素数幂绑定，换模数须重建。}
+\note{C(\allowbreak{}n,\allowbreak{}k)\allowbreak{} mod m，n,\allowbreak{}k 非负 64 位，1<\allowbreak{}=\allowbreak{}m<\allowbreak{}=\allowbreak{}2\textasciicircum{}31-\allowbreak{}1；分解素数幂 +\allowbreak{} 去 p 因子阶乘 +\allowbreak{} CRT。 每个素数幂 pk 需 O(\allowbreak{}pk)\allowbreak{} 预处理，故要求 pk<\allowbreak{}=\allowbreak{}2e6（可按内存调整）；查询 O(\allowbreak{}log\_p n * log pk)\allowbreak{}。 n 极大、pk 极大时不能直接用本版；普通素数且小 n 优先原组合数模板。}
+\begin{lstlisting}
+using ll=long long;using U=unsigned long long;
+ll exgcd(ll a,ll b,ll &x,ll &y){if(!b){x=1;y=0;return a;}ll z=exgcd(b,a%b,y,x);y-=a/b*x;return z;}
+ll inverse(ll a,ll m){ll x,y;assert(exgcd(a,m,x,y)==1);return (x%m+m)%m;}
+ll power(ll a,U b,ll m){ll z=1;for(;b;b>>=1,a=a*a%m)if(b&1)z=z*a%m;return z;}
+ll binomial_prime_power(U n,U k,int p,int pk)
+{
+    vector<ll> f(pk+1,1);for(int i=1;i<=pk;i++)f[i]=f[i-1]*(i%p?i:1)%pk;
+    auto fact=[&](U x){ll ans=1;while(x){ans=ans*power(f[pk],x/pk,pk)%pk*f[x%pk]%pk;x/=p;}return ans;};
+    auto exponent=[&](U x){U z=0;while(x)z+=x/=p;return z;};
+    U e=exponent(n)-exponent(k)-exponent(n-k);int q=0;for(int x=pk;x>1;x/=p)q++;
+    if(e>=(U)q)return 0;
+    return fact(n)*inverse(fact(k),pk)%pk*inverse(fact(n-k),pk)%pk*power(p,e,pk)%pk;
+}
+ll exlucas(U n,U k,int m)
+{
+    assert(m>0);if(k>n||m==1)return 0;int rest=m;ll ans=0;
+    for(int p=2;(ll)p*p<=rest;p++)if(rest%p==0)
+    {int pk=1;while(rest%p==0)rest/=p,pk*=p;assert(pk<=2000000);ll v=binomial_prime_power(n,k,p,pk),M=m/pk;ans=(ans+(__int128)v*M*inverse(M%pk,pk))%m;}
+    if(rest>1){assert(rest<=2000000);ll v=binomial_prime_power(n,k,rest,rest),M=m/rest;ans=(ans+(__int128)v*M*inverse(M%rest,rest))%m;}
+    return ans;
+}
+\end{lstlisting}
+% SOURCE: 05-数学/整数拆分数.cpp
+\subsection{整数拆分数}
+
+\note{n为最大和，mod>\allowbreak{}0；返回p[\allowbreak{}0.\allowbreak{}.\allowbreak{}n]\allowbreak{}，p(\allowbreak{}0)\allowbreak{}=\allowbreak{}1，拆分不计顺序。五边形下标成对出现，符号按j奇偶交替，模数不要求素数。}
+\note{p(\allowbreak{}n)\allowbreak{}：把 n 拆成正整数之和，不计顺序；五边形数定理，O(\allowbreak{}n sqrt n)\allowbreak{}、O(\allowbreak{}n)\allowbreak{}。 p(\allowbreak{}0)\allowbreak{}=\allowbreak{}1，递推使用 j(\allowbreak{}3j±1)\allowbreak{}/\allowbreak{}2，符号按 j 奇偶交替；mod>\allowbreak{}0，不要求素数。}
+\begin{lstlisting}
+vector<long long> partition_numbers(int n,long long mod)
+{
+    assert(n>=0&&mod>0);vector<long long> p(n+1);p[0]=1%mod;
+    for(int i=1;i<=n;i++)for(long long j=1;j*(3*j-1)/2<=i;j++)
+    {
+        int a=j*(3*j-1)/2,b=j*(3*j+1)/2;__int128 v=p[a<=i?i-a:0];
+        if(b<=i)v+=p[i-b];if(!(j&1))v=-v;
+        p[i]=(p[i]+v)%mod;if(p[i]<0)p[i]+=mod;
+    }
+    return p;
+}
+\end{lstlisting}
 % SOURCE: 05-数学/中国剩余定理.cpp
 \subsection{中国剩余定理}
 
@@ -8764,6 +8893,114 @@ void sg_init()
     sg[0]=0;
 }
 \end{lstlisting}
+% SOURCE: 05-数学/行列式与矩阵树定理.cpp
+\subsection{行列式与矩阵树定理}
+
+\note{n/\allowbreak{}m为图规模，mod为模数；矩阵树输入是拉普拉斯矩阵，删去同一行列求余子式行列式。矩阵参数保留以区分原矩阵和余子式，消元过程会改工作副本；有向入树/\allowbreak{}出树的度数方向必须一致。}
+\note{适用：无向多重图生成树计数；拉普拉斯任意 n-\allowbreak{}1 阶主子式相等。 下标：矩阵 a/\allowbreak{}g 使用 1.\allowbreak{}.\allowbreak{}n，n<\allowbreak{}N；g[\allowbreak{}u]\allowbreak{}[\allowbreak{}v]\allowbreak{} 是边的重数，须对称。 参数：det\_mod 的 p 为素数，matrix\_tree 使用全局 mod；无向自环不计。 关键：度数放对角、邻接重数取负，删去同一编号行列；换行必须翻转行列式符号。 易错：det\_mod 原地消元，保留原矩阵要先复制；精确 det\_naive 和返回值会受 ll 范围限制。 复杂度：模行列式 O(\allowbreak{}n\textasciicircum{}3+\allowbreak{}n log p)\allowbreak{}，空间 O(\allowbreak{}n\textasciicircum{}2)\allowbreak{}；暴力仅供极小图核对。 秩一更新：det(\allowbreak{}I+\allowbreak{}u*v\textasciicircum{}T)\allowbreak{}=\allowbreak{}1+\allowbreak{}v\textasciicircum{}T*u；A 可逆时 det(\allowbreak{}A+\allowbreak{}u*v\textasciicircum{}T)\allowbreak{}=\allowbreak{}det(\allowbreak{}A)\allowbreak{}*(\allowbreak{}1+\allowbreak{}v\textasciicircum{}T*A\textasciicircum{}-\allowbreak{}1*u)\allowbreak{}。 已知精确 |det|=\allowbreak{}D 只判正负：选不整除 D 的奇素数 p，模行列式比较 ±D；D=\allowbreak{}0 单独处理。 必须是素数才可复用模高斯消元；仅“奇模数”不足以保证主元可逆。}
+\begin{lstlisting}
+typedef __int128 lll;
+const int N=105;
+const int E=1005;// 边的上限
+int n,m;
+ll mod=1000000007;
+\end{lstlisting}
+\note{O(\allowbreak{}log p)\allowbreak{}，快速幂 O(\allowbreak{}log n)\allowbreak{}，a 为底数、n>\allowbreak{}=\allowbreak{}0 为指数，p 为正模数，模乘先扩宽。}
+\begin{lstlisting}
+ll qpow(ll a,ll n,ll p)
+{
+    ll res=1%p;
+    a%=p;
+    while(n)
+    {
+        if(n&1)res=(ll)((lll)res*a%p);
+        a=(ll)((lll)a*a%p);
+        n>>=1;
+    }
+    return res;
+}
+\end{lstlisting}
+\note{O(\allowbreak{}n\textasciicircum{}3)\allowbreak{}，模素数意义下高斯消元求行列式（不取模则要求 mod 为素数以便求逆） O(\allowbreak{}n\textasciicircum{}3+\allowbreak{}n log p)\allowbreak{}，a 是 n 阶方阵，p 为素数；找不到非零主元返回 0。}
+\begin{lstlisting}
+ll det_mod(ll a[N][N],int n,ll p)
+{
+    ll res=1;
+    for(int c=1;c<=n;c++)
+    {
+        int pivot=-1;
+        for(int i=c;i<=n;i++)
+            if(a[i][c]%p){pivot=i;break;}
+        if(pivot==-1)return 0;// 有一列全 0，行列式为 0
+        if(pivot!=c)
+        {
+            for(int j=1;j<=n;j++)swap(a[c][j],a[pivot][j]);
+            res=(p-res)%p;// 交换两行，行列式变号
+        }
+        res=(ll)((lll)res*a[c][c])%p;
+        ll inv=qpow(a[c][c],p-2,p);// 主元的逆元
+        for(int i=c+1;i<=n;i++)
+        {
+            if(!a[i][c])continue;
+            ll t=(ll)((lll)a[i][c]*inv%p);
+            for(int j=c;j<=n;j++)a[i][j]=(a[i][j]-(lll)t*a[c][j])%p;
+        }
+    }
+    return (res%p<0?res%p+p:res%p);
+}
+\end{lstlisting}
+\note{O(\allowbreak{}n! )\allowbreak{}，按第一行展开求行列式，只用于小矩阵对拍 O(\allowbreak{}n!)\allowbreak{} 递归展开，n>\allowbreak{}=\allowbreak{}1；临时矩阵在递归栈上，只用于小阶数。}
+\note{O(\allowbreak{}n\textasciicircum{}2 +\allowbreak{} n\textasciicircum{}3)\allowbreak{}，矩阵树定理：邻接矩阵直接建拉普拉斯矩阵，求任意 n-\allowbreak{}1 阶主子式 返回 n 个点的无向（允许重边、自环不加）生成树个数，边权全为 1 O(\allowbreak{}n\textasciicircum{}3+\allowbreak{}n log mod)\allowbreak{}，g 为对称重数矩阵；返回模 mod 的生成树数，单点返回 1。}
+\begin{lstlisting}
+ll matrix_tree(int n,ll g[N][N])
+{
+    if(n==1)return 1;// 单点视为 1 棵树
+    static ll lap[N][N],sub[N][N];
+    for(int i=1;i<=n;i++)
+        for(int j=1;j<=n;j++)lap[i][j]=0;
+    for(int i=1;i<=n;i++)
+        for(int j=1;j<=n;j++)
+            if(i!=j&&g[i][j])
+            {
+                lap[i][j]-=g[i][j];// 邻接矩阵取负
+                lap[i][i]+=g[i][j];// 度数放在对角
+            }
+    for(int i=1;i<=n-1;i++)
+        for(int j=1;j<=n-1;j++)sub[i][j]=((lap[i][j]%mod)+mod)%mod;// 去掉第 n 行第 n 列
+    return det_mod(sub,n-1,mod);
+}
+\end{lstlisting}
+% SOURCE: 05-数学/矩阵求逆与多右端项.cpp
+\subsection{矩阵求逆与多右端项}
+
+\note{A为n\ensuremath{\times}n系数，B为n\ensuremath{\times}r右端项，编号0起；成功时B改成X，A以副本消元。求逆令B为单位矩阵，false表示奇异或接近奇异；模版p须素数，实数版EPS按尺度调整。}
+\note{一次 Gauss–Jordan 解 AX=\allowbreak{}B（A 为 n*n，B 为 n*r），O(\allowbreak{}n\ensuremath{^3}+\allowbreak{}n\ensuremath{^2}r)\allowbreak{}，原地把 B 变成 X。 仅处理 A 可逆的情况；false 表示奇异/\allowbreak{}接近奇异。求逆令 B=\allowbreak{}I 即可，不重跑 n 次消元。 实数版本 eps 按尺度调整；模版本 p 必须素数，p>\allowbreak{}=\allowbreak{}2，允许负输入。编号从 0 开始。}
+\begin{lstlisting}
+bool solve_matrix(vector<vector<long double>> a,vector<vector<long double>> &b,long double eps=1e-12L)
+{
+    int n=a.size(),r=n?b[0].size():0;assert((int)b.size()==n);
+    for(int c=0;c<n;c++)
+    {
+        int k=c;for(int i=c+1;i<n;i++)if(fabsl(a[i][c])>fabsl(a[k][c]))k=i;
+        if(fabsl(a[k][c])<=eps)return false;swap(a[k],a[c]);swap(b[k],b[c]);
+        long double z=a[c][c];for(auto &x:a[c])x/=z;for(auto &x:b[c])x/=z;
+        for(int i=0;i<n;i++)if(i!=c){z=a[i][c];for(int j=c;j<n;j++)a[i][j]-=z*a[c][j];for(int j=0;j<r;j++)b[i][j]-=z*b[c][j];}
+    }
+    return true;
+}
+bool solve_matrix_mod(vector<vector<long long>> a,vector<vector<long long>> &b,long long p)
+{
+    using ll=long long;int n=a.size(),r=n?b[0].size():0;assert((int)b.size()==n&&p>=2);
+    for(auto &v:a)for(ll &x:v)x=(x%p+p)%p;for(auto &v:b)for(ll &x:v)x=(x%p+p)%p;
+    auto power=[&](ll x,ll e){ll z=1;for(;e;e>>=1,x=(__int128)x*x%p)if(e&1)z=(__int128)z*x%p;return z;};
+    for(int c=0;c<n;c++)
+    {
+        int k=c;while(k<n&&!a[k][c])k++;if(k==n)return false;swap(a[k],a[c]);swap(b[k],b[c]);
+        ll z=power(a[c][c],p-2);for(ll &x:a[c])x=(__int128)x*z%p;for(ll &x:b[c])x=(__int128)x*z%p;
+        for(int i=0;i<n;i++)if(i!=c){z=a[i][c];for(int j=c;j<n;j++)a[i][j]=((a[i][j]-(__int128)z*a[c][j])%p+p)%p;for(int j=0;j<r;j++)b[i][j]=((b[i][j]-(__int128)z*b[c][j])%p+p)%p;}
+    }
+    return true;
+}
+\end{lstlisting}
 % SOURCE: 05-数学/莫比乌斯反演与整除分块.cpp
 \subsection{莫比乌斯反演与整除分块}
 
@@ -9074,6 +9311,223 @@ ll exbsgs(ll a,ll b,ll p)
     return ans<0?-1:ans+cnt;
 }
 \end{lstlisting}
+% SOURCE: 05-数学/原根与阶.cpp
+\subsection{原根与阶}
+
+\note{prime/\allowbreak{}cnt保存素数表，spf是最小质因子，n为筛上界；阶与原根需要分解phi(\allowbreak{}模数)\allowbreak{}。先建立足够范围的质因子信息，查询模数的适用性单独判断，存在原根不是所有模数的性质。}
+\note{适用：循环群生成元、周期、NTT 单位根；阶是使 a\textasciicircum{}k=\allowbreak{}1 的最小正 k。 参数：模数 p>\allowbreak{}0，阶与原根要求底数互素；get\_root 专用于素数模数。 下标：筛的 prime 从 1 开始，spf[\allowbreak{}x]\allowbreak{} 是最小质因子，筛界小于 N。 关键：阶整除 phi(\allowbreak{}p)\allowbreak{}，逐个试除其素因子；素数原根检查 (\allowbreak{}p-\allowbreak{}1)\allowbreak{}/\allowbreak{}q 次幂不为 1。 易错：试除循环 i*i、余数归一和朴素模乘仍须防溢出；seen 版要求模数<\allowbreak{}N。 复杂度：素因子试除 O(\allowbreak{}sqrt p)\allowbreak{}，每个候选做若干快速幂；枚举最小原根不能保证仅 O(\allowbreak{}log\textasciicircum{}2 p)\allowbreak{}。}
+\begin{lstlisting}
+typedef __int128 lll;
+const int N=1000006;
+int n;
+int prime[N],cnt;// 素数表（顺便当最小质因子筛用）
+int spf[N];// 最小质因子
+\end{lstlisting}
+\note{O(\allowbreak{}n)\allowbreak{}，线性筛，顺便记最小质因子 O(\allowbreak{}n)\allowbreak{}，n 为筛上界；spf 需初始清零，多组筛要重置表。}
+\begin{lstlisting}
+void get_prime(int n)
+{
+    cnt=0;
+    fill(spf,spf+n+1,0);
+    for(int i=2;i<=n;i++)
+    {
+        if(!spf[i])prime[++cnt]=i,spf[i]=i;// i 是素数
+        for(int j=1;j<=cnt&&(ll)i*prime[j]<=n;j++)
+        {
+            spf[i*prime[j]]=prime[j];
+            if(i%prime[j]==0)break;// 只被最小质因子筛一次
+        }
+    }
+}
+\end{lstlisting}
+\note{O(\allowbreak{}log n)\allowbreak{}，快速幂（模乘用 \_\_int128 防溢出） O(\allowbreak{}log n)\allowbreak{}，模 mod 幂，n>\allowbreak{}=\allowbreak{}0；a 应为非负归一余数，乘法用 \_\_int128。}
+\begin{lstlisting}
+ll qpow(ll a,ll n,ll mod)
+{
+    ll res=1%mod;
+    a%=mod;
+    while(n)
+    {
+        if(n&1)res=(ll)((lll)res*a%mod);
+        a=(ll)((lll)a*a%mod);
+        n>>=1;
+    }
+    return res;
+}
+\end{lstlisting}
+\note{O(\allowbreak{}sqrt n)\allowbreak{}，试除分解质因数（不要求 n 是素数），返回去重后的素因子 O(\allowbreak{}sqrt n)\allowbreak{}，n>\allowbreak{}=\allowbreak{}1，返回不同素因子，供阶的约简使用。}
+\begin{lstlisting}
+vector<ll> factor(ll n)
+{
+    vector<ll> v;
+    for(ll i=2;i<=n/i;i++)
+        if(n%i==0)
+        {
+            v.push_back(i);
+            while(n%i==0)n/=i;
+        }
+    if(n>1)v.push_back(n);
+    return v;
+}
+\end{lstlisting}
+\note{O(\allowbreak{}sqrt n)\allowbreak{}，单个数的欧拉函数，顺序筛 phi(\allowbreak{}p)\allowbreak{} 时要用（p 不一定是素数） O(\allowbreak{}sqrt n)\allowbreak{}，n>\allowbreak{}=\allowbreak{}1，返回与 n 互素的 1.\allowbreak{}.\allowbreak{}n 整数个数。}
+\begin{lstlisting}
+ll phi_of(ll n)
+{
+    ll r=n;
+    for(ll i=2;i<=n/i;i++)
+        if(n%i==0)
+        {
+            r=r/i*(i-1);
+            while(n%i==0)n/=i;
+        }
+    if(n>1)r=r/n*(n-1);
+    return r;
+}
+\end{lstlisting}
+\note{O(\allowbreak{}sqrt p log p)\allowbreak{}，求 a 模 p 的阶，要求 gcd(\allowbreak{}a,\allowbreak{}p)\allowbreak{}=\allowbreak{}1（p 可以是合数） 做法：ord | phi(\allowbreak{}p)\allowbreak{}，枚举 phi(\allowbreak{}p)\allowbreak{} 的素因子逐个除掉，除掉一个因子后接着试同一个因子 试除加 O(\allowbreak{}log p)\allowbreak{} 次幂测试，a 为底数、p 为模数；不互素返回 -\allowbreak{}1。}
+\begin{lstlisting}
+ll get_order(ll a,ll p)
+{
+    if(__gcd(a,p)!=1)return -1;// 不互素没有阶
+    if(p==1)return 1;
+    ll ph=phi_of(p);
+    vector<ll> f=factor(ph);
+    ll ord=ph;
+    for(int i=0;i<(int)f.size();i++)
+        while(ord%f[i]==0&&qpow(a,ord/f[i],p)==1)ord/=f[i];// 能除就除
+    return ord;
+}
+\end{lstlisting}
+\note{O(\allowbreak{}sqrt(\allowbreak{}p)\allowbreak{} +\allowbreak{} log\textasciicircum{}2 p)\allowbreak{}，求模 p 的最小原根（p 为素数，p=\allowbreak{}2 特判返回 1） 枚举候选乘每次幂测试成本，p 为素数；p=\allowbreak{}2 的原根为 1。}
+\begin{lstlisting}
+ll get_root(ll p)
+{
+    if(p==2)return 1;
+    vector<ll> f=factor(p-1);
+    for(ll g=2;g<p;g++)
+    {
+        bool ok=true;
+        for(int i=0;i<(int)f.size();i++)
+            if(qpow(g,(p-1)/f[i],p)==1)// 只要有一个为 1 就不是原根
+            {
+                ok=false;
+                break;
+            }
+        if(ok)return g;
+    }
+    return -1;// p 不是素数时可能走到这里
+}
+\end{lstlisting}
+\note{O(\allowbreak{}sqrt(\allowbreak{}p)\allowbreak{} log p)\allowbreak{}，原根判定：g 是模 p 原根 <\allowbreak{}=\allowbreak{}>\allowbreak{} ord\_p(\allowbreak{}g)\allowbreak{}=\allowbreak{}phi(\allowbreak{}p)\allowbreak{} 对素数 p 就是 ord=\allowbreak{}p-\allowbreak{}1；合数模数下用 phi(\allowbreak{}p)\allowbreak{}，只有 2,\allowbreak{}4,\allowbreak{}p\textasciicircum{}k,\allowbreak{}2p\textasciicircum{}k 才有原根 与求阶同量级，判断 g 的阶是否等于 phi(\allowbreak{}p)\allowbreak{}；接口另约定 p=\allowbreak{}1 返回 true。}
+\begin{lstlisting}
+bool is_root(ll g,ll p)
+{
+    if(__gcd(g,p)!=1)return false;
+    if(p==1)return true;
+    return get_order(g,p)==phi_of(p);
+}
+\end{lstlisting}
+\note{O(\allowbreak{}p sqrt(\allowbreak{}p)\allowbreak{} log p)\allowbreak{}，求任意模数 n 的最小原根（n 为 2,\allowbreak{}4,\allowbreak{}p\textasciicircum{}k,\allowbreak{}2p\textasciicircum{}k 时才有解），无解返回 -\allowbreak{}1 至多 n 个候选，各自求阶；只在有原根的模数上有解，n=\allowbreak{}1 约定返回 0。}
+\begin{lstlisting}
+ll get_root_general(ll n)
+{
+    if(n==1)return 0;
+    for(ll g=1;g<n;g++)
+        if(is_root(g,n))return g;
+    return -1;
+}
+\end{lstlisting}
+% SOURCE: 05-数学/二次剩余.cpp
+\subsection{二次剩余}
+
+\note{P为当前素数模，W为Cipolla扩域非剩余；扩域乘法同时读取二者，不能在同一计算中改变模数。输入先归一，0单独处理，判无解后再求根；模2与奇素数条件按入口处理。}
+\note{适用：求模素数平方根 x\textasciicircum{}2=\allowbreak{}a；有非零解时通常是 x 与 p-\allowbreak{}x 两个根。 参数：p 为素数；a 可负，入口归一化；模 2 特判，零的平方根只有零。 状态：P/\allowbreak{}W 是一次 Cipolla 运算使用的全局模数和非剩余，不能并发复用。 关键：找 b 使 b\textasciicircum{}2-\allowbreak{}a 非剩余，在扩域中求 (\allowbreak{}b+\allowbreak{}sqrt(\allowbreak{}W)\allowbreak{})\allowbreak{}\textasciicircum{}(\allowbreak{}p/\allowbreak{}2+\allowbreak{}1)\allowbreak{}。 易错：\_\_int128 保护乘法，但双乘积相加和 ll 归一化也要在范围内；返回根不保证最小。 复杂度：随机找非剩余期望常数轮，每轮 O(\allowbreak{}log p)\allowbreak{}，加一次扩域幂；朴素核对只用于小 p。}
+\begin{lstlisting}
+typedef __int128 lll;
+\end{lstlisting}
+\note{O(\allowbreak{}log p)\allowbreak{}，快速幂，模乘走 \_\_int128 O(\allowbreak{}log n)\allowbreak{}，a 是底数、n>\allowbreak{}=\allowbreak{}0 是指数，p>\allowbreak{}0，模乘先升为 \_\_int128。}
+\begin{lstlisting}
+ll qpow(ll a,ll n,ll p)
+{
+    ll res=1%p;
+    a%=p;
+    while(n)
+    {
+        if(n&1)res=(ll)((lll)res*a%p);
+        a=(ll)((lll)a*a%p);
+        n>>=1;
+    }
+    return res;
+}
+\end{lstlisting}
+\note{O(\allowbreak{}log p)\allowbreak{}，勒让德符号：1 是二次剩余，-\allowbreak{}1 是非剩余，0 表示 a\ensuremath{\equiv}0 用欧拉判别法 a\textasciicircum{}(\allowbreak{}(\allowbreak{}p-\allowbreak{}1)\allowbreak{}/\allowbreak{}2)\allowbreak{} O(\allowbreak{}log p)\allowbreak{}，返回 0/\allowbreak{}1/\allowbreak{}-\allowbreak{}1；欧拉判别只对奇素数 p 成立。}
+\begin{lstlisting}
+int legendre(ll a,ll p)
+{
+    a=(a%p<0?a%p+p:a%p);
+    if(a==0)return 0;
+    ll t=qpow(a,(p-1)/2,p);
+    return t==1?1:-1;
+}
+\end{lstlisting}
+\note{Cipolla 用的扩域 F\_p[\allowbreak{}sqrt(\allowbreak{}w)\allowbreak{}]\allowbreak{} 上的数：real +\allowbreak{} imag*sqrt(\allowbreak{}w)\allowbreak{}}
+\begin{lstlisting}
+struct Cip{
+    ll real,imag;
+};
+ll P,W;// P 是模数，W 是扩域里的非剩余
+\end{lstlisting}
+\note{O(\allowbreak{}1)\allowbreak{}，扩域乘法 (\allowbreak{}a+\allowbreak{}b√w)\allowbreak{}(\allowbreak{}c+\allowbreak{}d√w)\allowbreak{} =\allowbreak{} (\allowbreak{}ac+\allowbreak{}bdw)\allowbreak{} +\allowbreak{} (\allowbreak{}ad+\allowbreak{}bc)\allowbreak{}√w O(\allowbreak{}1)\allowbreak{}，x/\allowbreak{}y 是扩域数，以全局 P/\allowbreak{}W 相乘；虚部平方用 W 代替。}
+\begin{lstlisting}
+Cip mul(Cip x,Cip y)
+{
+    Cip r;
+    r.real=((lll)x.real*y.real+(lll)x.imag*y.imag%P*W)%P;
+    r.imag=((lll)x.real*y.imag+(lll)x.imag*y.real)%P;
+    return r;
+}
+\end{lstlisting}
+\note{O(\allowbreak{}log p)\allowbreak{}，扩域快速幂 O(\allowbreak{}log n)\allowbreak{}，a 是扩域底数，n 是非负指数，须先设置 P/\allowbreak{}W。}
+\begin{lstlisting}
+Cip cpw(Cip a,ll n)
+{
+    Cip res;
+    res.real=1%P,res.imag=0;
+    while(n)
+    {
+        if(n&1)res=mul(res,a);
+        a=mul(a,a);
+        n>>=1;
+    }
+    return res;
+}
+\end{lstlisting}
+\note{O(\allowbreak{}log\textasciicircum{}2 p)\allowbreak{} 期望，Cipolla 算法：解 x\textasciicircum{}2 \ensuremath{\equiv} a (\allowbreak{}mod p)\allowbreak{}，p 为奇素数 返回一个解（另一个是 p-\allowbreak{}x），a 为非二次剩余时返回 -\allowbreak{}1 期望 O(\allowbreak{}log p)\allowbreak{} 次宽整数操作，返回一个根或 -\allowbreak{}1；b 的选择随机重试。}
+\begin{lstlisting}
+ll cipolla(ll a,ll p)
+{
+    a=(a%p<0?a%p+p:a%p);
+    if(a==0)return 0;
+    if(p==2)return a;// 模 2 时 x=a 就是解
+    if(legendre(a,p)!=1)return -1;// 无解判定
+    if(p%4==3)return qpow(a,p/4+1,p);// p(*@$\equiv$@*)3 (mod 4) 有显式公式
+    P=p;
+    mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
+    ll b;
+    while(true)
+    {
+        b=rnd()%p;
+        W=((lll)b*b-a)%p;// w = b^2 - a
+        W=(W%p<0?W%p+p:W%p);
+        if(W!=0&&legendre(W,p)==-1)break;// w 必须是非二次剩余
+    }
+    Cip x;
+    x.real=b,x.imag=1;
+    Cip r=cpw(x,p/2+1);// (b+√w)^(p/2+1) 的虚部必为 0
+    return r.real;
+}
+\end{lstlisting}
 % SOURCE: 05-数学/NTT.cpp
 \subsection{NTT}
 
@@ -9203,6 +9657,42 @@ vector<ll> multiply(vector<ll> a,vector<ll> b)
     fft(x,-1);
     vector<ll> ans(sz);
     for(int i=0;i<sz;i++)ans[i]=llround(x[i].real());
+    return ans;
+}
+\end{lstlisting}
+% SOURCE: 05-数学/任意模卷积.cpp
+\subsection{任意模卷积}
+
+\note{a/\allowbreak{}b为两个多项式系数向量，mod为目标模数；多个NTT素数分别求卷积，再CRT还原。可恢复范围取决于辅助模数乘积与系数和界，任意目标模数不等于无限数值范围。}
+\note{任意正模 mod<\allowbreak{}=\allowbreak{}2\textasciicircum{}31-\allowbreak{}1 的整数卷积；负系数先归一化，多模 NTT +\allowbreak{} CRT 精确重构。 O(\allowbreak{}L log L)\allowbreak{}，L 为补齐的 2 次幂且 <\allowbreak{}=\allowbreak{}2\textasciicircum{}24；三模积超过本范围内整数卷积系数上界。 返回 mod 下的系数，mod=\allowbreak{}1 全为 0，空输入返回空；内存为 O(\allowbreak{}L)\allowbreak{}。}
+\begin{lstlisting}
+ll pow_mod(ll a,ll b,ll p){ll z=1;for(;b;b>>=1,a=a*a%p)if(b&1)z=z*a%p;return z;}
+vector<int> convolution_prime(const vector<ll> &a,const vector<ll> &b,int p,int root,int len)
+{
+    vector<ll> x(len),y(len);for(int i=0;i<(int)a.size();i++)x[i]=a[i]%p;for(int i=0;i<(int)b.size();i++)y[i]=b[i]%p;
+    auto ntt=[&](vector<ll> &f,bool inv)
+    {
+        for(int i=1,j=0;i<len;i++){int bit=len>>1;for(;j&bit;bit>>=1)j^=bit;j^=bit;if(i<j)swap(f[i],f[j]);}
+        for(int l=2;l<=len;l*=2){ll z=pow_mod(root,(p-1)/l,p);if(inv)z=pow_mod(z,p-2,p);for(int i=0;i<len;i+=l){ll w=1;for(int j=0;j<l/2;j++,w=w*z%p){ll u=f[i+j],v=f[i+j+l/2]*w%p;f[i+j]=(u+v)%p;f[i+j+l/2]=(u-v+p)%p;}}}
+        if(inv){ll z=pow_mod(len,p-2,p);for(ll &v:f)v=v*z%p;}
+    };
+    ntt(x,false);ntt(y,false);for(int i=0;i<len;i++)x[i]=x[i]*y[i]%p;ntt(x,true);
+    return vector<int>(x.begin(),x.begin()+a.size()+b.size()-1);
+}
+vector<int> convolution_mod(vector<ll> a,vector<ll> b,int mod)
+{
+    assert(mod>0);if(a.empty()||b.empty())return {};
+    int size=a.size()+b.size()-1,len=1;while(len<size)len*=2;assert(len<=(1<<24));
+    for(ll &x:a)x=(x%mod+mod)%mod;for(ll &x:b)x=(x%mod+mod)%mod;
+    const ll p=167772161,q=469762049,r=754974721;
+    auto x=convolution_prime(a,b,p,3,len),y=convolution_prime(a,b,q,3,len),z=convolution_prime(a,b,r,11,len);
+    ll ip=pow_mod(p,q-2,q),ipq=pow_mod(p*q%r,r-2,r);vector<int> ans(size);
+    for(int i=0;i<size;i++)
+    {
+        ll t=(y[i]-x[i]+q)%q*ip%q;ll low=x[i]+p*t;
+        ll u=(z[i]-low%r+r)%r*ipq%r;
+        ans[i]=(low+(__int128)p*q*u)%mod;
+    }
     return ans;
 }
 \end{lstlisting}
@@ -9445,42 +9935,6 @@ vector<int> polynomial_compose(vector<int> a,vector<int> b,int n)
     return ans;
 }
 \end{lstlisting}
-% SOURCE: 05-数学/任意模卷积.cpp
-\subsection{任意模卷积}
-
-\note{a/\allowbreak{}b为两个多项式系数向量，mod为目标模数；多个NTT素数分别求卷积，再CRT还原。可恢复范围取决于辅助模数乘积与系数和界，任意目标模数不等于无限数值范围。}
-\note{任意正模 mod<\allowbreak{}=\allowbreak{}2\textasciicircum{}31-\allowbreak{}1 的整数卷积；负系数先归一化，多模 NTT +\allowbreak{} CRT 精确重构。 O(\allowbreak{}L log L)\allowbreak{}，L 为补齐的 2 次幂且 <\allowbreak{}=\allowbreak{}2\textasciicircum{}24；三模积超过本范围内整数卷积系数上界。 返回 mod 下的系数，mod=\allowbreak{}1 全为 0，空输入返回空；内存为 O(\allowbreak{}L)\allowbreak{}。}
-\begin{lstlisting}
-ll pow_mod(ll a,ll b,ll p){ll z=1;for(;b;b>>=1,a=a*a%p)if(b&1)z=z*a%p;return z;}
-vector<int> convolution_prime(const vector<ll> &a,const vector<ll> &b,int p,int root,int len)
-{
-    vector<ll> x(len),y(len);for(int i=0;i<(int)a.size();i++)x[i]=a[i]%p;for(int i=0;i<(int)b.size();i++)y[i]=b[i]%p;
-    auto ntt=[&](vector<ll> &f,bool inv)
-    {
-        for(int i=1,j=0;i<len;i++){int bit=len>>1;for(;j&bit;bit>>=1)j^=bit;j^=bit;if(i<j)swap(f[i],f[j]);}
-        for(int l=2;l<=len;l*=2){ll z=pow_mod(root,(p-1)/l,p);if(inv)z=pow_mod(z,p-2,p);for(int i=0;i<len;i+=l){ll w=1;for(int j=0;j<l/2;j++,w=w*z%p){ll u=f[i+j],v=f[i+j+l/2]*w%p;f[i+j]=(u+v)%p;f[i+j+l/2]=(u-v+p)%p;}}}
-        if(inv){ll z=pow_mod(len,p-2,p);for(ll &v:f)v=v*z%p;}
-    };
-    ntt(x,false);ntt(y,false);for(int i=0;i<len;i++)x[i]=x[i]*y[i]%p;ntt(x,true);
-    return vector<int>(x.begin(),x.begin()+a.size()+b.size()-1);
-}
-vector<int> convolution_mod(vector<ll> a,vector<ll> b,int mod)
-{
-    assert(mod>0);if(a.empty()||b.empty())return {};
-    int size=a.size()+b.size()-1,len=1;while(len<size)len*=2;assert(len<=(1<<24));
-    for(ll &x:a)x=(x%mod+mod)%mod;for(ll &x:b)x=(x%mod+mod)%mod;
-    const ll p=167772161,q=469762049,r=754974721;
-    auto x=convolution_prime(a,b,p,3,len),y=convolution_prime(a,b,q,3,len),z=convolution_prime(a,b,r,11,len);
-    ll ip=pow_mod(p,q-2,q),ipq=pow_mod(p*q%r,r-2,r);vector<int> ans(size);
-    for(int i=0;i<size;i++)
-    {
-        ll t=(y[i]-x[i]+q)%q*ip%q;ll low=x[i]+p*t;
-        ll u=(z[i]-low%r+r)%r*ipq%r;
-        ans[i]=(low+(__int128)p*q*u)%mod;
-    }
-    return ans;
-}
-\end{lstlisting}
 % SOURCE: 05-数学/拉格朗日插值.cpp
 \subsection{拉格朗日插值}
 
@@ -9595,197 +10049,6 @@ ll linear_nth(vector<ll> init,vector<ll> c,unsigned long long n)
     ll ans=0;
     for(int i=0;i<k;i++)ans=(ans+a[i]*init[i])%MOD;
     return ans;
-}
-\end{lstlisting}
-% SOURCE: 05-数学/卡特兰数.cpp
-\subsection{卡特兰数}
-
-\note{fact/\allowbreak{}inv\_fact是阶乘与逆阶乘表，mod为模数；组合公式访问到2n，容量须覆盖它。按模运算公式的素数与可逆条件预处理，不能直接把素数模版本用于任意合数。}
-\note{适用：合法括号序列、出栈顺序、不同二叉树形态、不交叉匹配。 参数：n 是成对元素数，Cat[\allowbreak{}0]\allowbreak{}=\allowbreak{}1；阶乘需先预处理到 2*n，且 2*n<\allowbreak{}mod、<\allowbreak{}N。 关键：Cat[\allowbreak{}n]\allowbreak{}=\allowbreak{}C(\allowbreak{}2n,\allowbreak{}n)\allowbreak{}/\allowbreak{}(\allowbreak{}n+\allowbreak{}1)\allowbreak{}；首个匹配分割左右子结构得到递推。 下标：cat\_dp 的 g[\allowbreak{}i]\allowbreak{}[\allowbreak{}j]\allowbreak{} 是剩余未入栈数与栈内数；两者相加不超过初始 n。 易错：mod 必须为素数以求逆；DP 与朴素数组要求 n<\allowbreak{}1005，乘积应在 ll 范围。 复杂度：公式查询 O(\allowbreak{}log mod)\allowbreak{}，双状态 DP 和卷积递推 O(\allowbreak{}n\textasciicircum{}2)\allowbreak{}，空间分别 O(\allowbreak{}n\textasciicircum{}2)\allowbreak{}/\allowbreak{}O(\allowbreak{}n)\allowbreak{}。}
-\begin{lstlisting}
-const int N=1000006;
-ll fact[N],inv_fact[N];
-ll mod=1000000007;
-\end{lstlisting}
-\note{O(\allowbreak{}log n)\allowbreak{}，快速幂 O(\allowbreak{}log n)\allowbreak{}，计算 a 的非负 n 次幂；mod 为正模数。}
-\begin{lstlisting}
-ll qpow(ll a,ll n,ll mod)
-{
-    ll res=1;
-    a%=mod;
-    while(n)
-    {
-        if(n&1)(res*=a)%=mod;
-        (a*=a)%=mod;
-        n>>=1;
-    }
-    return res;
-}
-\end{lstlisting}
-\note{O(\allowbreak{}N)\allowbreak{}，阶乘与阶乘逆元，卡特兰数组合公式要用 O(\allowbreak{}n+\allowbreak{}log p)\allowbreak{}，设置全局 mod=\allowbreak{}p，预处理阶乘 0.\allowbreak{}.\allowbreak{}n；p 为素数且 n<\allowbreak{}p。}
-\begin{lstlisting}
-void C_init(int n,ll p)
-{
-    mod=p;
-    fact[0]=1;
-    for(int i=1;i<=n;i++)fact[i]=fact[i-1]*i%p;
-    inv_fact[n]=qpow(fact[n],p-2,p);
-    for(int i=n;i>=1;i--)inv_fact[i-1]=inv_fact[i]*i%p;
-}
-\end{lstlisting}
-\note{O(\allowbreak{}1)\allowbreak{}，要求 0<\allowbreak{}=\allowbreak{}n<\allowbreak{}p O(\allowbreak{}1)\allowbreak{}，求模当前 mod 的 C(\allowbreak{}n,\allowbreak{}m)\allowbreak{}，n 是阶乘下标而非卡特兰参数。}
-\begin{lstlisting}
-ll C(ll n,ll m)
-{
-    if(m<0||m>n||n<0)return 0;
-    return fact[n]*inv_fact[m]%mod*inv_fact[n-m]%mod;
-}
-\end{lstlisting}
-\note{O(\allowbreak{}n\textasciicircum{}2)\allowbreak{}，出栈序列计数：g[\allowbreak{}i]\allowbreak{}[\allowbreak{}j]\allowbreak{} 表示还有 i 个待入栈、栈内 j 个的方案数 每步可以入栈（i>\allowbreak{}0 -\allowbreak{}>\allowbreak{} (\allowbreak{}i-\allowbreak{}1,\allowbreak{}j+\allowbreak{}1)\allowbreak{}）或出栈（j>\allowbreak{}0 -\allowbreak{}>\allowbreak{} (\allowbreak{}i,\allowbreak{}j-\allowbreak{}1)\allowbreak{}），最终停在 g[\allowbreak{}0]\allowbreak{}[\allowbreak{}0]\allowbreak{} 两个转移的 j 都变小，所以同一行 j 必须从大到小扫 O(\allowbreak{}n\textasciicircum{}2)\allowbreak{}，g[\allowbreak{}n]\allowbreak{}[\allowbreak{}0]\allowbreak{} 起步；i 递减接收入栈转移，固定行 j 递减接收出栈转移。}
-\begin{lstlisting}
-ll cat_dp(int n)
-{
-    static ll g[1005][1005];
-    for(int i=0;i<=n;i++)
-        for(int j=0;j<=n;j++)g[i][j]=0;
-    g[n][0]=1;
-    for(int i=n;i>=0;i--)
-        for(int j=n;j>=0;j--)
-        {
-            if(!g[i][j])continue;
-            if(i>0)g[i-1][j+1]=(g[i-1][j+1]+g[i][j])%mod;// 入栈
-            if(j>0)g[i][j-1]=(g[i][j-1]+g[i][j])%mod;// 出栈
-        }
-    return g[0][0];
-}
-\end{lstlisting}
-\note{O(\allowbreak{}log n)\allowbreak{}，Cat[\allowbreak{}n]\allowbreak{} 的组合公式：C(\allowbreak{}2n,\allowbreak{}n)\allowbreak{}/\allowbreak{}(\allowbreak{}n+\allowbreak{}1)\allowbreak{}，即 C(\allowbreak{}2n,\allowbreak{}n)\allowbreak{}*inv(\allowbreak{}n+\allowbreak{}1)\allowbreak{} O(\allowbreak{}log mod)\allowbreak{}，返回 Cat[\allowbreak{}n]\allowbreak{}；n+\allowbreak{}1 必须可逆且 C 表已覆盖 2*n。}
-\begin{lstlisting}
-ll cat_rec(int n)
-{
-    if(n==0)return 1;
-    return C(2*n,n)*qpow(n+1,mod-2,mod)%mod;
-}
-\end{lstlisting}
-% SOURCE: 05-数学/Stirling数.cpp
-\subsection{Stirling数}
-
-\note{n为上界，mod>\allowbreak{}0，first\_kind选择无符号第一类/\allowbreak{}第二类；返回s[\allowbreak{}i]\allowbreak{}[\allowbreak{}k]\allowbreak{}三角表，s[\allowbreak{}0]\allowbreak{}[\allowbreak{}0]\allowbreak{}=\allowbreak{}1。第一类数排列环，第二类数非空集合块，不能把两种递推系数混用。}
-\note{O(\allowbreak{}n\ensuremath{^2})\allowbreak{} 两类 Stirling 三角：第一类无符号 c(\allowbreak{}n,\allowbreak{}k)\allowbreak{} 排列恰有 k 个环；第二类 S(\allowbreak{}n,\allowbreak{}k)\allowbreak{} 集合分成 k 个非空块。 若只求一行，可滚动压成 O(\allowbreak{}n)\allowbreak{} 空间；有符号第一类乘 (\allowbreak{}-\allowbreak{}1)\allowbreak{}\textasciicircum{}(\allowbreak{}n-\allowbreak{}k)\allowbreak{}。模 mod>\allowbreak{}0。}
-\begin{lstlisting}
-vector<vector<long long>> stirling(int n,long long mod,bool first_kind)
-{
-    assert(n>=0&&mod>0);vector<vector<long long>> s(n+1,vector<long long>(n+1));s[0][0]=1%mod;
-    for(int i=1;i<=n;i++)for(int k=1;k<=i;k++)s[i][k]=(s[i-1][k-1]+(__int128)(first_kind?i-1:k)*s[i-1][k])%mod;
-    return s;
-}
-\end{lstlisting}
-% SOURCE: 05-数学/行列式与矩阵树定理.cpp
-\subsection{行列式与矩阵树定理}
-
-\note{n/\allowbreak{}m为图规模，mod为模数；矩阵树输入是拉普拉斯矩阵，删去同一行列求余子式行列式。矩阵参数保留以区分原矩阵和余子式，消元过程会改工作副本；有向入树/\allowbreak{}出树的度数方向必须一致。}
-\note{适用：无向多重图生成树计数；拉普拉斯任意 n-\allowbreak{}1 阶主子式相等。 下标：矩阵 a/\allowbreak{}g 使用 1.\allowbreak{}.\allowbreak{}n，n<\allowbreak{}N；g[\allowbreak{}u]\allowbreak{}[\allowbreak{}v]\allowbreak{} 是边的重数，须对称。 参数：det\_mod 的 p 为素数，matrix\_tree 使用全局 mod；无向自环不计。 关键：度数放对角、邻接重数取负，删去同一编号行列；换行必须翻转行列式符号。 易错：det\_mod 原地消元，保留原矩阵要先复制；精确 det\_naive 和返回值会受 ll 范围限制。 复杂度：模行列式 O(\allowbreak{}n\textasciicircum{}3+\allowbreak{}n log p)\allowbreak{}，空间 O(\allowbreak{}n\textasciicircum{}2)\allowbreak{}；暴力仅供极小图核对。 秩一更新：det(\allowbreak{}I+\allowbreak{}u*v\textasciicircum{}T)\allowbreak{}=\allowbreak{}1+\allowbreak{}v\textasciicircum{}T*u；A 可逆时 det(\allowbreak{}A+\allowbreak{}u*v\textasciicircum{}T)\allowbreak{}=\allowbreak{}det(\allowbreak{}A)\allowbreak{}*(\allowbreak{}1+\allowbreak{}v\textasciicircum{}T*A\textasciicircum{}-\allowbreak{}1*u)\allowbreak{}。 已知精确 |det|=\allowbreak{}D 只判正负：选不整除 D 的奇素数 p，模行列式比较 ±D；D=\allowbreak{}0 单独处理。 必须是素数才可复用模高斯消元；仅“奇模数”不足以保证主元可逆。}
-\begin{lstlisting}
-typedef __int128 lll;
-const int N=105;
-const int E=1005;// 边的上限
-int n,m;
-ll mod=1000000007;
-\end{lstlisting}
-\note{O(\allowbreak{}log p)\allowbreak{}，快速幂 O(\allowbreak{}log n)\allowbreak{}，a 为底数、n>\allowbreak{}=\allowbreak{}0 为指数，p 为正模数，模乘先扩宽。}
-\begin{lstlisting}
-ll qpow(ll a,ll n,ll p)
-{
-    ll res=1%p;
-    a%=p;
-    while(n)
-    {
-        if(n&1)res=(ll)((lll)res*a%p);
-        a=(ll)((lll)a*a%p);
-        n>>=1;
-    }
-    return res;
-}
-\end{lstlisting}
-\note{O(\allowbreak{}n\textasciicircum{}3)\allowbreak{}，模素数意义下高斯消元求行列式（不取模则要求 mod 为素数以便求逆） O(\allowbreak{}n\textasciicircum{}3+\allowbreak{}n log p)\allowbreak{}，a 是 n 阶方阵，p 为素数；找不到非零主元返回 0。}
-\begin{lstlisting}
-ll det_mod(ll a[N][N],int n,ll p)
-{
-    ll res=1;
-    for(int c=1;c<=n;c++)
-    {
-        int pivot=-1;
-        for(int i=c;i<=n;i++)
-            if(a[i][c]%p){pivot=i;break;}
-        if(pivot==-1)return 0;// 有一列全 0，行列式为 0
-        if(pivot!=c)
-        {
-            for(int j=1;j<=n;j++)swap(a[c][j],a[pivot][j]);
-            res=(p-res)%p;// 交换两行，行列式变号
-        }
-        res=(ll)((lll)res*a[c][c])%p;
-        ll inv=qpow(a[c][c],p-2,p);// 主元的逆元
-        for(int i=c+1;i<=n;i++)
-        {
-            if(!a[i][c])continue;
-            ll t=(ll)((lll)a[i][c]*inv%p);
-            for(int j=c;j<=n;j++)a[i][j]=(a[i][j]-(lll)t*a[c][j])%p;
-        }
-    }
-    return (res%p<0?res%p+p:res%p);
-}
-\end{lstlisting}
-\note{O(\allowbreak{}n! )\allowbreak{}，按第一行展开求行列式，只用于小矩阵对拍 O(\allowbreak{}n!)\allowbreak{} 递归展开，n>\allowbreak{}=\allowbreak{}1；临时矩阵在递归栈上，只用于小阶数。}
-\note{O(\allowbreak{}n\textasciicircum{}2 +\allowbreak{} n\textasciicircum{}3)\allowbreak{}，矩阵树定理：邻接矩阵直接建拉普拉斯矩阵，求任意 n-\allowbreak{}1 阶主子式 返回 n 个点的无向（允许重边、自环不加）生成树个数，边权全为 1 O(\allowbreak{}n\textasciicircum{}3+\allowbreak{}n log mod)\allowbreak{}，g 为对称重数矩阵；返回模 mod 的生成树数，单点返回 1。}
-\begin{lstlisting}
-ll matrix_tree(int n,ll g[N][N])
-{
-    if(n==1)return 1;// 单点视为 1 棵树
-    static ll lap[N][N],sub[N][N];
-    for(int i=1;i<=n;i++)
-        for(int j=1;j<=n;j++)lap[i][j]=0;
-    for(int i=1;i<=n;i++)
-        for(int j=1;j<=n;j++)
-            if(i!=j&&g[i][j])
-            {
-                lap[i][j]-=g[i][j];// 邻接矩阵取负
-                lap[i][i]+=g[i][j];// 度数放在对角
-            }
-    for(int i=1;i<=n-1;i++)
-        for(int j=1;j<=n-1;j++)sub[i][j]=((lap[i][j]%mod)+mod)%mod;// 去掉第 n 行第 n 列
-    return det_mod(sub,n-1,mod);
-}
-\end{lstlisting}
-% SOURCE: 05-数学/矩阵求逆与多右端项.cpp
-\subsection{矩阵求逆与多右端项}
-
-\note{A为n\ensuremath{\times}n系数，B为n\ensuremath{\times}r右端项，编号0起；成功时B改成X，A以副本消元。求逆令B为单位矩阵，false表示奇异或接近奇异；模版p须素数，实数版EPS按尺度调整。}
-\note{一次 Gauss–Jordan 解 AX=\allowbreak{}B（A 为 n*n，B 为 n*r），O(\allowbreak{}n\ensuremath{^3}+\allowbreak{}n\ensuremath{^2}r)\allowbreak{}，原地把 B 变成 X。 仅处理 A 可逆的情况；false 表示奇异/\allowbreak{}接近奇异。求逆令 B=\allowbreak{}I 即可，不重跑 n 次消元。 实数版本 eps 按尺度调整；模版本 p 必须素数，p>\allowbreak{}=\allowbreak{}2，允许负输入。编号从 0 开始。}
-\begin{lstlisting}
-bool solve_matrix(vector<vector<long double>> a,vector<vector<long double>> &b,long double eps=1e-12L)
-{
-    int n=a.size(),r=n?b[0].size():0;assert((int)b.size()==n);
-    for(int c=0;c<n;c++)
-    {
-        int k=c;for(int i=c+1;i<n;i++)if(fabsl(a[i][c])>fabsl(a[k][c]))k=i;
-        if(fabsl(a[k][c])<=eps)return false;swap(a[k],a[c]);swap(b[k],b[c]);
-        long double z=a[c][c];for(auto &x:a[c])x/=z;for(auto &x:b[c])x/=z;
-        for(int i=0;i<n;i++)if(i!=c){z=a[i][c];for(int j=c;j<n;j++)a[i][j]-=z*a[c][j];for(int j=0;j<r;j++)b[i][j]-=z*b[c][j];}
-    }
-    return true;
-}
-bool solve_matrix_mod(vector<vector<long long>> a,vector<vector<long long>> &b,long long p)
-{
-    using ll=long long;int n=a.size(),r=n?b[0].size():0;assert((int)b.size()==n&&p>=2);
-    for(auto &v:a)for(ll &x:v)x=(x%p+p)%p;for(auto &v:b)for(ll &x:v)x=(x%p+p)%p;
-    auto power=[&](ll x,ll e){ll z=1;for(;e;e>>=1,x=(__int128)x*x%p)if(e&1)z=(__int128)z*x%p;return z;};
-    for(int c=0;c<n;c++)
-    {
-        int k=c;while(k<n&&!a[k][c])k++;if(k==n)return false;swap(a[k],a[c]);swap(b[k],b[c]);
-        ll z=power(a[c][c],p-2);for(ll &x:a[c])x=(__int128)x*z%p;for(ll &x:b[c])x=(__int128)x*z%p;
-        for(int i=0;i<n;i++)if(i!=c){z=a[i][c];for(int j=c;j<n;j++)a[i][j]=((a[i][j]-(__int128)z*a[c][j])%p+p)%p;for(int j=0;j<r;j++)b[i][j]=((b[i][j]-(__int128)z*b[c][j])%p+p)%p;}
-    }
-    return true;
 }
 \end{lstlisting}
 % SOURCE: 05-数学/杜教筛.cpp
@@ -9940,251 +10203,6 @@ struct PrimeCount
 };
 \end{lstlisting}
 \note{例：PrimeCount pc(\allowbreak{}n)\allowbreak{}; pc.\allowbreak{}count(\allowbreak{}n)\allowbreak{}；整除块 [\allowbreak{}l,\allowbreak{}r]\allowbreak{} 内素数个数为 pi(\allowbreak{}r)\allowbreak{}-\allowbreak{}pi(\allowbreak{}l-\allowbreak{}1)\allowbreak{}。 本模板的块端点 r=\allowbreak{}n/\allowbreak{}(\allowbreak{}n/\allowbreak{}l)\allowbreak{}，故 r 和前一块端点 l-\allowbreak{}1 都能查询；一般端点不保证在表内。}
-% SOURCE: 05-数学/合数模组合数exLucas.cpp
-\subsection{合数模组合数exLucas}
-
-\note{n、k为组合数参数，mod为任意正模数；按素数幂拆分，分别处理阶乘中该素因子的指数与去因子部分，再CRT合并。缓存表与素数幂绑定，换模数须重建。}
-\note{C(\allowbreak{}n,\allowbreak{}k)\allowbreak{} mod m，n,\allowbreak{}k 非负 64 位，1<\allowbreak{}=\allowbreak{}m<\allowbreak{}=\allowbreak{}2\textasciicircum{}31-\allowbreak{}1；分解素数幂 +\allowbreak{} 去 p 因子阶乘 +\allowbreak{} CRT。 每个素数幂 pk 需 O(\allowbreak{}pk)\allowbreak{} 预处理，故要求 pk<\allowbreak{}=\allowbreak{}2e6（可按内存调整）；查询 O(\allowbreak{}log\_p n * log pk)\allowbreak{}。 n 极大、pk 极大时不能直接用本版；普通素数且小 n 优先原组合数模板。}
-\begin{lstlisting}
-using ll=long long;using U=unsigned long long;
-ll exgcd(ll a,ll b,ll &x,ll &y){if(!b){x=1;y=0;return a;}ll z=exgcd(b,a%b,y,x);y-=a/b*x;return z;}
-ll inverse(ll a,ll m){ll x,y;assert(exgcd(a,m,x,y)==1);return (x%m+m)%m;}
-ll power(ll a,U b,ll m){ll z=1;for(;b;b>>=1,a=a*a%m)if(b&1)z=z*a%m;return z;}
-ll binomial_prime_power(U n,U k,int p,int pk)
-{
-    vector<ll> f(pk+1,1);for(int i=1;i<=pk;i++)f[i]=f[i-1]*(i%p?i:1)%pk;
-    auto fact=[&](U x){ll ans=1;while(x){ans=ans*power(f[pk],x/pk,pk)%pk*f[x%pk]%pk;x/=p;}return ans;};
-    auto exponent=[&](U x){U z=0;while(x)z+=x/=p;return z;};
-    U e=exponent(n)-exponent(k)-exponent(n-k);int q=0;for(int x=pk;x>1;x/=p)q++;
-    if(e>=(U)q)return 0;
-    return fact(n)*inverse(fact(k),pk)%pk*inverse(fact(n-k),pk)%pk*power(p,e,pk)%pk;
-}
-ll exlucas(U n,U k,int m)
-{
-    assert(m>0);if(k>n||m==1)return 0;int rest=m;ll ans=0;
-    for(int p=2;(ll)p*p<=rest;p++)if(rest%p==0)
-    {int pk=1;while(rest%p==0)rest/=p,pk*=p;assert(pk<=2000000);ll v=binomial_prime_power(n,k,p,pk),M=m/pk;ans=(ans+(__int128)v*M*inverse(M%pk,pk))%m;}
-    if(rest>1){assert(rest<=2000000);ll v=binomial_prime_power(n,k,rest,rest),M=m/rest;ans=(ans+(__int128)v*M*inverse(M%rest,rest))%m;}
-    return ans;
-}
-\end{lstlisting}
-% SOURCE: 05-数学/原根与阶.cpp
-\subsection{原根与阶}
-
-\note{prime/\allowbreak{}cnt保存素数表，spf是最小质因子，n为筛上界；阶与原根需要分解phi(\allowbreak{}模数)\allowbreak{}。先建立足够范围的质因子信息，查询模数的适用性单独判断，存在原根不是所有模数的性质。}
-\note{适用：循环群生成元、周期、NTT 单位根；阶是使 a\textasciicircum{}k=\allowbreak{}1 的最小正 k。 参数：模数 p>\allowbreak{}0，阶与原根要求底数互素；get\_root 专用于素数模数。 下标：筛的 prime 从 1 开始，spf[\allowbreak{}x]\allowbreak{} 是最小质因子，筛界小于 N。 关键：阶整除 phi(\allowbreak{}p)\allowbreak{}，逐个试除其素因子；素数原根检查 (\allowbreak{}p-\allowbreak{}1)\allowbreak{}/\allowbreak{}q 次幂不为 1。 易错：试除循环 i*i、余数归一和朴素模乘仍须防溢出；seen 版要求模数<\allowbreak{}N。 复杂度：素因子试除 O(\allowbreak{}sqrt p)\allowbreak{}，每个候选做若干快速幂；枚举最小原根不能保证仅 O(\allowbreak{}log\textasciicircum{}2 p)\allowbreak{}。}
-\begin{lstlisting}
-typedef __int128 lll;
-const int N=1000006;
-int n;
-int prime[N],cnt;// 素数表（顺便当最小质因子筛用）
-int spf[N];// 最小质因子
-\end{lstlisting}
-\note{O(\allowbreak{}n)\allowbreak{}，线性筛，顺便记最小质因子 O(\allowbreak{}n)\allowbreak{}，n 为筛上界；spf 需初始清零，多组筛要重置表。}
-\begin{lstlisting}
-void get_prime(int n)
-{
-    cnt=0;
-    fill(spf,spf+n+1,0);
-    for(int i=2;i<=n;i++)
-    {
-        if(!spf[i])prime[++cnt]=i,spf[i]=i;// i 是素数
-        for(int j=1;j<=cnt&&(ll)i*prime[j]<=n;j++)
-        {
-            spf[i*prime[j]]=prime[j];
-            if(i%prime[j]==0)break;// 只被最小质因子筛一次
-        }
-    }
-}
-\end{lstlisting}
-\note{O(\allowbreak{}log n)\allowbreak{}，快速幂（模乘用 \_\_int128 防溢出） O(\allowbreak{}log n)\allowbreak{}，模 mod 幂，n>\allowbreak{}=\allowbreak{}0；a 应为非负归一余数，乘法用 \_\_int128。}
-\begin{lstlisting}
-ll qpow(ll a,ll n,ll mod)
-{
-    ll res=1%mod;
-    a%=mod;
-    while(n)
-    {
-        if(n&1)res=(ll)((lll)res*a%mod);
-        a=(ll)((lll)a*a%mod);
-        n>>=1;
-    }
-    return res;
-}
-\end{lstlisting}
-\note{O(\allowbreak{}sqrt n)\allowbreak{}，试除分解质因数（不要求 n 是素数），返回去重后的素因子 O(\allowbreak{}sqrt n)\allowbreak{}，n>\allowbreak{}=\allowbreak{}1，返回不同素因子，供阶的约简使用。}
-\begin{lstlisting}
-vector<ll> factor(ll n)
-{
-    vector<ll> v;
-    for(ll i=2;i<=n/i;i++)
-        if(n%i==0)
-        {
-            v.push_back(i);
-            while(n%i==0)n/=i;
-        }
-    if(n>1)v.push_back(n);
-    return v;
-}
-\end{lstlisting}
-\note{O(\allowbreak{}sqrt n)\allowbreak{}，单个数的欧拉函数，顺序筛 phi(\allowbreak{}p)\allowbreak{} 时要用（p 不一定是素数） O(\allowbreak{}sqrt n)\allowbreak{}，n>\allowbreak{}=\allowbreak{}1，返回与 n 互素的 1.\allowbreak{}.\allowbreak{}n 整数个数。}
-\begin{lstlisting}
-ll phi_of(ll n)
-{
-    ll r=n;
-    for(ll i=2;i<=n/i;i++)
-        if(n%i==0)
-        {
-            r=r/i*(i-1);
-            while(n%i==0)n/=i;
-        }
-    if(n>1)r=r/n*(n-1);
-    return r;
-}
-\end{lstlisting}
-\note{O(\allowbreak{}sqrt p log p)\allowbreak{}，求 a 模 p 的阶，要求 gcd(\allowbreak{}a,\allowbreak{}p)\allowbreak{}=\allowbreak{}1（p 可以是合数） 做法：ord | phi(\allowbreak{}p)\allowbreak{}，枚举 phi(\allowbreak{}p)\allowbreak{} 的素因子逐个除掉，除掉一个因子后接着试同一个因子 试除加 O(\allowbreak{}log p)\allowbreak{} 次幂测试，a 为底数、p 为模数；不互素返回 -\allowbreak{}1。}
-\begin{lstlisting}
-ll get_order(ll a,ll p)
-{
-    if(__gcd(a,p)!=1)return -1;// 不互素没有阶
-    if(p==1)return 1;
-    ll ph=phi_of(p);
-    vector<ll> f=factor(ph);
-    ll ord=ph;
-    for(int i=0;i<(int)f.size();i++)
-        while(ord%f[i]==0&&qpow(a,ord/f[i],p)==1)ord/=f[i];// 能除就除
-    return ord;
-}
-\end{lstlisting}
-\note{O(\allowbreak{}sqrt(\allowbreak{}p)\allowbreak{} +\allowbreak{} log\textasciicircum{}2 p)\allowbreak{}，求模 p 的最小原根（p 为素数，p=\allowbreak{}2 特判返回 1） 枚举候选乘每次幂测试成本，p 为素数；p=\allowbreak{}2 的原根为 1。}
-\begin{lstlisting}
-ll get_root(ll p)
-{
-    if(p==2)return 1;
-    vector<ll> f=factor(p-1);
-    for(ll g=2;g<p;g++)
-    {
-        bool ok=true;
-        for(int i=0;i<(int)f.size();i++)
-            if(qpow(g,(p-1)/f[i],p)==1)// 只要有一个为 1 就不是原根
-            {
-                ok=false;
-                break;
-            }
-        if(ok)return g;
-    }
-    return -1;// p 不是素数时可能走到这里
-}
-\end{lstlisting}
-\note{O(\allowbreak{}sqrt(\allowbreak{}p)\allowbreak{} log p)\allowbreak{}，原根判定：g 是模 p 原根 <\allowbreak{}=\allowbreak{}>\allowbreak{} ord\_p(\allowbreak{}g)\allowbreak{}=\allowbreak{}phi(\allowbreak{}p)\allowbreak{} 对素数 p 就是 ord=\allowbreak{}p-\allowbreak{}1；合数模数下用 phi(\allowbreak{}p)\allowbreak{}，只有 2,\allowbreak{}4,\allowbreak{}p\textasciicircum{}k,\allowbreak{}2p\textasciicircum{}k 才有原根 与求阶同量级，判断 g 的阶是否等于 phi(\allowbreak{}p)\allowbreak{}；接口另约定 p=\allowbreak{}1 返回 true。}
-\begin{lstlisting}
-bool is_root(ll g,ll p)
-{
-    if(__gcd(g,p)!=1)return false;
-    if(p==1)return true;
-    return get_order(g,p)==phi_of(p);
-}
-\end{lstlisting}
-\note{O(\allowbreak{}p sqrt(\allowbreak{}p)\allowbreak{} log p)\allowbreak{}，求任意模数 n 的最小原根（n 为 2,\allowbreak{}4,\allowbreak{}p\textasciicircum{}k,\allowbreak{}2p\textasciicircum{}k 时才有解），无解返回 -\allowbreak{}1 至多 n 个候选，各自求阶；只在有原根的模数上有解，n=\allowbreak{}1 约定返回 0。}
-\begin{lstlisting}
-ll get_root_general(ll n)
-{
-    if(n==1)return 0;
-    for(ll g=1;g<n;g++)
-        if(is_root(g,n))return g;
-    return -1;
-}
-\end{lstlisting}
-% SOURCE: 05-数学/二次剩余.cpp
-\subsection{二次剩余}
-
-\note{P为当前素数模，W为Cipolla扩域非剩余；扩域乘法同时读取二者，不能在同一计算中改变模数。输入先归一，0单独处理，判无解后再求根；模2与奇素数条件按入口处理。}
-\note{适用：求模素数平方根 x\textasciicircum{}2=\allowbreak{}a；有非零解时通常是 x 与 p-\allowbreak{}x 两个根。 参数：p 为素数；a 可负，入口归一化；模 2 特判，零的平方根只有零。 状态：P/\allowbreak{}W 是一次 Cipolla 运算使用的全局模数和非剩余，不能并发复用。 关键：找 b 使 b\textasciicircum{}2-\allowbreak{}a 非剩余，在扩域中求 (\allowbreak{}b+\allowbreak{}sqrt(\allowbreak{}W)\allowbreak{})\allowbreak{}\textasciicircum{}(\allowbreak{}p/\allowbreak{}2+\allowbreak{}1)\allowbreak{}。 易错：\_\_int128 保护乘法，但双乘积相加和 ll 归一化也要在范围内；返回根不保证最小。 复杂度：随机找非剩余期望常数轮，每轮 O(\allowbreak{}log p)\allowbreak{}，加一次扩域幂；朴素核对只用于小 p。}
-\begin{lstlisting}
-typedef __int128 lll;
-\end{lstlisting}
-\note{O(\allowbreak{}log p)\allowbreak{}，快速幂，模乘走 \_\_int128 O(\allowbreak{}log n)\allowbreak{}，a 是底数、n>\allowbreak{}=\allowbreak{}0 是指数，p>\allowbreak{}0，模乘先升为 \_\_int128。}
-\begin{lstlisting}
-ll qpow(ll a,ll n,ll p)
-{
-    ll res=1%p;
-    a%=p;
-    while(n)
-    {
-        if(n&1)res=(ll)((lll)res*a%p);
-        a=(ll)((lll)a*a%p);
-        n>>=1;
-    }
-    return res;
-}
-\end{lstlisting}
-\note{O(\allowbreak{}log p)\allowbreak{}，勒让德符号：1 是二次剩余，-\allowbreak{}1 是非剩余，0 表示 a\ensuremath{\equiv}0 用欧拉判别法 a\textasciicircum{}(\allowbreak{}(\allowbreak{}p-\allowbreak{}1)\allowbreak{}/\allowbreak{}2)\allowbreak{} O(\allowbreak{}log p)\allowbreak{}，返回 0/\allowbreak{}1/\allowbreak{}-\allowbreak{}1；欧拉判别只对奇素数 p 成立。}
-\begin{lstlisting}
-int legendre(ll a,ll p)
-{
-    a=(a%p<0?a%p+p:a%p);
-    if(a==0)return 0;
-    ll t=qpow(a,(p-1)/2,p);
-    return t==1?1:-1;
-}
-\end{lstlisting}
-\note{Cipolla 用的扩域 F\_p[\allowbreak{}sqrt(\allowbreak{}w)\allowbreak{}]\allowbreak{} 上的数：real +\allowbreak{} imag*sqrt(\allowbreak{}w)\allowbreak{}}
-\begin{lstlisting}
-struct Cip{
-    ll real,imag;
-};
-ll P,W;// P 是模数，W 是扩域里的非剩余
-\end{lstlisting}
-\note{O(\allowbreak{}1)\allowbreak{}，扩域乘法 (\allowbreak{}a+\allowbreak{}b√w)\allowbreak{}(\allowbreak{}c+\allowbreak{}d√w)\allowbreak{} =\allowbreak{} (\allowbreak{}ac+\allowbreak{}bdw)\allowbreak{} +\allowbreak{} (\allowbreak{}ad+\allowbreak{}bc)\allowbreak{}√w O(\allowbreak{}1)\allowbreak{}，x/\allowbreak{}y 是扩域数，以全局 P/\allowbreak{}W 相乘；虚部平方用 W 代替。}
-\begin{lstlisting}
-Cip mul(Cip x,Cip y)
-{
-    Cip r;
-    r.real=((lll)x.real*y.real+(lll)x.imag*y.imag%P*W)%P;
-    r.imag=((lll)x.real*y.imag+(lll)x.imag*y.real)%P;
-    return r;
-}
-\end{lstlisting}
-\note{O(\allowbreak{}log p)\allowbreak{}，扩域快速幂 O(\allowbreak{}log n)\allowbreak{}，a 是扩域底数，n 是非负指数，须先设置 P/\allowbreak{}W。}
-\begin{lstlisting}
-Cip cpw(Cip a,ll n)
-{
-    Cip res;
-    res.real=1%P,res.imag=0;
-    while(n)
-    {
-        if(n&1)res=mul(res,a);
-        a=mul(a,a);
-        n>>=1;
-    }
-    return res;
-}
-\end{lstlisting}
-\note{O(\allowbreak{}log\textasciicircum{}2 p)\allowbreak{} 期望，Cipolla 算法：解 x\textasciicircum{}2 \ensuremath{\equiv} a (\allowbreak{}mod p)\allowbreak{}，p 为奇素数 返回一个解（另一个是 p-\allowbreak{}x），a 为非二次剩余时返回 -\allowbreak{}1 期望 O(\allowbreak{}log p)\allowbreak{} 次宽整数操作，返回一个根或 -\allowbreak{}1；b 的选择随机重试。}
-\begin{lstlisting}
-ll cipolla(ll a,ll p)
-{
-    a=(a%p<0?a%p+p:a%p);
-    if(a==0)return 0;
-    if(p==2)return a;// 模 2 时 x=a 就是解
-    if(legendre(a,p)!=1)return -1;// 无解判定
-    if(p%4==3)return qpow(a,p/4+1,p);// p(*@$\equiv$@*)3 (mod 4) 有显式公式
-    P=p;
-    mt19937_64 rnd(chrono::steady_clock::now().time_since_epoch().count());
-    ll b;
-    while(true)
-    {
-        b=rnd()%p;
-        W=((lll)b*b-a)%p;// w = b^2 - a
-        W=(W%p<0?W%p+p:W%p);
-        if(W!=0&&legendre(W,p)==-1)break;// w 必须是非二次剩余
-    }
-    Cip x;
-    x.real=b,x.imag=1;
-    Cip r=cpw(x,p/2+1);// (b+√w)^(p/2+1) 的虚部必为 0
-    return r.real;
-}
-\end{lstlisting}
 % SOURCE: 05-数学/同余最短路.cpp
 \subsection{同余最短路}
 
@@ -10237,24 +10255,6 @@ array<pair<ll,ll>,2> fraction_bounds(ll P,ll Q,Check check)
 }
 \end{lstlisting}
 \note{邻界满足 cb-\allowbreak{}ad=\allowbreak{}1；mediant=\allowbreak{}(\allowbreak{}a+\allowbreak{}c)\allowbreak{}/\allowbreak{}(\allowbreak{}b+\allowbreak{}d)\allowbreak{}，在它之间的其他既约分数分子分母更大。 精确比较 p/\allowbreak{}q<\allowbreak{}=\allowbreak{}x/\allowbreak{}y：(\allowbreak{}\_\_int128)\allowbreak{}p*y<\allowbreak{}=\allowbreak{}(\allowbreak{}\_\_int128)\allowbreak{}x*q；不要转 double 判等。 check 很贵时可缓存结果；链内反复走一次 mediant 可能退化为 O(\allowbreak{}P+\allowbreak{}Q)\allowbreak{}。}
-% SOURCE: 05-数学/整数拆分数.cpp
-\subsection{整数拆分数}
-
-\note{n为最大和，mod>\allowbreak{}0；返回p[\allowbreak{}0.\allowbreak{}.\allowbreak{}n]\allowbreak{}，p(\allowbreak{}0)\allowbreak{}=\allowbreak{}1，拆分不计顺序。五边形下标成对出现，符号按j奇偶交替，模数不要求素数。}
-\note{p(\allowbreak{}n)\allowbreak{}：把 n 拆成正整数之和，不计顺序；五边形数定理，O(\allowbreak{}n sqrt n)\allowbreak{}、O(\allowbreak{}n)\allowbreak{}。 p(\allowbreak{}0)\allowbreak{}=\allowbreak{}1，递推使用 j(\allowbreak{}3j±1)\allowbreak{}/\allowbreak{}2，符号按 j 奇偶交替；mod>\allowbreak{}0，不要求素数。}
-\begin{lstlisting}
-vector<long long> partition_numbers(int n,long long mod)
-{
-    assert(n>=0&&mod>0);vector<long long> p(n+1);p[0]=1%mod;
-    for(int i=1;i<=n;i++)for(long long j=1;j*(3*j-1)/2<=i;j++)
-    {
-        int a=j*(3*j-1)/2,b=j*(3*j+1)/2;__int128 v=p[a<=i?i-a:0];
-        if(b<=i)v+=p[i-b];if(!(j&1))v=-v;
-        p[i]=(p[i]+v)%mod;if(p[i]<0)p[i]+=mod;
-    }
-    return p;
-}
-\end{lstlisting}
 % SOURCE: 05-数学/线性规划单纯形.cpp
 \subsection{线性规划单纯形}
 
@@ -13606,6 +13606,83 @@ Circle min_circle(vector<Point> a)
     return c;
 }
 \end{lstlisting}
+% SOURCE: 08-计算几何/多边形面积并.cpp
+\subsection{多边形面积并}
+
+\note{poly是多边形列表，每个顶点序列逆时针、简单且无零长边；可非凸。算法按边记录其他多边形遮蔽区间，编号用于共线同向边去重；返回并面积，原输入不变。}
+\note{多个简单多边形的面积并，允许非凸，要求每个多边形顶点逆时针、无自交且无零长度边。 每条边按遮蔽区间的进入/\allowbreak{}离开事件扫描；只累加露在外面的边段，做 Green 积分。 重合且同向边只保留一份；反向边积分相消。O(\allowbreak{}N\ensuremath{^2} log N)\allowbreak{}，浮点 EPS 按尺度调整。 用有向边边界积分求面积并时，共线重叠边只能计一次；固定多边形编号作为去重优先级。}
+\begin{lstlisting}
+struct Point{double x,y;Point operator+(Point b)const{return {x+b.x,y+b.y};}Point operator-(Point b)const{return {x-b.x,y-b.y};}Point operator*(double t)const{return {x*t,y*t};}};
+double cross(Point a,Point b){return a.x*b.y-a.y*b.x;}
+double dot(Point a,Point b){return a.x*b.x+a.y*b.y;}
+const double EPS=1e-9;
+int inside(Point p,const vector<Point> &a)// 1 内部，0 边界，-1 外部
+{
+    bool in=false;for(int i=0;i<(int)a.size();i++){Point u=a[i],v=a[(i+1)%a.size()];if(fabs(cross(v-u,p-u))<=EPS&&dot(p-u,p-v)<=EPS)return 0;if((u.y>p.y)!=(v.y>p.y)){double x=u.x+(v.x-u.x)*(p.y-u.y)/(v.y-u.y);if(x>p.x)in=!in;}}
+    return in?1:-1;
+}
+\end{lstlisting}
+\note{沿每条边收集其他多边形遮蔽区间的进入/\allowbreak{}离开事件，O(\allowbreak{}N\ensuremath{^2} log N)\allowbreak{}。 算法参考 KACTL PolygonUnion.\allowbreak{}h（black\_horse2014/\allowbreak{}chilli）；EPS 按坐标尺度调整。}
+\begin{lstlisting}
+double polygon_union_area(const vector<vector<Point>> &poly)
+{
+    auto sign=[](double x){return (x>EPS)-(x<-EPS);};double ans=0;
+    for(int i=0;i<(int)poly.size();i++)for(int k=0;k<(int)poly[i].size();k++)
+    {
+        Point a=poly[i][k],b=poly[i][(k+1)%poly[i].size()],v=b-a;double len=dot(v,v);if(len==0)continue;
+        vector<pair<double,int>> events={{0,0},{1,0}};
+        for(int j=0;j<(int)poly.size();j++)if(j!=i)for(int h=0;h<(int)poly[j].size();h++)
+        {
+            Point c=poly[j][h],d=poly[j][(h+1)%poly[j].size()];int sc=sign(cross(v,c-a)),sd=sign(cross(v,d-a));
+            if(sc!=sd)
+            {
+                double sa=cross(d-c,a-c),sb=cross(d-c,b-c);
+                if(min(sc,sd)<0&&fabs(sa-sb)>EPS)events.push_back({sa/(sa-sb),sign(sc-sd)});
+            }
+            else if(sc==0&&j<i&&dot(v,d-c)>0)
+            {events.push_back({dot(c-a,v)/len,1});events.push_back({dot(d-a,v)/len,-1});}
+        }
+        for(auto &e:events)e.first=clamp(e.first,0.0,1.0);sort(events.begin(),events.end());
+        int count=0;double last=0,visible=0;
+        for(auto [at,delta]:events){if(count==0)visible+=at-last;count+=delta;last=at;}
+        ans+=cross(a,b)*visible/2;
+    }
+    return ans;
+}
+\end{lstlisting}
+% SOURCE: 08-计算几何/圆并面积.cpp
+\subsection{圆并面积}
+
+\note{c存Circle\{x,\allowbreak{}y,\allowbreak{}r\}，r>\allowbreak{}=\allowbreak{}0；每圆按角度合并遮蔽区间，累加可见圆弧积分。包含/\allowbreak{}重合圆自动去除，返回面积而非周长；角度跨越2\ensuremath{\pi}时拆区间，EPS按坐标尺度设置。}
+\note{n 个圆的面积并，O(\allowbreak{}n\ensuremath{^2} log n)\allowbreak{}：对每个圆合并被其他圆遮住的角区间，积分可见圆弧。 自动去除重合/\allowbreak{}被包含的圆；r>\allowbreak{}=\allowbreak{}0，坐标尺度适中，EPS 按题调整。只返回面积并。}
+\begin{lstlisting}
+struct Circle{double x,y,r;};
+double circle_union_area(const vector<Circle> &c)
+{
+    const double EPS=1e-10,PI=acos(-1.0);double ans=0;int n=c.size();
+    for(int i=0;i<n;i++)
+    {
+        auto a=c[i];if(a.r<=0)continue;bool covered=false;vector<pair<double,double>> seg;
+        for(int j=0;j<n;j++)if(i!=j)
+        {
+            auto b=c[j];double dx=b.x-a.x,dy=b.y-a.y,d=hypot(dx,dy);
+            if(d+a.r<=b.r+EPS)
+            {if(d>EPS||a.r<b.r-EPS||j<i){covered=true;break;}else continue;}
+            if(d>=a.r+b.r-EPS||d+b.r<=a.r+EPS)continue;
+            double theta=atan2(dy,dx);if(theta<0)theta+=2*PI;
+            double h=acos(clamp((d*d+a.r*a.r-b.r*b.r)/(2*d*a.r),-1.0,1.0));
+            double l=theta-h,r=theta+h;
+            if(l<0)seg.push_back({l+2*PI,2*PI}),l=0;
+            if(r>2*PI)seg.push_back({0,r-2*PI}),r=2*PI;
+            seg.push_back({l,r});
+        }
+        if(covered)continue;sort(seg.begin(),seg.end());
+        auto arc=[&](double l,double r){return (a.r*a.r*(r-l)+a.r*a.x*(sin(r)-sin(l))+a.r*a.y*(cos(l)-cos(r)))/2;};
+        double end=0;for(auto [l,r]:seg){if(l>end)ans+=arc(end,l);end=max(end,r);}ans+=arc(end,2*PI);
+    }
+    return max(0.0,ans);
+}
+\end{lstlisting}
 % SOURCE: 08-计算几何/闵可夫斯基和.cpp
 \subsection{闵可夫斯基和}
 
@@ -13697,83 +13774,6 @@ vector<Point> minkowski(vector<Point> a,vector<Point> b)
     while(d.size()>2&&cross(d.back()-d[d.size()-2],d.front()-d.back())==0)d.pop_back();
     if(d.size()>2&&cross(d.front()-d.back(),d[1]-d.front())==0)d.erase(d.begin());
     return d;
-}
-\end{lstlisting}
-% SOURCE: 08-计算几何/多边形面积并.cpp
-\subsection{多边形面积并}
-
-\note{poly是多边形列表，每个顶点序列逆时针、简单且无零长边；可非凸。算法按边记录其他多边形遮蔽区间，编号用于共线同向边去重；返回并面积，原输入不变。}
-\note{多个简单多边形的面积并，允许非凸，要求每个多边形顶点逆时针、无自交且无零长度边。 每条边按遮蔽区间的进入/\allowbreak{}离开事件扫描；只累加露在外面的边段，做 Green 积分。 重合且同向边只保留一份；反向边积分相消。O(\allowbreak{}N\ensuremath{^2} log N)\allowbreak{}，浮点 EPS 按尺度调整。 用有向边边界积分求面积并时，共线重叠边只能计一次；固定多边形编号作为去重优先级。}
-\begin{lstlisting}
-struct Point{double x,y;Point operator+(Point b)const{return {x+b.x,y+b.y};}Point operator-(Point b)const{return {x-b.x,y-b.y};}Point operator*(double t)const{return {x*t,y*t};}};
-double cross(Point a,Point b){return a.x*b.y-a.y*b.x;}
-double dot(Point a,Point b){return a.x*b.x+a.y*b.y;}
-const double EPS=1e-9;
-int inside(Point p,const vector<Point> &a)// 1 内部，0 边界，-1 外部
-{
-    bool in=false;for(int i=0;i<(int)a.size();i++){Point u=a[i],v=a[(i+1)%a.size()];if(fabs(cross(v-u,p-u))<=EPS&&dot(p-u,p-v)<=EPS)return 0;if((u.y>p.y)!=(v.y>p.y)){double x=u.x+(v.x-u.x)*(p.y-u.y)/(v.y-u.y);if(x>p.x)in=!in;}}
-    return in?1:-1;
-}
-\end{lstlisting}
-\note{沿每条边收集其他多边形遮蔽区间的进入/\allowbreak{}离开事件，O(\allowbreak{}N\ensuremath{^2} log N)\allowbreak{}。 算法参考 KACTL PolygonUnion.\allowbreak{}h（black\_horse2014/\allowbreak{}chilli）；EPS 按坐标尺度调整。}
-\begin{lstlisting}
-double polygon_union_area(const vector<vector<Point>> &poly)
-{
-    auto sign=[](double x){return (x>EPS)-(x<-EPS);};double ans=0;
-    for(int i=0;i<(int)poly.size();i++)for(int k=0;k<(int)poly[i].size();k++)
-    {
-        Point a=poly[i][k],b=poly[i][(k+1)%poly[i].size()],v=b-a;double len=dot(v,v);if(len==0)continue;
-        vector<pair<double,int>> events={{0,0},{1,0}};
-        for(int j=0;j<(int)poly.size();j++)if(j!=i)for(int h=0;h<(int)poly[j].size();h++)
-        {
-            Point c=poly[j][h],d=poly[j][(h+1)%poly[j].size()];int sc=sign(cross(v,c-a)),sd=sign(cross(v,d-a));
-            if(sc!=sd)
-            {
-                double sa=cross(d-c,a-c),sb=cross(d-c,b-c);
-                if(min(sc,sd)<0&&fabs(sa-sb)>EPS)events.push_back({sa/(sa-sb),sign(sc-sd)});
-            }
-            else if(sc==0&&j<i&&dot(v,d-c)>0)
-            {events.push_back({dot(c-a,v)/len,1});events.push_back({dot(d-a,v)/len,-1});}
-        }
-        for(auto &e:events)e.first=clamp(e.first,0.0,1.0);sort(events.begin(),events.end());
-        int count=0;double last=0,visible=0;
-        for(auto [at,delta]:events){if(count==0)visible+=at-last;count+=delta;last=at;}
-        ans+=cross(a,b)*visible/2;
-    }
-    return ans;
-}
-\end{lstlisting}
-% SOURCE: 08-计算几何/圆并面积.cpp
-\subsection{圆并面积}
-
-\note{c存Circle\{x,\allowbreak{}y,\allowbreak{}r\}，r>\allowbreak{}=\allowbreak{}0；每圆按角度合并遮蔽区间，累加可见圆弧积分。包含/\allowbreak{}重合圆自动去除，返回面积而非周长；角度跨越2\ensuremath{\pi}时拆区间，EPS按坐标尺度设置。}
-\note{n 个圆的面积并，O(\allowbreak{}n\ensuremath{^2} log n)\allowbreak{}：对每个圆合并被其他圆遮住的角区间，积分可见圆弧。 自动去除重合/\allowbreak{}被包含的圆；r>\allowbreak{}=\allowbreak{}0，坐标尺度适中，EPS 按题调整。只返回面积并。}
-\begin{lstlisting}
-struct Circle{double x,y,r;};
-double circle_union_area(const vector<Circle> &c)
-{
-    const double EPS=1e-10,PI=acos(-1.0);double ans=0;int n=c.size();
-    for(int i=0;i<n;i++)
-    {
-        auto a=c[i];if(a.r<=0)continue;bool covered=false;vector<pair<double,double>> seg;
-        for(int j=0;j<n;j++)if(i!=j)
-        {
-            auto b=c[j];double dx=b.x-a.x,dy=b.y-a.y,d=hypot(dx,dy);
-            if(d+a.r<=b.r+EPS)
-            {if(d>EPS||a.r<b.r-EPS||j<i){covered=true;break;}else continue;}
-            if(d>=a.r+b.r-EPS||d+b.r<=a.r+EPS)continue;
-            double theta=atan2(dy,dx);if(theta<0)theta+=2*PI;
-            double h=acos(clamp((d*d+a.r*a.r-b.r*b.r)/(2*d*a.r),-1.0,1.0));
-            double l=theta-h,r=theta+h;
-            if(l<0)seg.push_back({l+2*PI,2*PI}),l=0;
-            if(r>2*PI)seg.push_back({0,r-2*PI}),r=2*PI;
-            seg.push_back({l,r});
-        }
-        if(covered)continue;sort(seg.begin(),seg.end());
-        auto arc=[&](double l,double r){return (a.r*a.r*(r-l)+a.r*a.x*(sin(r)-sin(l))+a.r*a.y*(cos(l)-cos(r)))/2;};
-        double end=0;for(auto [l,r]:seg){if(l>end)ans+=arc(end,l);end=max(end,r);}ans+=arc(end,2*PI);
-    }
-    return max(0.0,ans);
 }
 \end{lstlisting}
 % SOURCE: 08-计算几何/三维几何基础.cpp
@@ -13953,6 +13953,31 @@ vector<vector<Point>> voronoi_cells(const vector<Point> &p,const vector<Point> &
 }
 \end{lstlisting}
 \section{实现与调试}
+% SOURCE: 09-其他/交互题模板.cpp
+\subsection{交互题模板}
+
+\note{询问参数按题目协议填写，读到的答复先检查失败/\allowbreak{}结束哨兵；每次完整输出后flush。缓冲与查询次数约束由协议规定，测试假评测器不进入手册，通信技巧见独立正文。}
+\note{交互题输出通常先进入缓冲区，只写换行不保证评测机马上收到。每次询问后用endl或显式flush；关闭cin与cout的绑定后，更不能依赖读入时自动刷新。printf对应fflush(\allowbreak{}stdout)\allowbreak{}。}
+\topic{输出与读回}
+\note{询问格式、次数上限、最终答案和多测结束方式按题面写。读入失败或错误返回就退出；-\allowbreak{}1只是下面示例的约定。调试信息写cerr。}
+\begin{lstlisting}
+// 发一次询问并读回回答
+int ask(const string &s)
+{
+    cout<<s<<endl;//endl 会 flush，等价于 cout<<s<<"\n"<<flush;
+    int r;
+    if(!(cin>>r)||r==-1)exit(0); // 本示例协议以 -1 表示错误；其他题按协议改
+    return r;
+}
+void answer(int v)
+{
+    cout<<"! "<<v<<endl;
+}
+\end{lstlisting}
+\topic{通信技巧}
+\note{先数接收方必须区分多少种情况：若有M种，固定长度二进制编码至少需要ceil(\allowbreak{}log2 M)\allowbreak{}位；若接收方已有部分信息，只需区分该信息下仍可能的情况。}
+\note{常用做法是只发送差异或缺失部分；用位掩码打包小范围字段；已知总和或异或时省掉最后一项。发送集合可利用有序差值、组合排名，发送排列可用排列排名。编解码顺序、字段位宽、取整规则必须一致；压缩收益按最坏情况算。}
+\note{若题目允许接收方先询问，可利用双方已有信息缩小候选集，再发送候选编号。允许通信错误时才考虑校验或纠错；哈希仅能在允许概率错误且能控制碰撞概率时使用。}
 % SOURCE: 09-其他/卡常技巧.cpp
 \subsection{卡常技巧}
 
@@ -13983,31 +14008,6 @@ ll sum_unrolled(int *a,int n)
 \end{lstlisting}
 \topic{测量与编译边界}
 \note{测量代码放在测试目录，结果必须被消费，避免整段计算被优化掉。常量乘除通常由编译器处理，inline不保证强制内联；不要把register、重复求值的MIN/\allowbreak{}MAX宏当作优化模板。编译选项按比赛环境确定，不默认启用本机特有指令集。}
-% SOURCE: 09-其他/交互题模板.cpp
-\subsection{交互题模板}
-
-\note{询问参数按题目协议填写，读到的答复先检查失败/\allowbreak{}结束哨兵；每次完整输出后flush。缓冲与查询次数约束由协议规定，测试假评测器不进入手册，通信技巧见独立正文。}
-\note{交互题输出通常先进入缓冲区，只写换行不保证评测机马上收到。每次询问后用endl或显式flush；关闭cin与cout的绑定后，更不能依赖读入时自动刷新。printf对应fflush(\allowbreak{}stdout)\allowbreak{}。}
-\topic{输出与读回}
-\note{询问格式、次数上限、最终答案和多测结束方式按题面写。读入失败或错误返回就退出；-\allowbreak{}1只是下面示例的约定。调试信息写cerr。}
-\begin{lstlisting}
-// 发一次询问并读回回答
-int ask(const string &s)
-{
-    cout<<s<<endl;//endl 会 flush，等价于 cout<<s<<"\n"<<flush;
-    int r;
-    if(!(cin>>r)||r==-1)exit(0); // 本示例协议以 -1 表示错误；其他题按协议改
-    return r;
-}
-void answer(int v)
-{
-    cout<<"! "<<v<<endl;
-}
-\end{lstlisting}
-\topic{通信技巧}
-\note{先数接收方必须区分多少种情况：若有M种，固定长度二进制编码至少需要ceil(\allowbreak{}log2 M)\allowbreak{}位；若接收方已有部分信息，只需区分该信息下仍可能的情况。}
-\note{常用做法是只发送差异或缺失部分；用位掩码打包小范围字段；已知总和或异或时省掉最后一项。发送集合可利用有序差值、组合排名，发送排列可用排列排名。编解码顺序、字段位宽、取整规则必须一致；压缩收益按最坏情况算。}
-\note{若题目允许接收方先询问，可利用双方已有信息缩小候选集，再发送候选编号。允许通信错误时才考虑校验或纠错；哈希仅能在允许概率错误且能控制碰撞概率时使用。}
 % SOURCE: 09-其他/随机数与对拍.cpp
 \subsection{随机数与对拍}
 
