@@ -13858,9 +13858,9 @@ vector<Point> minkowski(vector<Point> a,vector<Point> b)
 % SOURCE: 09-其他/交互题模板.cpp
 \subsection{交互题模板}
 
-\note{询问后立即刷新输出，严格遵守询问格式、次数上限、错误码和多测结束规则。ask读取失败或遇-\allowbreak{}1就终止；这里的-\allowbreak{}1仅是示例协议，换题须修改。调试信息写stderr，避免污染协议输出。}
+\note{交互题输出通常先进入缓冲区，只写换行不保证评测机马上收到。每次询问后用endl或显式flush；关闭cin与cout的绑定后，更不能依赖读入时自动刷新。printf对应fflush(\allowbreak{}stdout)\allowbreak{}。}
 \topic{输出与读回}
-\note{ask输出一行并flush，answer输出示例的最终答案格式；二者不自行连接本地假评测器。}
+\note{询问格式、次数上限、最终答案和多测结束方式按题面写。读入失败或错误返回就退出；-\allowbreak{}1只是下面示例的约定。调试信息写cerr。}
 \begin{lstlisting}
 // 发一次询问并读回回答
 int ask(const string &s)
@@ -13875,28 +13875,10 @@ void answer(int v)
     cout<<"! "<<v<<endl;
 }
 \end{lstlisting}
-\topic{有明确协议的调用例}
-\note{示例允许询问“第k小是否大于v”，回答为0/\allowbreak{}1，已知第m小在[\allowbreak{}0,\allowbreak{}10\textasciicircum{}9]\allowbreak{}。按值域二分，最多约30次询问；这只是刷新、读回、终止方式的完整调用例，不能套到任意交互题。}
-\begin{lstlisting}
-void solve()
-{
-    int n,m;
-    if(!(cin>>n>>m))return;
-    int lo=0,hi=1000000000;//值域二分
-    // 已知答案在 [0,10^9]，找最小的 v 使「第 m 小 > v」为假。
-    while(lo<hi)
-    {
-        int mid=lo+(hi-lo)/2;
-        int r=ask("? "+to_string(m)+" "+to_string(mid));
-        if(r==1)lo=mid+1;
-        else if(r==0)hi=mid;
-        else exit(0); // 只接受本协议的 0/1 回答
-    }
-    answer(lo);
-}
-\end{lstlisting}
-\topic{本地模拟}
-\note{本例假评测器已移到测试/\allowbreak{}helpers/\allowbreak{}交互假评测器.\allowbreak{}hpp，由对应测试引用；它保存隐藏数组、校验询问与最终答案。电子库中实现和测试各自独立，打印正文保留协议代码和调用例，不收隐藏数据模拟器。}
+\topic{通信技巧}
+\note{先数接收方必须区分多少种情况：若有M种，固定长度二进制编码至少需要ceil(\allowbreak{}log2 M)\allowbreak{}位；若接收方已有部分信息，只需区分该信息下仍可能的情况。}
+\note{常用做法是只发送差异或缺失部分；用位掩码打包小范围字段；已知总和或异或时省掉最后一项。发送集合可利用有序差值、组合排名，发送排列可用排列排名。编解码顺序、字段位宽、取整规则必须一致；压缩收益按最坏情况算。}
+\note{若题目允许接收方先询问，可利用双方已有信息缩小候选集，再发送候选编号。允许通信错误时才考虑校验或纠错；哈希仅能在允许概率错误且能控制碰撞概率时使用。}
 
 % SOURCE: 09-其他/卡常技巧.cpp
 \subsection{卡常技巧}
@@ -13931,19 +13913,19 @@ ll sum_unrolled(int *a,int n)
 % SOURCE: 09-其他/随机数与对拍.cpp
 \subsection{随机数与对拍}
 
-\note{固定种子复现失败输入；手造边界和少量独立对照优先。随机生成、待验证算法与参考算法分别维护，参考算法从题意直接实现，避免复制同一转移。}
+\note{需要随机数时用下面的生成器；偶尔对拍，写一个小规模暴力作参考即可。}
 \begin{lstlisting}
 
 \end{lstlisting}
 \topic{随机生成}
-\note{randint(\allowbreak{}l,\allowbreak{}r)\allowbreak{}为闭区间，要求l\ensuremath{\le}r，使用均匀整数分布，避免取模偏差和区间长度溢出。把seed改成固定值可复现；重放前重置生成器。排列用iota后shuffle；每个新点随机连到较早点能生成树，但并不均匀覆盖全部标号树。}
+\note{randint(\allowbreak{}l,\allowbreak{}r)\allowbreak{}生成闭区间整数，要求l\ensuremath{\le}r。固定seed可复现；排列用iota后shuffle。}
 \begin{lstlisting}
 unsigned long long seed=chrono::steady_clock::now().time_since_epoch().count();
 mt19937_64 rnd(seed);
 ll randint(ll l,ll r){return uniform_int_distribution<ll>(l,r)(rnd);}
 \end{lstlisting}
-\topic{同进程对照}
-\note{按题目实现gen、solve、brute。两算法各接收副本，避免修改共享输入；首次不同就停止，打印种子、轮次和完整输入。图、矩阵要同时调整数据类型和失败打印；浮点按题目误差比较，不能一律判相等。}
+\topic{简单对拍}
+\note{按题意补gen、solve、brute，发现不同就输出完整输入。先试几个手造边界，不必机械地跑很多轮；浮点结果按允许误差比较。}
 \begin{lstlisting}
 vector<ll> gen(); // 小数据生成器，主动覆盖重复、负数、极小规模等边界
 ll solve(vector<ll> a);
@@ -13967,8 +13949,6 @@ bool stress(int rounds)
     return true;
 }
 \end{lstlisting}
-\topic{样例组织}
-\note{先覆盖最小规模、空集合、全相等、单调、极值、重边、断连及适用条件边界，再补少量随机。双进程对拍依次运行生成器、参考程序、待测程序并检查各自退出码；比较器应处理允许的空白或浮点误差，不把批处理命令塞进C+\allowbreak{}+\allowbreak{}模板。}
 \section{模型判据与常用结论}
 \topic{基础技巧}
 \par\textbf{交换论证贪心}\quad

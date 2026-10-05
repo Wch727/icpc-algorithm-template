@@ -1,4 +1,21 @@
 #pragma once
+// 仅供测试：二分询问示例
+void solve()
+{
+    int n,m;
+    if(!(cin>>n>>m))return;
+    int lo=0,hi=1000000000;//值域二分
+    // 已知答案在 [0,10^9]，找最小的 v 使「第 m 小 > v」为假。
+    while(lo<hi)
+    {
+        int mid=lo+(hi-lo)/2;
+        int r=ask("? "+to_string(m)+" "+to_string(mid));
+        if(r==1)lo=mid+1;
+        else if(r==0)hi=mid;
+        else exit(0); // 只接受本协议的 0/1 回答
+    }
+    answer(lo);
+}
 #include <bits/stdc++.h>
 using namespace std;
 namespace judge//本地假交互器：模拟评测机，读程序输出、给回答
