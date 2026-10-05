@@ -2,6 +2,12 @@
 // 模板本体：06-动态规划/背包(01完全多重).cpp
 #include "../../06-动态规划/背包(01完全多重).cpp"
 
+void load_case(int len,int cap,const int *ww,const int *vv,const int *cc=nullptr,const int *tt=nullptr)
+{
+    ::n=len;::V=cap;
+    for(int i=1;i<=len;i++){::w[i]=ww[i];::v[i]=vv[i];if(cc)::c[i]=cc[i];if(tt)::typ[i]=tt[i];}
+}
+
 // 生成 [l,r] 的随机整数
 
 int rndint(int l,int r)
@@ -46,20 +52,20 @@ int main()
     // 审核回归：覆盖原随机小值测试遗漏的边界。
     {
         int ww[]={0,2},vv[]={0,3},cc[]={0,INT_MAX};
-        assert(knap_multiple_binary(1,10,ww,vv,cc)==15);
+        assert((load_case(1,10,ww,vv,cc),knap_multiple_binary())==15);
     }
 
     srand(20240601);
     printf("==== 固定样例 ====\n");
     int w1[5]={0,71,69,1},v1[5]={0,100,1,2};
-    printf("01   P1048 T=70 : %d (期望 3)\n",knap_01(3,70,w1,v1));
-    printf("完全 P1616 T=70 : %d (期望 140)\n",knap_complete(3,70,w1,v1));
+    printf("01   P1048 T=70 : %d (期望 3)\n",(load_case(3,70,w1,v1),knap_01()));
+    printf("完全 P1616 T=70 : %d (期望 140)\n",(load_case(3,70,w1,v1),knap_complete()));
     int w2[5]={0,3,4},v2[5]={0,4,5},c2[5]={0,2,3};
-    printf("多重 二进制 V=10 : %d (期望 13)\n",knap_multiple_binary(2,10,w2,v2,c2));
-    printf("多重 单调队列 V=10: %d (期望 13)\n",knap_multiple_deque(2,10,w2,v2,c2));
+    printf("多重 二进制 V=10 : %d (期望 13)\n",(load_case(2,10,w2,v2,c2),knap_multiple_binary()));
+    printf("多重 单调队列 V=10: %d (期望 13)\n",(load_case(2,10,w2,v2,c2),knap_multiple_deque()));
     int w3[5]={0,3,4,2},v3[5]={0,4,5,3},c3[5]={0,1,3,2},t3[5]={0,0,1,2};
-    printf("混合 V=10 : %d (期望 13)\n",knap_mixed(3,10,w3,v3,c3,t3));
-    printf("01 恰好装满 V=10 : %d (1061109567 表示装不满)\n",knap_01_exact(2,10,w2,v2));
+    printf("混合 V=10 : %d (期望 13)\n",(load_case(3,10,w3,v3,c3,t3),knap_mixed()));
+    printf("01 恰好装满 V=10 : %d (1061109567 表示装不满)\n",(load_case(2,10,w2,v2),knap_01_exact()));
 
     printf("==== 随机对拍 ====\n");
     int tt,bad=0,ref,cur;
@@ -68,22 +74,22 @@ int main()
         n=rndint(1,7),V=rndint(1,25);
         for(int i=1;i<=n;i++)w[i]=rndint(1,10),v[i]=rndint(1,15),c[i]=rndint(1,4);
         for(int i=1;i<=n;i++)typ[i]=0;// 01
-        ref=brute(1,V),cur=knap_01(n,V,w,v);
+        ref=brute(1,V),cur=(load_case(n,V,w,v),knap_01());
         if(ref!=cur){bad++;printf("WA! 01 轮%d ref=%d cur=%d\n",tt,ref,cur);print_data();break;}
         for(int i=1;i<=n;i++)typ[i]=1;// 完全
-        ref=brute(1,V),cur=knap_complete(n,V,w,v);
+        ref=brute(1,V),cur=(load_case(n,V,w,v),knap_complete());
         if(ref!=cur){bad++;printf("WA! 完全 轮%d ref=%d cur=%d\n",tt,ref,cur);print_data();break;}
         for(int i=1;i<=n;i++)typ[i]=2;// 多重
-        ref=brute(1,V),cur=knap_multiple_binary(n,V,w,v,c);
+        ref=brute(1,V),cur=(load_case(n,V,w,v,c),knap_multiple_binary());
         if(ref!=cur){bad++;printf("WA! 多重拆分 轮%d ref=%d cur=%d\n",tt,ref,cur);print_data();break;}
-        cur=knap_multiple_deque(n,V,w,v,c);
+        cur=(load_case(n,V,w,v,c),knap_multiple_deque());
         if(ref!=cur){bad++;printf("WA! 多重单调队列 轮%d ref=%d cur=%d\n",tt,ref,cur);print_data();break;}
         for(int i=1;i<=n;i++)typ[i]=rndint(0,2);// 混合
-        ref=brute(1,V),cur=knap_mixed(n,V,w,v,c,typ);
+        ref=brute(1,V),cur=(load_case(n,V,w,v,c,typ),knap_mixed());
         if(ref!=cur){bad++;printf("WA! 混合 轮%d ref=%d cur=%d\n",tt,ref,cur);print_data();break;}
         exact_ans=-INF;
         dfs_exact(1,V,0);
-        cur=knap_01_exact(n,V,w,v);
+        cur=(load_case(n,V,w,v),knap_01_exact());
         if(exact_ans!=cur){bad++;printf("WA! 恰好装满 轮%d ref=%d cur=%d\n",tt,exact_ans,cur);break;}
     }
     if(!bad)printf("stress OK (800 轮，01/完全/多重/混合/恰好装满 全部通过)\n");

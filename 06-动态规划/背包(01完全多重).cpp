@@ -11,7 +11,7 @@ int q[M],qb[M];// 单调队列：存 (旧f[余数+j*w]-j*v) 和这个 j
 int exact_ans;
 
 // O(nV)，01 背包：容量不超过 V 的最大价值
-int knap_01(int n,int V,int w[],int v[])
+int knap_01()
 {
     for(int j=0;j<=V;j++)f[j]=0;
     for(int i=1;i<=n;i++)
@@ -21,7 +21,7 @@ int knap_01(int n,int V,int w[],int v[])
 }
 
 // O(nV)，01 背包恰好装满 V，装不满返回 -INF
-int knap_01_exact(int n,int V,int w[],int v[])
+int knap_01_exact()
 {
     for(int j=0;j<=V;j++)f[j]=-INF;
     f[0]=0;// 只有容量 0 是合法起点，其余都不可达
@@ -32,7 +32,7 @@ int knap_01_exact(int n,int V,int w[],int v[])
 }
 
 // O(nV)，完全背包：容量正序，同一物品可重复选
-int knap_complete(int n,int V,int w[],int v[])
+int knap_complete()
 {
     for(int j=0;j<=V;j++)f[j]=0;
     for(int i=1;i<=n;i++)
@@ -42,7 +42,7 @@ int knap_complete(int n,int V,int w[],int v[])
 }
 
 // O(V*Σlog(c[i]+1))，多重背包：二进制拆分把 c 个物品拆成 1,2,4,... 个 01 物品
-int knap_multiple_binary(int n,int V,int w[],int v[],int c[])
+int knap_multiple_binary()
 {
     for(int j=0;j<=V;j++)f[j]=0;
     for(int i=1;i<=n;i++)
@@ -61,7 +61,7 @@ int knap_multiple_binary(int n,int V,int w[],int v[],int c[])
 
 // O(nV)，多重背包：按余数分组 + 单调队列，窗口大小 lim+1
 // 同余数下 j=r+k*w，f[j]=max(f[旧j']-k'*v)+k*v，k-k'<=c
-int knap_multiple_deque(int n,int V,int w[],int v[],int c[])
+int knap_multiple_deque()
 {
     for(int j=0;j<=V;j++)f[j]=0;
     for(int i=1;i<=n;i++)
@@ -85,7 +85,7 @@ int knap_multiple_deque(int n,int V,int w[],int v[],int c[])
 }
 
 // O(V*(n+Σ多重log(c[i]+1)))，混合背包：0=01 1=完全 2=多重，多重用二进制拆分
-int knap_mixed(int n,int V,int w[],int v[],int c[],int typ[])
+int knap_mixed()
 {
     for(int j=0;j<=V;j++)f[j]=0;
     for(int i=1;i<=n;i++)

@@ -4,11 +4,11 @@ typedef long long ll;
 const int N=100005;
 const int INF=0x3f3f3f3f;
 int n;
-int a[N],d[N],f[N],pre[N],tmp[N],mp[N],c[N];
+int a[N],b[N],d[N],f[N],pre[N],tmp[N],mp[N],c[N];
 int st[N];// 还原方案用的栈
 
 // O(n^2)，最长严格上升子序列：f[i] 表示以 a[i] 结尾的最长长度
-int lis_n2(int n,int a[])
+int lis_n2()
 {
     int ans=0;
     for(int i=1;i<=n;i++)
@@ -24,7 +24,7 @@ int lis_n2(int n,int a[])
 // O(n log n)，最长严格上升子序列
 // d[len] 表示长度 len 的上升子序列的最小结尾，d 单调不减
 
-int lis_nlogn(int n,int a[])
+int lis_nlogn()
 {
     int len=0;
     for(int i=1;i<=n;i++)
@@ -38,7 +38,7 @@ int lis_nlogn(int n,int a[])
 
 // O(n log n)，最长不降子序列：只把 >= 改成 >，二分找第一个比 a[i] 大的
 
-int lnds_nlogn(int n,int a[])
+int lnds_nlogn()
 {
     int len=0;
     for(int i=1;i<=n;i++)
@@ -52,7 +52,7 @@ int lnds_nlogn(int n,int a[])
 
 // O(n log n)，最长严格下降子序列：用降序比较器，避免 INT_MIN 取负溢出
 
-int lds_nlogn(int n,int a[])
+int lds_nlogn()
 {
     int len=0;
     for(int i=1;i<=n;i++)
@@ -66,15 +66,21 @@ int lds_nlogn(int n,int a[])
 
 // O(n log n)，两个排列(值 1..n)的 LCS 转 LIS
 // a 中每个值的位置记下来，按 b 的顺序排成 c，c 的 LIS 就是 LCS
-int lcs_perm(int n,int a[],int b[])
+int lcs_perm()
 {
     for(int i=1;i<=n;i++)mp[a[i]]=i;// 值 -> 在 a 中的位置
     for(int i=1;i<=n;i++)c[i]=mp[b[i]];
-    return lis_nlogn(n,c);
+    int len=0;
+    for(int i=1;i<=n;i++)
+    {
+        int p=lower_bound(d+1,d+len+1,c[i])-d;
+        d[p]=c[i],len=max(len,p);
+    }
+    return len;
 }
 
 // O(n^2)，记录前驱并输出一组最优解
-void lis_scheme(int n,int a[])
+void lis_scheme()
 {
     int ans=0,best=0,top=0;
     for(int i=1;i<=n;i++)

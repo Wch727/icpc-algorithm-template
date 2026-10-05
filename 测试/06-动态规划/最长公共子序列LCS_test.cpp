@@ -2,6 +2,7 @@
 // 模板本体：06-动态规划/最长公共子序列LCS.cpp
 #include "../../06-动态规划/最长公共子序列LCS.cpp"
 
+
 int rndint(int l,int r)// 生成 [l,r] 的随机整数
 {
     return l+rand()%(r-l+1);
@@ -49,14 +50,14 @@ int main()
     printf("==== 固定样例 ====\n");
     strcpy(a+1,"abcbdab"),n=strlen(a+1);
     strcpy(b+1,"bdcaba"),m=strlen(b+1);
-    printf("LCS 二维=%d 滚动=%d 暴力=%d (期望 4)\n",lcs_nm(n,m,a,b),lcs_roll(n,m,a,b),brute_lcs(1,1));
-    lcs_scheme(n,m,a,b);
+    printf("LCS 二维=%d 滚动=%d 暴力=%d (期望 4)\n",lcs_nm(),lcs_roll(),brute_lcs(1,1));
+    lcs_scheme();
     strcpy(a+1,"kitten"),n=strlen(a+1);
     strcpy(b+1,"sitting"),m=strlen(b+1);
-    printf("编辑距离 二维=%d 滚动=%d 暴力=%d (期望 3)\n",edit_dist(n,m,a,b),edit_dist_roll(n,m,a,b),brute_edit(n,m));
+    printf("编辑距离 二维=%d 滚动=%d 暴力=%d (期望 3)\n",edit_dist(),edit_dist_roll(),brute_edit(n,m));
     strcpy(a+1,"ababc"),n=strlen(a+1);
     strcpy(b+1,"babc"),m=strlen(b+1);
-    printf("最长公共子串 滚动=%d 暴力=%d (期望 4，即 babc)\n",lcsubstr(n,m,a,b),brute_lcsubstr(n,m,a,b));
+    printf("最长公共子串 滚动=%d 暴力=%d (期望 4，即 babc)\n",lcsubstr(),brute_lcsubstr(n,m,a,b));
 
     printf("==== 随机对拍 ====\n");
     int tt,bad=0;
@@ -67,13 +68,13 @@ int main()
         for(int i=1;i<=m;i++)b[i]='a'+rndint(0,2);
         a[n+1]=b[m+1]='\0';
         int r0=brute_lcs(1,1);
-        if(lcs_nm(n,m,a,b)!=r0){bad++;printf("WA! lcs_nm 轮%d\n",tt);break;}
-        if(lcs_roll(n,m,a,b)!=r0){bad++;printf("WA! lcs_roll 轮%d\n",tt);break;}
+        if(lcs_nm()!=r0){bad++;printf("WA! lcs_nm 轮%d\n",tt);break;}
+        if(lcs_roll()!=r0){bad++;printf("WA! lcs_roll 轮%d\n",tt);break;}
         int r1=brute_edit(n,m);
-        if(edit_dist(n,m,a,b)!=r1){bad++;printf("WA! edit_dist 轮%d\n",tt);break;}
-        if(edit_dist_roll(n,m,a,b)!=r1){bad++;printf("WA! edit_dist_roll 轮%d\n",tt);break;}
+        if(edit_dist()!=r1){bad++;printf("WA! edit_dist 轮%d\n",tt);break;}
+        if(edit_dist_roll()!=r1){bad++;printf("WA! edit_dist_roll 轮%d\n",tt);break;}
         int r2=brute_lcsubstr(n,m,a,b);
-        if(lcsubstr(n,m,a,b)!=r2){bad++;printf("WA! lcsubstr 轮%d\n",tt);break;}
+        if(lcsubstr()!=r2){bad++;printf("WA! lcsubstr 轮%d\n",tt);break;}
     }
     if(!bad)printf("stress OK (1000 轮，LCS 二维/滚动、编辑距离二维/滚动、最长公共子串 全部通过)\n");
     return 0;

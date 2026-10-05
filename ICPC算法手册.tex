@@ -10696,14 +10696,15 @@ int a[N],sum[N];// a 存石子/项链，sum 是前缀和
 int gmin[N][N],gmax[N][N];// 环形石子合并
 int emax[N][N];// 能量项链
 int pmax[N][N],pmin[N][N];// 多边形游戏：有负数乘法，必须同时存 max 和 min
-int val[N];// 多边形顶点
-char op[N];// 多边形边上的运算符，op[i] 连 val[i] 和 val[i+1]
+int val[N],v[N];// 多边形顶点
+char op[N],o[N];// 多边形边上的运算符，op[i] 连 val[i] 和 val[i+1]
 // O(n^3)，环形石子合并最小代价
 // f[l][r] 表示把 [l,r] 合并成一堆的最小代价，枚举断点 k
 // 断环成链 a[i+n]=a[i]，答案是 min f[i][i+n-1]
-int stone_merge_min(int n,int a[])
+int stone_merge_min()
 {
     for(int i=1;i<=n;i++)a[i+n]=a[i];
+    sum[0]=0;
     for(int i=1;i<=2*n;i++)sum[i]=sum[i-1]+a[i];
     for(int i=1;i<=2*n;i++)
         for(int j=1;j<=2*n;j++)gmin[i][j]=(i==j)?0:INF;// 边界：一堆不用合并
@@ -10719,9 +10720,10 @@ int stone_merge_min(int n,int a[])
     return ans;
 }
 // O(n^3)，环形石子合并最大代价
-int stone_merge_max(int n,int a[])
+int stone_merge_max()
 {
     for(int i=1;i<=n;i++)a[i+n]=a[i];
+    sum[0]=0;
     for(int i=1;i<=2*n;i++)sum[i]=sum[i-1]+a[i];
     for(int i=1;i<=2*n;i++)
         for(int j=1;j<=2*n;j++)gmax[i][j]=0;
@@ -10738,7 +10740,7 @@ int stone_merge_max(int n,int a[])
 }
 // O(n^3)，能量项链：emax[l][r] 表示 [l,r] 合成一颗珠子的最大能量
 // 合并 (l..k) 和 (k..r) 时释放 a[l]*a[k]*a[r]，注意端点共用
-int energy_necklace(int n,int a[])
+int energy_necklace()
 {
     for(int i=1;i<=n+1;i++)a[i+n]=a[i];// 链要开到 2n+1
     for(int i=1;i<=2*n+1;i++)
@@ -10756,12 +10758,11 @@ int energy_necklace(int n,int a[])
 }
 // O(n^4)，多边形游戏：枚举删哪条边(旋转)，再区间 dp 求最大值
 // 乘法遇到负数会让"最小"翻成"最大"，所以 max 由 max*max / max*min / min*max / min*min 取
-int polygon_game(int n,int val[],char op[])
+int polygon_game()
 {
     int ans=NEG;
     for(int cut=1;cut<=n;cut++)// 删掉第 cut 条边，链从 val[cut+1] 开始
     {
-        int v[N];char o[N];
         for(int i=1;i<=n;i++)v[i]=val[(cut+i-1)%n+1];
         for(int i=1;i<=n-1;i++)o[i]=op[(cut+i-1)%n+1];
         for(int i=1;i<=n;i++)
@@ -11184,8 +11185,9 @@ ll sq(ll v){return v*v;}
 // 单调队列维护下凸壳，O(n) 斜率优化
 // 叉积 cross(o,a,b)=(x[a]-x[o])*(y[b]-y[o])-(y[a]-y[o])*(x[b]-x[o])
 // cross(o,a,b)<=0 表示 a 在 ob 连线之上，下凸壳要把 a 弹掉
-ll slope_dp(int n,ll L,ll a[])
+ll slope_dp()
 {
+    s[0]=f[0]=0;
     for(int i=1;i<=n;i++)s[i]=s[i-1]+a[i];
     int head=0,tail=0;
     x[0]=0,y[0]=0;// f[0]=0
@@ -11212,39 +11214,11 @@ ll slope_dp(int n,ll L,ll a[])
     }
     return f[n];
 }
-// 斜率优化的通用写法：同样要求 s 单调，不能随意改变加点顺序
-// 用 deque 的版本见注释：把上面 q[] 换成 deque<int> 即可
-// 输出每个 f[i] 方便观察转移来源
-void slope_dp_all(int n,ll L,ll a[],ll f[])
-{
-    for(int i=1;i<=n;i++)s[i]=s[i-1]+a[i];
-    int head=0,tail=0;
-    x[0]=0,y[0]=0,q[tail++]=0;
-    for(int i=1;i<=n;i++)
-    {
-        ll k=2*(s[i]-L);
-        while(head+1<tail&&(__int128)y[q[head+1]]-y[q[head]]<=(__int128)k*(x[q[head+1]]-x[q[head]]))head++;
-        int j=q[head];
-        f[i]=(ll)((__int128)y[j]-(__int128)k*x[j]+(__int128)(s[i]-L)*(s[i]-L));
-        x[i]=s[i],y[i]=f[i]+sq(s[i]);
-        if(tail>head&&x[q[tail-1]]==x[i])
-        {
-            if(y[q[tail-1]]<=y[i])continue;
-            --tail;
-        }
-        while(head+1<tail)
-        {
-            int o=q[tail-2],p=q[tail-1];
-            if((__int128)(x[p]-x[o])*((__int128)y[i]-y[o])-((__int128)y[p]-y[o])*(x[i]-x[o])<=0)tail--;
-            else break;
-        }
-        q[tail++]=i;
-    }
-}
 // 把转移式乘开成 A[i]*B[j]+C[i] 的标准形式，方便套李超线段树/一般凸壳
 // f[i]=min_j (f[j]+s[j]^2+2*L*s[j] - 2*s[i]*s[j]) + s[i]^2 + L^2 - 2*L*s[i]
-void build_ab(int n,ll L,ll a[])
+void build_ab()
 {
+    s[0]=f[0]=0;
     for(int i=1;i<=n;i++)s[i]=s[i-1]+a[i];
     for(int j=0;j<=n;j++)A[j]=-2*s[j],B[j]=f[j]+s[j]*s[j]+2*L*s[j];// 斜率、截距
     for(int i=1;i<=n;i++)C[i]=s[i]*s[i]+L*L-2*L*s[i];// 与 j 无关的常数
@@ -11257,10 +11231,10 @@ void build_ab(int n,ll L,ll a[])
 const int N=100005;
 const int INF=0x3f3f3f3f;
 int n;
-int a[N],d[N],f[N],pre[N],tmp[N],mp[N],c[N];
+int a[N],b[N],d[N],f[N],pre[N],tmp[N],mp[N],c[N];
 int st[N];// 还原方案用的栈
 // O(n^2)，最长严格上升子序列：f[i] 表示以 a[i] 结尾的最长长度
-int lis_n2(int n,int a[])
+int lis_n2()
 {
     int ans=0;
     for(int i=1;i<=n;i++)
@@ -11274,7 +11248,7 @@ int lis_n2(int n,int a[])
 }
 // O(n log n)，最长严格上升子序列
 // d[len] 表示长度 len 的上升子序列的最小结尾，d 单调不减
-int lis_nlogn(int n,int a[])
+int lis_nlogn()
 {
     int len=0;
     for(int i=1;i<=n;i++)
@@ -11286,7 +11260,7 @@ int lis_nlogn(int n,int a[])
     return len;
 }
 // O(n log n)，最长不降子序列：只把 >= 改成 >，二分找第一个比 a[i] 大的
-int lnds_nlogn(int n,int a[])
+int lnds_nlogn()
 {
     int len=0;
     for(int i=1;i<=n;i++)
@@ -11298,7 +11272,7 @@ int lnds_nlogn(int n,int a[])
     return len;
 }
 // O(n log n)，最长严格下降子序列：用降序比较器，避免 INT_MIN 取负溢出
-int lds_nlogn(int n,int a[])
+int lds_nlogn()
 {
     int len=0;
     for(int i=1;i<=n;i++)
@@ -11311,14 +11285,20 @@ int lds_nlogn(int n,int a[])
 }
 // O(n log n)，两个排列(值 1..n)的 LCS 转 LIS
 // a 中每个值的位置记下来，按 b 的顺序排成 c，c 的 LIS 就是 LCS
-int lcs_perm(int n,int a[],int b[])
+int lcs_perm()
 {
     for(int i=1;i<=n;i++)mp[a[i]]=i;// 值 -> 在 a 中的位置
     for(int i=1;i<=n;i++)c[i]=mp[b[i]];
-    return lis_nlogn(n,c);
+    int len=0;
+    for(int i=1;i<=n;i++)
+    {
+        int p=lower_bound(d+1,d+len+1,c[i])-d;
+        d[p]=c[i],len=max(len,p);
+    }
+    return len;
 }
 // O(n^2)，记录前驱并输出一组最优解
-void lis_scheme(int n,int a[])
+void lis_scheme()
 {
     int ans=0,best=0,top=0;
     for(int i=1;i<=n;i++)
@@ -11345,7 +11325,7 @@ int f[N];// 一维滚动数组
 int g[N][N];// LCS 二维表，还原方案用
 int st[N];// 还原方案用的栈
 // O(nm)，最长公共子序列：g[i][j] 表示 a 前 i 个与 b 前 j 个的 LCS 长度
-int lcs_nm(int n,int m,char a[],char b[])
+int lcs_nm()
 {
     for(int i=0;i<=n;i++)g[i][0]=0;
     for(int j=0;j<=m;j++)g[0][j]=0;
@@ -11356,7 +11336,7 @@ int lcs_nm(int n,int m,char a[],char b[])
     return g[n][m];
 }
 // O(nm)，LCS 一维滚动：f[j] 是当前行的值，pre 存上一行左上角
-int lcs_roll(int n,int m,char a[],char b[])
+int lcs_roll()
 {
     for(int j=0;j<=m;j++)f[j]=0;
     for(int i=1;i<=n;i++)
@@ -11373,7 +11353,7 @@ int lcs_roll(int n,int m,char a[],char b[])
     return f[m];
 }
 // O(nm)，还原一组 LCS 并输出（必须先调用 lcs_nm 建好 g）
-void lcs_scheme(int n,int m,char a[],char b[])
+void lcs_scheme()
 {
     int top=0,i=n,j=m;
     while(i>0&&j>0)
@@ -11387,7 +11367,7 @@ void lcs_scheme(int n,int m,char a[],char b[])
     printf("\n");
 }
 // O(nm)，编辑距离：g[i][j] 表示 a 前 i 个变成 b 前 j 个的最少操作数
-int edit_dist(int n,int m,char a[],char b[])
+int edit_dist()
 {
     for(int i=0;i<=n;i++)g[i][0]=i;// 全删
     for(int j=0;j<=m;j++)g[0][j]=j;// 全插
@@ -11398,7 +11378,7 @@ int edit_dist(int n,int m,char a[],char b[])
     return g[n][m];
 }
 // O(nm)，编辑距离一维滚动：f[j-1] 是 f[i][j-1]，pre 是 f[i-1][j-1]
-int edit_dist_roll(int n,int m,char a[],char b[])
+int edit_dist_roll()
 {
     for(int j=0;j<=m;j++)f[j]=j;// 第 0 行
     for(int i=1;i<=n;i++)
@@ -11416,7 +11396,7 @@ int edit_dist_roll(int n,int m,char a[],char b[])
     return f[m];
 }
 // O(nm)，最长公共子串（必须连续）：不匹配就直接清 0
-int lcsubstr(int n,int m,char a[],char b[])
+int lcsubstr()
 {
     int ans=0;
     for(int j=0;j<=m;j++)f[j]=0;
@@ -11791,7 +11771,7 @@ int f[M];// 一维滚动数组，f[j] 表示容量 j 的最优价值
 int q[M],qb[M];// 单调队列：存 (旧f[余数+j*w]-j*v) 和这个 j
 int exact_ans;
 // O(nV)，01 背包：容量不超过 V 的最大价值
-int knap_01(int n,int V,int w[],int v[])
+int knap_01()
 {
     for(int j=0;j<=V;j++)f[j]=0;
     for(int i=1;i<=n;i++)
@@ -11800,7 +11780,7 @@ int knap_01(int n,int V,int w[],int v[])
     return f[V];
 }
 // O(nV)，01 背包恰好装满 V，装不满返回 -INF
-int knap_01_exact(int n,int V,int w[],int v[])
+int knap_01_exact()
 {
     for(int j=0;j<=V;j++)f[j]=-INF;
     f[0]=0;// 只有容量 0 是合法起点，其余都不可达
@@ -11810,7 +11790,7 @@ int knap_01_exact(int n,int V,int w[],int v[])
     return f[V];
 }
 // O(nV)，完全背包：容量正序，同一物品可重复选
-int knap_complete(int n,int V,int w[],int v[])
+int knap_complete()
 {
     for(int j=0;j<=V;j++)f[j]=0;
     for(int i=1;i<=n;i++)
@@ -11819,7 +11799,7 @@ int knap_complete(int n,int V,int w[],int v[])
     return f[V];
 }
 // O(V*Σlog(c[i]+1))，多重背包：二进制拆分把 c 个物品拆成 1,2,4,... 个 01 物品
-int knap_multiple_binary(int n,int V,int w[],int v[],int c[])
+int knap_multiple_binary()
 {
     for(int j=0;j<=V;j++)f[j]=0;
     for(int i=1;i<=n;i++)
@@ -11837,7 +11817,7 @@ int knap_multiple_binary(int n,int V,int w[],int v[],int c[])
 }
 // O(nV)，多重背包：按余数分组 + 单调队列，窗口大小 lim+1
 // 同余数下 j=r+k*w，f[j]=max(f[旧j']-k'*v)+k*v，k-k'<=c
-int knap_multiple_deque(int n,int V,int w[],int v[],int c[])
+int knap_multiple_deque()
 {
     for(int j=0;j<=V;j++)f[j]=0;
     for(int i=1;i<=n;i++)
@@ -11860,7 +11840,7 @@ int knap_multiple_deque(int n,int V,int w[],int v[],int c[])
     return f[V];
 }
 // O(V*(n+Σ多重log(c[i]+1)))，混合背包：0=01 1=完全 2=多重，多重用二进制拆分
-int knap_mixed(int n,int V,int w[],int v[],int c[],int typ[])
+int knap_mixed()
 {
     for(int j=0;j<=V;j++)f[j]=0;
     for(int i=1;i<=n;i++)

@@ -2,6 +2,15 @@
 // 模板本体：06-动态规划/区间DP.cpp
 #include "../../06-动态规划/区间DP.cpp"
 
+void load_stone(int len,const int *aa)
+{
+    ::n=len;for(int i=1;i<=len;i++)::a[i]=aa[i];
+}
+void load_polygon(int len,const int *vv,const char *oo)
+{
+    ::n=len;for(int i=1;i<=len;i++){::val[i]=vv[i];::op[i]=oo[i];}
+}
+
 int bv[N];// 暴力用的临时环
 
 int rndint(int l,int r)// 生成 [l,r] 的随机整数
@@ -81,12 +90,12 @@ int main()
     printf("==== 固定样例 ====\n");
     int s1[N]={0,4,5,9,4};
     printf("环形石子 n=4 [4 5 9 4] : min=%d max=%d (期望 43 54)\n",
-        stone_merge_min(4,s1),stone_merge_max(4,s1));
+        (load_stone(4,s1),stone_merge_min()),(load_stone(4,s1),stone_merge_max()));
     int s2[N]={0,2,3,5,10};
-    printf("能量项链 n=4 [2 3 5 10] : %d (期望 710)\n",energy_necklace(4,s2));
+    printf("能量项链 n=4 [2 3 5 10] : %d (期望 710)\n",(load_stone(4,s2),energy_necklace()));
     int s3[N]={0,-7,4,2,5};
     char o3[N]={'?','+','*','*','+'};// op[i] 连 val[i] 和 val[i+1]
-    printf("多边形游戏 n=4 : %d (期望 33，删掉最后一条边)\n",polygon_game(4,s3,o3));
+    printf("多边形游戏 n=4 : %d (期望 33，删掉最后一条边)\n",(load_polygon(4,s3,o3),polygon_game()));
 
     printf("==== 随机对拍 ====\n");
     int tt,bad=0,ref,cur;
@@ -95,15 +104,15 @@ int main()
         n=rndint(1,7);
         for(int i=1;i<=n;i++)a[i]=rndint(1,10);
         for(int i=0;i<n;i++)bv[i]=a[i+1];
-        ref=brute_stone(n,bv,0),cur=stone_merge_min(n,a);
+        ref=brute_stone(n,bv,0),cur=(load_stone(n,a),stone_merge_min());
         if(ref!=cur){bad++;printf("WA! 石子min 轮%d n=%d ref=%d cur=%d\n",tt,n,ref,cur);break;}
         for(int i=1;i<=n;i++)a[i]=rndint(1,10);
         for(int i=0;i<n;i++)bv[i]=a[i+1];
-        ref=brute_stone(n,bv,1),cur=stone_merge_max(n,a);
+        ref=brute_stone(n,bv,1),cur=(load_stone(n,a),stone_merge_max());
         if(ref!=cur){bad++;printf("WA! 石子max 轮%d n=%d ref=%d cur=%d\n",tt,n,ref,cur);break;}
         for(int i=1;i<=n;i++)a[i]=rndint(1,6);
         for(int i=0;i<n;i++)bv[i]=a[i+1];
-        ref=brute_energy(n,bv),cur=energy_necklace(n,a);
+        ref=brute_energy(n,bv),cur=(load_stone(n,a),energy_necklace());
         if(ref!=cur){bad++;printf("WA! 能量项链 轮%d n=%d ref=%d cur=%d\n",tt,n,ref,cur);break;}
     }
     for(tt=1;tt<=200;tt++)
@@ -111,7 +120,7 @@ int main()
         n=rndint(1,5);
         for(int i=1;i<=n;i++)val[i]=rndint(-6,6);
         for(int i=1;i<=n;i++)op[i]=(rndint(0,1)==0)?'+':'*';
-        ref=brute_polygon(n,val,op),cur=polygon_game(n,val,op);
+        ref=brute_polygon(n,val,op),cur=(load_polygon(n,val,op),polygon_game());
         if(ref!=cur){bad++;printf("WA! 多边形 轮%d n=%d ref=%d cur=%d\n",tt,n,ref,cur);break;}
     }
     if(!bad)printf("stress OK (石子min/max 300 轮 + 能量项链 300 轮 + 多边形 200 轮 全部通过)\n");
