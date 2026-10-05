@@ -969,10 +969,8 @@ void restore()
 % SOURCE: 02-数据结构/01Trie(最大异或).cpp
 \subsection{01Trie(最大异或)}
 
+\note{无符号整数多重集：插入、删一个副本、查询 max(\allowbreak{}x\textasciicircum{}y)\allowbreak{}，O(\allowbreak{}B)\allowbreak{}，B=\allowbreak{}32 含最高位。 修改为较小 B 时所有输入必须小于 2\textasciicircum{}B；空集合不能查最大异或。 删除不回收节点，空间 O(\allowbreak{}插入过的不同数*B)\allowbreak{}；要输出 y，用 x\textasciicircum{}max\_xor(\allowbreak{}x)\allowbreak{}。}
 \begin{lstlisting}
-// 无符号整数多重集：插入、删一个副本、查询 max(x^y)，O(B)，B=32 含最高位。
-// 修改为较小 B 时所有输入必须小于 2^B；空集合不能查最大异或。
-// 删除不回收节点，空间 O(插入过的不同数*B)；要输出 y，用 x^max_xor(x)。
 struct BinaryTrie
 {
     struct Node{int ch[2]={0,0},cnt=0;};
@@ -1027,12 +1025,9 @@ struct BinaryTrie
 % SOURCE: 02-数据结构/CDQ分治(三维偏序).cpp
 \subsection{CDQ分治(三维偏序)}
 
+\note{若 q[\allowbreak{}j]\allowbreak{}=\allowbreak{}sum(\allowbreak{}k<\allowbreak{}=\allowbreak{}j)\allowbreak{}(\allowbreak{}j-\allowbreak{}k+\allowbreak{}1)\allowbreak{}*f[\allowbreak{}k]\allowbreak{}，则 f[\allowbreak{}j]\allowbreak{}=\allowbreak{}q[\allowbreak{}j]\allowbreak{}-\allowbreak{}2*q[\allowbreak{}j-\allowbreak{}1]\allowbreak{}+\allowbreak{}q[\allowbreak{}j-\allowbreak{}2]\allowbreak{}；二阶差分消前缀转移。 区间截断需补边界项；再判断剩余转移是否是卷积，才组合 CDQ+\allowbreak{}NTT。}
+\note{每个点统计其他满足 x<\allowbreak{}=\allowbreak{}x\_i,\allowbreak{}y<\allowbreak{}=\allowbreak{}y\_i,\allowbreak{}z<\allowbreak{}=\allowbreak{}z\_i 的点，按原输入顺序返回。 相同三元组先合并，组内另加 w-\allowbreak{}1；不能直接拿重复点做 CDQ。 x 排序后分治，跨左右统计 y，树状数组统计 z；O(\allowbreak{}n log\ensuremath{^2}n)\allowbreak{}，空间 O(\allowbreak{}n)\allowbreak{}。}
 \begin{lstlisting}
-// 若 q[j]=sum(k<=j)(j-k+1)*f[k]，则 f[j]=q[j]-2*q[j-1]+q[j-2]；二阶差分消前缀转移。
-// 区间截断需补边界项；再判断剩余转移是否是卷积，才组合 CDQ+NTT。
-// 每个点统计其他满足 x<=x_i,y<=y_i,z<=z_i 的点，按原输入顺序返回。
-// 相同三元组先合并，组内另加 w-1；不能直接拿重复点做 CDQ。
-// x 排序后分治，跨左右统计 y，树状数组统计 z；O(n log²n)，空间 O(n)。
 vector<ll> dominance(const vector<array<int,3>> &a)
 {
     struct Node{int x,y,z,w,id;ll ans;};
@@ -1079,9 +1074,8 @@ vector<ll> dominance(const vector<array<int,3>> &a)
 % SOURCE: 02-数据结构/KD-Tree.cpp
 \subsection{KD-Tree}
 
+\note{静态二维 KD 树：中位数建树 O(\allowbreak{}n log n)\allowbreak{}，查询最坏 O(\allowbreak{}n)\allowbreak{} 坐标绝对值不超过 1e9，距离返回平方；空集返回 LLONG\_MAX}
 \begin{lstlisting}
-// 静态二维 KD 树：中位数建树 O(n log n)，查询最坏 O(n)
-// 坐标绝对值不超过 1e9，距离返回平方；空集返回 LLONG_MAX
 struct KDTree
 {
     struct Point { ll x,y; };
@@ -1149,10 +1143,8 @@ struct KDTree
 % SOURCE: 02-数据结构/SegmentTreeBeats.cpp
 \subsection{SegmentTreeBeats}
 
+\note{区间 chmin/\allowbreak{}chmax/\allowbreak{}add/\allowbreak{}sum，0-\allowbreak{}indexed 闭区间；同时维护严格次大/\allowbreak{}次小、极值个数。 chmin 只有 max2<\allowbreak{}x<\allowbreak{}max1 才能整段更新；否则递归。chmax 对称；加法移动全部极值。 含 add 的通用 Beats 标准摊还界 O(\allowbreak{}(\allowbreak{}n+\allowbreak{}q)\allowbreak{}log\ensuremath{^2}n)\allowbreak{}，空间 O(\allowbreak{}n)\allowbreak{}。值/\allowbreak{}和远离 ±INF。}
 \begin{lstlisting}
-// 区间 chmin/chmax/add/sum，0-indexed 闭区间；同时维护严格次大/次小、极值个数。
-// chmin 只有 max2<x<max1 才能整段更新；否则递归。chmax 对称；加法移动全部极值。
-// 含 add 的通用 Beats 标准摊还界 O((n+q)log²n)，空间 O(n)。值/和远离 ±INF。
 struct Beats
 {
     static constexpr ll INF=LLONG_MAX/4;
@@ -1198,8 +1190,9 @@ struct Beats
 
 \begin{lstlisting}
 const int N=100005;
-// ST 表：静态区间最值(RMQ)，n log n 预处理，O(1) 查询，不支持修改
-// 查询用两段长度为 2^k 的区间覆盖 [l,r]，可重叠
+\end{lstlisting}
+\note{ST 表：静态区间最值(\allowbreak{}RMQ)\allowbreak{}，n log n 预处理，O(\allowbreak{}1)\allowbreak{} 查询，不支持修改 查询用两段长度为 2\textasciicircum{}k 的区间覆盖 [\allowbreak{}l,\allowbreak{}r]\allowbreak{}，可重叠}
+\begin{lstlisting}
 template<typename T,int NMAX=N,int LOG=18>
 struct STmax
 {
@@ -1250,14 +1243,12 @@ STmin<int,105,8> stn;
 % SOURCE: 02-数据结构/Trie字典树.cpp
 \subsection{Trie字典树}
 
+\note{字典树 Trie：插入 /\allowbreak{} 查询是否出现 /\allowbreak{} 出现次数 /\allowbreak{} 前缀计数 结点数 N 按「所有串长度之和」开，别只按串个数开 设 f[\allowbreak{}j]\allowbreak{} 为某 j 个已插入串能共享的最长前缀：节点深 h、经过数 cnt 增 1 时，只更新 f[\allowbreak{}cnt]\allowbreak{}。 更小 j 的答案此前已>\allowbreak{}=\allowbreak{}h；每次插入只访问该串路径，总 O(\allowbreak{}字符串总长度)\allowbreak{}，不必区间 chmax。}
 \begin{lstlisting}
-// 字典树 Trie：插入 / 查询是否出现 / 出现次数 / 前缀计数
-// 结点数 N 按「所有串长度之和」开，别只按串个数开
-// 设 f[j] 为某 j 个已插入串能共享的最长前缀：节点深 h、经过数 cnt 增 1 时，只更新 f[cnt]。
-// 更小 j 的答案此前已>=h；每次插入只访问该串路径，总 O(字符串总长度)，不必区间 chmax。
 const int N=200005;
-// 输入仅允许字母数字；其他字符需修改 id。Trie 实例须零初始化（例如全局 t）。
-// 字符映射：小写 0~25，大写 26~51，数字 52~61（别的字符集改这里）
+\end{lstlisting}
+\note{输入仅允许字母数字；其他字符需修改 id。Trie 实例须零初始化（例如全局 t）。 字符映射：小写 0\textasciitilde{}25，大写 26\textasciitilde{}51，数字 52\textasciitilde{}61（别的字符集改这里）}
+\begin{lstlisting}
 int id(char c)
 {
     if(c>='a'&&c<='z')return c-'a';
@@ -1333,9 +1324,8 @@ int n;
 % SOURCE: 02-数据结构/WaveletTree.cpp
 \subsection{WaveletTree}
 
+\note{静态区间第 k 小与 <\allowbreak{}=\allowbreak{}x 计数，0-\allowbreak{}indexed 半开区间 [\allowbreak{}l,\allowbreak{}r)\allowbreak{}，k 从 0 开始。 离散化后稳定分流，构建 O(\allowbreak{}n log \ensuremath{\sigma})\allowbreak{}，查询 O(\allowbreak{}log \ensuremath{\sigma})\allowbreak{}，空间 O(\allowbreak{}n log \ensuremath{\sigma})\allowbreak{}。不支持点修改。}
 \begin{lstlisting}
-// 静态区间第 k 小与 <=x 计数，0-indexed 半开区间 [l,r)，k 从 0 开始。
-// 离散化后稳定分流，构建 O(n log (*@$\sigma$@*))，查询 O(log (*@$\sigma$@*))，空间 O(n log (*@$\sigma$@*))。不支持点修改。
 struct WaveletTree
 {
     struct Node{int lo,hi,left=-1,right=-1;vector<int> pref;};
@@ -1369,13 +1359,8 @@ struct WaveletTree
 % SOURCE: 02-数据结构/主席树(可持久化线段树).cpp
 \subsection{主席树(可持久化线段树)}
 
+\note{主席树（可持久化线段树）：静态区间第 k 小 /\allowbreak{} 区间内某值域的数个数 建树 O(\allowbreak{}n log n)\allowbreak{}，单次询问 O(\allowbreak{}log n)\allowbreak{}，空间 O(\allowbreak{}n log n)\allowbreak{} 思路：对每个前缀 [\allowbreak{}1.\allowbreak{}.\allowbreak{}i]\allowbreak{} 建一棵权值线段树，区间 [\allowbreak{}l,\allowbreak{}r]\allowbreak{} 的信息就是 root[\allowbreak{}r]\allowbreak{}-\allowbreak{}root[\allowbreak{}l-\allowbreak{}1]\allowbreak{} 调用约定：kth(\allowbreak{}root[\allowbreak{}l-\allowbreak{}1]\allowbreak{},\allowbreak{}root[\allowbreak{}r]\allowbreak{},\allowbreak{}1,\allowbreak{}sz,\allowbreak{}k)\allowbreak{}、cnt(\allowbreak{}root[\allowbreak{}l-\allowbreak{}1]\allowbreak{},\allowbreak{}root[\allowbreak{}r]\allowbreak{},\allowbreak{}1,\allowbreak{}sz,\allowbreak{}x)\allowbreak{} 第一个参数是「小版本」，写反了会算出 0 或负数 每次插入 +\allowbreak{}1，可先 sum[\allowbreak{}old]\allowbreak{}+\allowbreak{}1 或递归后重算；kth 要求 1<\allowbreak{}=\allowbreak{}k<\allowbreak{}=\allowbreak{}区间元素数。}
 \begin{lstlisting}
-// 主席树（可持久化线段树）：静态区间第 k 小 / 区间内某值域的数个数
-// 建树 O(n log n)，单次询问 O(log n)，空间 O(n log n)
-// 思路：对每个前缀 [1..i] 建一棵权值线段树，区间 [l,r] 的信息就是 root[r]-root[l-1]
-// 调用约定：kth(root[l-1],root[r],1,sz,k)、cnt(root[l-1],root[r],1,sz,x)
-//           第一个参数是「小版本」，写反了会算出 0 或负数
-// 每次插入 +1，可先 sum[old]+1 或递归后重算；kth 要求 1<=k<=区间元素数。
 const int N=200005;
 const int LOG=20;       // log2(N)+2
 int n,sz;               // n 元素个数，sz 离散化后互不相同的值个数
@@ -1425,7 +1410,9 @@ struct ChairTree{
     // 区间 [l,r] 里值等于 x（离散化位置）的个数
     int cnt_value(int u,int v,int x){return count_le(u,v,1,sz,x)-count_le(u,v,1,sz,x-1);}
 }ct;
-// 建树：把 a[1..n] 离散化后建成主席树，去重后的值个数写回全局 sz
+\end{lstlisting}
+\note{建树：把 a[\allowbreak{}1.\allowbreak{}.\allowbreak{}n]\allowbreak{} 离散化后建成主席树，去重后的值个数写回全局 sz}
+\begin{lstlisting}
 void build()
 {
     for(int i=1;i<=n;i++)b[i]=a[i];
@@ -1438,7 +1425,9 @@ void build()
         ct.root[i]=ct.insert(ct.root[i-1],1,sz,pos);
     }
 }
-// 值域 [lo,hi]（真实值）内的数个数：把 lo-1、hi 转到离散化位置再做差
+\end{lstlisting}
+\note{值域 [\allowbreak{}lo,\allowbreak{}hi]\allowbreak{}（真实值）内的数个数：把 lo-\allowbreak{}1、hi 转到离散化位置再做差}
+\begin{lstlisting}
 int count_range(int L,int R,int lo,int hi)
 {
     if(lo>hi||L>R||!sz)return 0;
@@ -1452,10 +1441,8 @@ int count_range(int L,int R,int lo,int hi)
 % SOURCE: 02-数据结构/二叉搜索树.cpp
 \subsection{二叉搜索树}
 
+\note{二叉搜索树 BST（数组版，无旋）：插入 /\allowbreak{} 删除 /\allowbreak{} 排名 /\allowbreak{} 第k小 /\allowbreak{} 前驱后继，维护 size 约定：不允许重复键（第二次数相同值直接忽略），随机数据下期望 O(\allowbreak{}log n)\allowbreak{}，退化会变 O(\allowbreak{}n)\allowbreak{} 排名约定：get\_rank(\allowbreak{}x)\allowbreak{} 返回「比 x 小的数个数」（0 起）}
 \begin{lstlisting}
-// 二叉搜索树 BST（数组版，无旋）：插入 / 删除 / 排名 / 第k小 / 前驱后继，维护 size
-// 约定：不允许重复键（第二次数相同值直接忽略），随机数据下期望 O(log n)，退化会变 O(n)
-// 排名约定：get_rank(x) 返回「比 x 小的数个数」（0 起）
 const int N=200005;
 const int INF=0x3f3f3f3f;
 int n,op,x;
@@ -1562,8 +1549,9 @@ int root;
 
 \begin{lstlisting}
 const int N=100005;
-// 分块：区间加 + 区间和，块长 sqrt(n)
-// update/query 复杂度 O(sqrt(n))：散块暴力，整块用 tag/sum
+\end{lstlisting}
+\note{分块：区间加 +\allowbreak{} 区间和，块长 sqrt(\allowbreak{}n)\allowbreak{} update/\allowbreak{}query 复杂度 O(\allowbreak{}sqrt(\allowbreak{}n)\allowbreak{})\allowbreak{}：散块暴力，整块用 tag/\allowbreak{}sum}
+\begin{lstlisting}
 template<typename T,int NMAX=N>
 struct Block
 {
@@ -1619,11 +1607,8 @@ Block<ll,205> blk;
 % SOURCE: 02-数据结构/动态开点线段树.cpp
 \subsection{动态开点线段树}
 
+\note{动态开点线段树：值域很大（1e9 级）时只开用到的结点 支持区间加 /\allowbreak{} 区间和，单次操作 O(\allowbreak{}log V)\allowbreak{}，V 是值域 空间：每次修改最多新建 O(\allowbreak{}log V)\allowbreak{} 个点，m 次修改共 O(\allowbreak{}m log V)\allowbreak{} 结点用 vector 按需 push\_back（也可以开静态数组池，见注释）}
 \begin{lstlisting}
-// 动态开点线段树：值域很大（1e9 级）时只开用到的结点
-// 支持区间加 / 区间和，单次操作 O(log V)，V 是值域
-// 空间：每次修改最多新建 O(log V) 个点，m 次修改共 O(m log V)
-// 结点用 vector 按需 push_back（也可以开静态数组池，见注释）
 struct DynSeg{
     struct Node{
         int ls,rs;      // 左右儿子下标，0 表示没建出来（等价于整棵空树）
@@ -1697,19 +1682,17 @@ struct DynSeg{
     void point_add(ll x,ll v){add(x,x,v);}
     int nodes(){return (int)t.size()-1;}//已用结点数
 };
-// 静态数组池写法（赛场上省 vector 开销），容量按 m*log V 估：
-// const int MAXNODE=2000005;
-// int ls[MAXNODE],rs[MAXNODE];ll sum[MAXNODE],lazy[MAXNODE];int tot;
-// int new_node(){++tot;ls[tot]=rs[tot]=sum[tot]=lazy[tot]=0;return tot;}
+\end{lstlisting}
+\note{静态数组池写法（赛场上省 vector 开销），容量按 m*log V 估： const int MAXNODE=\allowbreak{}2000005; int ls[\allowbreak{}MAXNODE]\allowbreak{},\allowbreak{}rs[\allowbreak{}MAXNODE]\allowbreak{};ll sum[\allowbreak{}MAXNODE]\allowbreak{},\allowbreak{}lazy[\allowbreak{}MAXNODE]\allowbreak{};int tot; int new\_node(\allowbreak{})\allowbreak{}\{+\allowbreak{}+\allowbreak{}tot;ls[\allowbreak{}tot]\allowbreak{}=\allowbreak{}rs[\allowbreak{}tot]\allowbreak{}=\allowbreak{}sum[\allowbreak{}tot]\allowbreak{}=\allowbreak{}lazy[\allowbreak{}tot]\allowbreak{}=\allowbreak{}0;return tot;\}}
+\begin{lstlisting}
 const ll V=1000000000;//值域 1..1e9
 const int XN=4005;    // 对拍用到的坐标个数
 \end{lstlisting}
 % SOURCE: 02-数据结构/可回滚并查集与时间线段树.cpp
 \subsection{可回滚并查集与时间线段树}
 
+\note{按大小合并，禁止路径压缩；snapshot 记栈长，rollback 撤回到该时刻。 find 最坏 O(\allowbreak{}log n)\allowbreak{}，一次撤销 O(\allowbreak{}1)\allowbreak{}；无需为没有实际合并的操作入栈。}
 \begin{lstlisting}
-// 按大小合并，禁止路径压缩；snapshot 记栈长，rollback 撤回到该时刻。
-// find 最坏 O(log n)，一次撤销 O(1)；无需为没有实际合并的操作入栈。
 struct RollbackDSU
 {
     vector<int> fa,sz;
@@ -1735,10 +1718,9 @@ struct RollbackDSU
         }
     }
 };
-// 点 1..n，初始无边；操作 {type,u,v}：0 加边，1 删边，2 查询连通。
-// 无向边允许重复加入：全部副本删完才失效；删除必须有对应的活动副本。
-// 每条边生效区间 [l,r) 挂到时间线段树；进入结点合并，退出撤销。
-// q 次操作 O(q log q log n)，存边 O(q log q)，按查询出现顺序返回 0/1。
+\end{lstlisting}
+\note{点 1.\allowbreak{}.\allowbreak{}n，初始无边；操作 \{type,\allowbreak{}u,\allowbreak{}v\}：0 加边，1 删边，2 查询连通。 无向边允许重复加入：全部副本删完才失效；删除必须有对应的活动副本。 每条边生效区间 [\allowbreak{}l,\allowbreak{}r)\allowbreak{} 挂到时间线段树；进入结点合并，退出撤销。 q 次操作 O(\allowbreak{}q log q log n)\allowbreak{}，存边 O(\allowbreak{}q log q)\allowbreak{}，按查询出现顺序返回 0/\allowbreak{}1。}
+\begin{lstlisting}
 vector<int> dynamic_connectivity(int n,const vector<array<int,3>> &ops)
 {
     int q=ops.size();
@@ -1787,8 +1769,8 @@ vector<int> dynamic_connectivity(int n,const vector<array<int,3>> &ops)
 % SOURCE: 02-数据结构/可持久化Treap(fhq).cpp
 \subsection{可持久化Treap(fhq)}
 
+\note{隐式无旋 Treap，路径复制；版本根永不原地修改}
 \begin{lstlisting}
-// 隐式无旋 Treap，路径复制；版本根永不原地修改
 struct Treap
 {
     struct Node
@@ -1914,12 +1896,12 @@ struct Treap
 % SOURCE: 02-数据结构/哈希表.cpp
 \subsection{哈希表}
 
+\note{哈希表（整数键）：拉链法 +\allowbreak{} 开放寻址法 拉链法 平均 O(\allowbreak{}1)\allowbreak{}，天然支持负数；开放寻址法 平均 O(\allowbreak{}1)\allowbreak{}，装太满会退化}
 \begin{lstlisting}
-// 哈希表（整数键）：拉链法 + 开放寻址法
-// 拉链法 平均 O(1)，天然支持负数；开放寻址法 平均 O(1)，装太满会退化
 const int N=100003;         // 容量；质数不能保证无冲突
-// ---------------- 拉链法 ----------------
-// h[k] 存链表头（结点下标），e[] 存值，nxt[] 存后继，idx 从 0 开始
+\end{lstlisting}
+\note{-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{} 拉链法 -\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{} h[\allowbreak{}k]\allowbreak{} 存链表头（结点下标），e[\allowbreak{}]\allowbreak{} 存值，nxt[\allowbreak{}]\allowbreak{} 存后继，idx 从 0 开始}
+\begin{lstlisting}
 struct HashChain{
     int h[N],e[N],nxt[N],idx;
     void init()
@@ -1944,9 +1926,9 @@ struct HashChain{
         return false;
     }
 };
-// ---------------- 开放寻址法 ----------------
-// h[k] 为 null 表示空位；线性探测，key 冲突就往后找
-// 注意：表要开 2~3 倍，装载因子太高会退化成 O(n)
+\end{lstlisting}
+\note{-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{} 开放寻址法 -\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{} h[\allowbreak{}k]\allowbreak{} 为 null 表示空位；线性探测，key 冲突就往后找 注意：表要开 2\textasciitilde{}3 倍，装载因子太高会退化成 O(\allowbreak{}n)\allowbreak{}}
+\begin{lstlisting}
 struct HashOpen{
     const int null=0x3f3f3f3f;    // 空标记，保证没有输入等于它
     int h[N];
@@ -1993,10 +1975,8 @@ int n,x;
 % SOURCE: 02-数据结构/左偏树(可并堆).cpp
 \subsection{左偏树(可并堆)}
 
+\note{小根可并堆：root 是节点编号，0 表示空；merge 后旧根不能再当独立堆使用。 两个待合并堆必须没有共享节点；相同权值允许，节点删除后不回收。 merge 沿右链递归，右子树空路径长不大于左边；合并/\allowbreak{}插入/\allowbreak{}删顶 O(\allowbreak{}log n)\allowbreak{}。}
 \begin{lstlisting}
-// 小根可并堆：root 是节点编号，0 表示空；merge 后旧根不能再当独立堆使用。
-// 两个待合并堆必须没有共享节点；相同权值允许，节点删除后不回收。
-// merge 沿右链递归，右子树空路径长不大于左边；合并/插入/删顶 O(log n)。
 struct LeftistHeap
 {
     struct Node{ll val=0;int l=0,r=0,d=0;};
@@ -2034,8 +2014,9 @@ struct LeftistHeap
 \begin{lstlisting}
 const int N=100005;
 const int INF=0x3f3f3f3f;
-// 种类并查集(3n 拆点)：x 同类域 / x+n x 的猎物 / x+n*2 x 的天敌，n 个点要开 3n
-// 单次操作近似 O(alpha(n))，只能表示"同类/吃"这种循环关系
+\end{lstlisting}
+\note{种类并查集(\allowbreak{}3n 拆点)\allowbreak{}：x 同类域 /\allowbreak{} x+\allowbreak{}n x 的猎物 /\allowbreak{} x+\allowbreak{}n*2 x 的天敌，n 个点要开 3n 单次操作近似 O(\allowbreak{}alpha(\allowbreak{}n)\allowbreak{})\allowbreak{}，只能表示"同类/\allowbreak{}吃"这种循环关系}
+\begin{lstlisting}
 template<int NMAX=N>
 struct KindDSU
 {
@@ -2068,8 +2049,9 @@ struct KindDSU
         return true;
     }
 };
-// 边权并查集：d[x] = val[x]-val[fa[x]]，find 时先递归到根再累加权值
-// merge(x,y,w) 表示 val[y]-val[x]=w；mod>0 时权值对 mod 取模(种类并查集用 mod=3，食物链里 2 表示 x 吃 y)
+\end{lstlisting}
+\note{边权并查集：d[\allowbreak{}x]\allowbreak{} =\allowbreak{} val[\allowbreak{}x]\allowbreak{}-\allowbreak{}val[\allowbreak{}fa[\allowbreak{}x]\allowbreak{}]\allowbreak{}，find 时先递归到根再累加权值 merge(\allowbreak{}x,\allowbreak{}y,\allowbreak{}w)\allowbreak{} 表示 val[\allowbreak{}y]\allowbreak{}-\allowbreak{}val[\allowbreak{}x]\allowbreak{}=\allowbreak{}w；mod>\allowbreak{}0 时权值对 mod 取模(\allowbreak{}种类并查集用 mod=\allowbreak{}3，食物链里 2 表示 x 吃 y)\allowbreak{}}
+\begin{lstlisting}
 template<int NMAX=N>
 struct WeightDSU
 {
@@ -2113,15 +2095,8 @@ struct WeightDSU
 % SOURCE: 02-数据结构/平衡树Splay.cpp
 \subsection{平衡树Splay}
 
+\note{平衡树 Splay（伸展树）：插入 /\allowbreak{} 删除 /\allowbreak{} 排名 /\allowbreak{} 第k小 /\allowbreak{} 前驱后继 /\allowbreak{} 区间翻转 单次操作均摊 O(\allowbreak{}log n)\allowbreak{}，常数比 Treap 大，但能支持区间操作（文艺平衡树） 本模板每个结点存一个互不相同的值 +\allowbreak{} 出现次数 num，所以同一份代码既能当普通平衡树， 也能当文艺平衡树（此时把 val 看成原序列元素、num 全为 1，忽略 val 的 BST 性质） 约定：get\_rank(\allowbreak{}x)\allowbreak{} 返回严格小于 x 的个数（0 起），kth 的 k 从 1 开始 文艺平衡树用法：init(\allowbreak{}n)\allowbreak{} 建出 1.\allowbreak{}.\allowbreak{}n 并带两个哨兵，位置 i 对应中序第 i+\allowbreak{}1 个结点 坑 1：splay/\allowbreak{}查找/\allowbreak{}旋转前都要 push\_down，否则 rev 标记会让左右儿子对不上 坑 2：序列模式哨兵也计入 sz，位置查询含哨兵；输出时跳过哨兵}
 \begin{lstlisting}
-// 平衡树 Splay（伸展树）：插入 / 删除 / 排名 / 第k小 / 前驱后继 / 区间翻转
-// 单次操作均摊 O(log n)，常数比 Treap 大，但能支持区间操作（文艺平衡树）
-// 本模板每个结点存一个互不相同的值 + 出现次数 num，所以同一份代码既能当普通平衡树，
-// 也能当文艺平衡树（此时把 val 看成原序列元素、num 全为 1，忽略 val 的 BST 性质）
-// 约定：get_rank(x) 返回严格小于 x 的个数（0 起），kth 的 k 从 1 开始
-// 文艺平衡树用法：init(n) 建出 1..n 并带两个哨兵，位置 i 对应中序第 i+1 个结点
-// 坑 1：splay/查找/旋转前都要 push_down，否则 rev 标记会让左右儿子对不上
-// 坑 2：序列模式哨兵也计入 sz，位置查询含哨兵；输出时跳过哨兵
 const int N=200005;
 const int INF=0x3f3f3f3f;
 int n,m,x;
@@ -2338,15 +2313,14 @@ Splay sp;
 % SOURCE: 02-数据结构/平衡树Treap.cpp
 \subsection{平衡树Treap}
 
+\note{平衡树 Treap（带旋）：插入 /\allowbreak{} 删除 /\allowbreak{} 排名 /\allowbreak{} 第k小 /\allowbreak{} 前驱后继 每个结点随机一个优先值，小根堆性质 → 期望 O(\allowbreak{}log n)\allowbreak{}，最坏 O(\allowbreak{}n)\allowbreak{} 重复插入忽略（集合），排名约定：get\_rank(\allowbreak{}x)\allowbreak{} 返回「比 x 小的数个数」（0 起） 关键坑：旋转必须先用 int \&q=\allowbreak{}ls[\allowbreak{}p]\allowbreak{} 绑好引用，递归返回后 ls[\allowbreak{}p]\allowbreak{} 可能已经不是原来那个结点了}
 \begin{lstlisting}
-// 平衡树 Treap（带旋）：插入 / 删除 / 排名 / 第k小 / 前驱后继
-// 每个结点随机一个优先值，小根堆性质 → 期望 O(log n)，最坏 O(n)
-// 重复插入忽略（集合），排名约定：get_rank(x) 返回「比 x 小的数个数」（0 起）
-// 关键坑：旋转必须先用 int &q=ls[p] 绑好引用，递归返回后 ls[p] 可能已经不是原来那个结点了
 const int N=200005;
 const int INF=0x3f3f3f3f;
 int n,x;
-// xorshift 伪随机，比 rand() 快
+\end{lstlisting}
+\note{xorshift 伪随机，比 rand(\allowbreak{})\allowbreak{} 快}
+\begin{lstlisting}
 unsigned long long seed=20240513;
 int rand_int()
 {
@@ -2491,7 +2465,9 @@ int root;
 
 \begin{lstlisting}
 const int N=100005;
-// 并查集：路径压缩 + 按大小合并，单次操作近似 O(alpha(n))
+\end{lstlisting}
+\note{并查集：路径压缩 +\allowbreak{} 按大小合并，单次操作近似 O(\allowbreak{}alpha(\allowbreak{}n)\allowbreak{})\allowbreak{}}
+\begin{lstlisting}
 template<int NMAX=N>
 struct DSU
 {
@@ -2526,13 +2502,8 @@ DSU<305> d;
 % SOURCE: 02-数据结构/手写堆.cpp
 \subsection{手写堆}
 
+\note{手写堆：大根堆 /\allowbreak{} 小根堆（上浮 push +\allowbreak{} 下沉 pop）+\allowbreak{} 堆排序 +\allowbreak{} O(\allowbreak{}n)\allowbreak{} 建堆 比较器约定：Cmp(\allowbreak{}a,\allowbreak{}b)\allowbreak{} 为真表示 a 该排在 b 前面（更靠近堆顶） 小根堆 CmpMin：Cmp(\allowbreak{}a,\allowbreak{}b)\allowbreak{} =\allowbreak{} a<\allowbreak{}b，堆顶最小 大根堆 CmpMax：Cmp(\allowbreak{}a,\allowbreak{}b)\allowbreak{} =\allowbreak{} a>\allowbreak{}b，堆顶最大 上浮和下沉只用一条规则：儿子排在父亲前面（Cmp(\allowbreak{}儿子,\allowbreak{}父亲)\allowbreak{} 为真）就换 大数组一律放全局，别开在栈上（默认栈只有 1MB）}
 \begin{lstlisting}
-// 手写堆：大根堆 / 小根堆（上浮 push + 下沉 pop）+ 堆排序 + O(n) 建堆
-// 比较器约定：Cmp(a,b) 为真表示 a 该排在 b 前面（更靠近堆顶）
-//   小根堆 CmpMin：Cmp(a,b) = a<b，堆顶最小
-//   大根堆 CmpMax：Cmp(a,b) = a>b，堆顶最大
-// 上浮和下沉只用一条规则：儿子排在父亲前面（Cmp(儿子,父亲) 为真）就换
-// 大数组一律放全局，别开在栈上（默认栈只有 1MB）
 const int N=200005;
 int n,a[N],b[N];
 struct CmpMin{bool operator()(int x,int y){return x<y;}};   // 小的靠前
@@ -2585,7 +2556,9 @@ struct Heap{
 Heap<int,CmpMin> mn;                   // 小根堆
 Heap<int,CmpMax> mx;                   // 大根堆
 Heap<int,CmpMax> hs;                   // 堆排序专用的大根堆（全局，避免爆栈）
-// 堆排序：升序，先建大根堆，再把堆顶换到末尾、缩小堆
+\end{lstlisting}
+\note{堆排序：升序，先建大根堆，再把堆顶换到末尾、缩小堆}
+\begin{lstlisting}
 void heap_sort(int *src,int len)
 {
     hs.clear();
@@ -2601,9 +2574,8 @@ void heap_sort(int *src,int len)
 % SOURCE: 02-数据结构/扫描线(矩形面积并).cpp
 \subsection{扫描线(矩形面积并)}
 
+\note{扫描线求矩形面积并、周长并，O(\allowbreak{}n log n)\allowbreak{} 周长：两个方向分别累计覆盖长度变化，同坐标先加入后删除}
 \begin{lstlisting}
-// 扫描线求矩形面积并、周长并，O(n log n)
-// 周长：两个方向分别累计覆盖长度变化，同坐标先加入后删除
 const int N=100005;
 int n;
 int rx1[N],ry1[N],rx2[N],ry2[N],ys[N<<1];
@@ -2693,10 +2665,8 @@ int g[64][64];
 % SOURCE: 02-数据结构/整体二分(前缀判定).cpp
 \subsection{整体二分(前缀判定)}
 
+\note{给定 m 条按时间加入的无向边，求每对点最早连通时间：0 初始连通，m+\allowbreak{}1 表示始终不连通。 每轮把查询按 mid 分桶，清空 DSU 后扫所有前缀；整体二分也适用于其他单调前缀判定。 O(\allowbreak{}(\allowbreak{}n+\allowbreak{}m+\allowbreak{}q)\allowbreak{} log(\allowbreak{}m+\allowbreak{}2)\allowbreak{} * alpha(\allowbreak{}n)\allowbreak{})\allowbreak{}，空间 O(\allowbreak{}n+\allowbreak{}m+\allowbreak{}q)\allowbreak{}；边/\allowbreak{}查询向量从 0 起，点 1.\allowbreak{}.\allowbreak{}n。}
 \begin{lstlisting}
-// 给定 m 条按时间加入的无向边，求每对点最早连通时间：0 初始连通，m+1 表示始终不连通。
-// 每轮把查询按 mid 分桶，清空 DSU 后扫所有前缀；整体二分也适用于其他单调前缀判定。
-// O((n+m+q) log(m+2) * alpha(n))，空间 O(n+m+q)；边/查询向量从 0 起，点 1..n。
 vector<int> first_connected(int n,const vector<pair<int,int>> &e,const vector<pair<int,int>> &query)
 {
     int m=e.size(),q=query.size();
@@ -2721,19 +2691,17 @@ vector<int> first_connected(int n,const vector<pair<int,int>> &e,const vector<pa
         }
     }
 }
-// 换成 BIT/AC fail 树统计时，只替换重置、插入和 check；check 必须随前缀长度单调。
-// 此处二分“时间/前缀”，不使用第 k 小模板里的“去右边减 k”；允许删除会破坏本例的单调性。
 \end{lstlisting}
+\note{换成 BIT/\allowbreak{}AC fail 树统计时，只替换重置、插入和 check；check 必须随前缀长度单调。 此处二分“时间/\allowbreak{}前缀”，不使用第 k 小模板里的“去右边减 k”；允许删除会破坏本例的单调性。}
 % SOURCE: 02-数据结构/整体二分(带修改区间第k小).cpp
 \subsection{整体二分(带修改区间第k小)}
 
+\note{a[\allowbreak{}1.\allowbreak{}.\allowbreak{}n]\allowbreak{}；0 操作：\{0,\allowbreak{}位置,\allowbreak{}新值,\allowbreak{}0\}；1 操作：\{1,\allowbreak{}l,\allowbreak{}r,\allowbreak{}k\}。}
 \begin{lstlisting}
-// a[1..n]；0 操作：{0,位置,新值,0}；1 操作：{1,l,r,k}。
 struct Operation{int type,x,y,k;};
-// 按值域二分：<=mid 的修改进入 BIT，查询数出区间内这一半有几个。
-// 查询去右半时 k 减掉左半数量；分组必须保持原时间顺序，递归前撤销 BIT。
-// 修改拆成旧值 -1、新值 +1；O((n+q) log V log n)，V 是不同值数。
-// 空间 O(n+q)：分组后释放父层事件，避免同一批事件在多层递归中重复保留。
+\end{lstlisting}
+\note{按值域二分：<\allowbreak{}=\allowbreak{}mid 的修改进入 BIT，查询数出区间内这一半有几个。 查询去右半时 k 减掉左半数量；分组必须保持原时间顺序，递归前撤销 BIT。 修改拆成旧值 -\allowbreak{}1、新值 +\allowbreak{}1；O(\allowbreak{}(\allowbreak{}n+\allowbreak{}q)\allowbreak{} log V log n)\allowbreak{}，V 是不同值数。 空间 O(\allowbreak{}n+\allowbreak{}q)\allowbreak{}：分组后释放父层事件，避免同一批事件在多层递归中重复保留。}
+\begin{lstlisting}
 vector<int> range_kth(vector<int> a,const vector<Operation> &ops)
 {
     int n=(int)a.size()-1;
@@ -2797,8 +2765,8 @@ vector<int> range_kth(vector<int> a,const vector<Operation> &ops)
 % SOURCE: 02-数据结构/替罪羊树.cpp
 \subsection{替罪羊树}
 
+\note{替罪羊树：重复值计数，alpha 重构，单次操作均摊 O(\allowbreak{}log n)\allowbreak{}}
 \begin{lstlisting}
-// 替罪羊树：重复值计数，alpha 重构，单次操作均摊 O(log n)
 struct Scapegoat
 {
     struct Node { int l=0,r=0,v=0,cnt=0,sz=0,tot=0; };
@@ -2898,14 +2866,18 @@ struct Line
     ll a,b,c;
     Line(ll a_=0,ll b_=0,ll c_=0):a(a_),b(b_),c(c_){}
 };
-// 分母为正；交叉乘积必须在 __int128 范围内
+\end{lstlisting}
+\note{分母为正；交叉乘积必须在 \_\_int128 范围内}
+\begin{lstlisting}
 bool better(const Line &a,const Line &b,ll x)
 {
     if(!a.c)return false;
     if(!b.c)return true;
     return ((lll)a.a*x+a.b)*b.c>((lll)b.a*x+b.b)*a.c;
 }
-// 动态开点，连续整数域与离散坐标共用；每次操作 O(log V)
+\end{lstlisting}
+\note{动态开点，连续整数域与离散坐标共用；每次操作 O(\allowbreak{}log V)\allowbreak{}}
+\begin{lstlisting}
 struct LiChao
 {
     struct Node
@@ -2992,7 +2964,9 @@ struct LiChao
 \begin{lstlisting}
 const int N=100005;
 const int M=1005;//二维树状数组的默认边长
-// 树状数组：单点加 + 前缀和/区间和，O(log n)
+\end{lstlisting}
+\note{树状数组：单点加 +\allowbreak{} 前缀和/\allowbreak{}区间和，O(\allowbreak{}log n)\allowbreak{}}
+\begin{lstlisting}
 template<typename T,int NMAX=N>
 struct BIT
 {
@@ -3029,7 +3003,9 @@ struct BIT
         return p+1;
     }
 };
-// 区间加 + 单点查：差分树状数组，update/query 都是 O(log n)
+\end{lstlisting}
+\note{区间加 +\allowbreak{} 单点查：差分树状数组，update/\allowbreak{}query 都是 O(\allowbreak{}log n)\allowbreak{}}
+\begin{lstlisting}
 template<typename T,int NMAX=N>
 struct DiffBIT
 {
@@ -3049,7 +3025,9 @@ struct DiffBIT
         return c.sum(x);
     }
 };
-// 二维树状数组：单点加 + 子矩阵和，O(log n log m)
+\end{lstlisting}
+\note{二维树状数组：单点加 +\allowbreak{} 子矩阵和，O(\allowbreak{}log n log m)\allowbreak{}}
+\begin{lstlisting}
 template<typename T,int NMAX=M>
 struct BIT2D
 {
@@ -3081,7 +3059,9 @@ struct BIT2D
 int n;
 int a[N],tmp[N];
 BIT<int> bit_inv;
-// 离散化求逆序对对数，O(n log n)
+\end{lstlisting}
+\note{离散化求逆序对对数，O(\allowbreak{}n log n)\allowbreak{}}
+\begin{lstlisting}
 ll calc_inv(int len)
 {
     for(int i=1;i<=len;i++)tmp[i]=a[i];
@@ -3101,10 +3081,8 @@ ll calc_inv(int len)
 % SOURCE: 02-数据结构/树状数组套权值线段树.cpp
 \subsection{树状数组套权值线段树}
 
+\note{在线点修改、区间第 k 小：位置 0.\allowbreak{}.\allowbreak{}n-\allowbreak{}1，值域离散化为 0.\allowbreak{}.\allowbreak{}\ensuremath{\sigma}-\allowbreak{}1，k 从 1 开始。 所有可能修改值预先加入压缩表；BIT 套动态权值线段树，O(\allowbreak{}log n log \ensuremath{\sigma})\allowbreak{} 每次。 roots 中存频数；change(\allowbreak{}pos,\allowbreak{}old,\allowbreak{}new)\allowbreak{} 前 old 必须确实是当前位置值。内存 O(\allowbreak{}(\allowbreak{}n+\allowbreak{}q)\allowbreak{}log n log \ensuremath{\sigma})\allowbreak{} 上界。}
 \begin{lstlisting}
-// 在线点修改、区间第 k 小：位置 0..n-1，值域离散化为 0..(*@$\sigma$@*)-1，k 从 1 开始。
-// 所有可能修改值预先加入压缩表；BIT 套动态权值线段树，O(log n log (*@$\sigma$@*)) 每次。
-// roots 中存频数；change(pos,old,new) 前 old 必须确实是当前位置值。内存 O((n+q)log n log (*@$\sigma$@*)) 上界。
 struct BITValueTree
 {
     struct Node{int l=0,r=0,sum=0;};int n,sigma;vector<int> root;vector<Node> t={{}};
@@ -3132,11 +3110,8 @@ struct BITValueTree
 % SOURCE: 02-数据结构/树链剖分.cpp
 \subsection{树链剖分}
 
+\note{树链剖分（重链剖分）+\allowbreak{} 线段树：路径加/\allowbreak{}路径和 +\allowbreak{} 子树加/\allowbreak{}子树和 建树 O(\allowbreak{}n)\allowbreak{}，路径操作 O(\allowbreak{}log\textasciicircum{}2 n)\allowbreak{}，子树操作 O(\allowbreak{}log n)\allowbreak{} 关键性质：子树在 dfs 序上是一段连续区间 [\allowbreak{}dfn[\allowbreak{}x]\allowbreak{},\allowbreak{} dfn[\allowbreak{}x]\allowbreak{}+\allowbreak{}sz[\allowbreak{}x]\allowbreak{}-\allowbreak{}1]\allowbreak{} 两遍 dfs 都写成迭代版（显式栈），链状数据也不会爆栈}
 \begin{lstlisting}
-// 树链剖分（重链剖分）+ 线段树：路径加/路径和 + 子树加/子树和
-// 建树 O(n)，路径操作 O(log^2 n)，子树操作 O(log n)
-// 关键性质：子树在 dfs 序上是一段连续区间 [dfn[x], dfn[x]+sz[x]-1]
-// 两遍 dfs 都写成迭代版（显式栈），链状数据也不会爆栈
 const int N=100005;
 int n,m,rt,cnt,op;
 int a[N],val[N];
@@ -3148,7 +3123,9 @@ void add_edge(int u,int v)
     to[++ecnt]=v,nxt[ecnt]=head[u],head[u]=ecnt;
     to[++ecnt]=u,nxt[ecnt]=head[v],head[v]=ecnt;
 }
-// 第一遍（迭代）：求 fa / dep / sz / 重儿子
+\end{lstlisting}
+\note{第一遍（迭代）：求 fa /\allowbreak{} dep /\allowbreak{} sz /\allowbreak{} 重儿子}
+\begin{lstlisting}
 int order[N],ocnt;
 void dfs1_iter(int root)
 {
@@ -3180,7 +3157,9 @@ void dfs1_iter(int root)
         }
     }
 }
-// 第二遍（迭代）：编 dfs 序，重儿子优先 → 同一条重链上 dfn 连续
+\end{lstlisting}
+\note{第二遍（迭代）：编 dfs 序，重儿子优先 → 同一条重链上 dfn 连续}
+\begin{lstlisting}
 void dfs2(int root,int tproot)
 {
     cnt=0;
@@ -3237,7 +3216,9 @@ struct SegmentTree{
         return res;
     }
 }seg;
-// 路径加：u,v 往上跳到同一条重链
+\end{lstlisting}
+\note{路径加：u,\allowbreak{}v 往上跳到同一条重链}
+\begin{lstlisting}
 void path_add(int u,int v,ll k)
 {
     while(top[u]!=top[v])
@@ -3270,10 +3251,9 @@ ll subtree_sum(int u){return seg.query(dfn[u],dfn[u]+sz[u]-1,1,n,1);}
 
 \begin{lstlisting}
 const int N=100005;
-// 珂朵莉树(ODT / 颜色段均摊)：set 维护极长同色段
-// 区间赋值遍历并删除的段可按生命周期均摊；每次 split 只新增 O(1) 段。
-// add/kth/求和等会遍历但不删除段，重复扫很多段可达 O(nq)，有赋值也不保证性能。
-// 仅赋值型删段操作有上述确定性均摊；混合操作的随机期望依赖输入分布，不能当最坏保证。
+\end{lstlisting}
+\note{珂朵莉树(\allowbreak{}ODT /\allowbreak{} 颜色段均摊)\allowbreak{}：set 维护极长同色段 区间赋值遍历并删除的段可按生命周期均摊；每次 split 只新增 O(\allowbreak{}1)\allowbreak{} 段。 add/\allowbreak{}kth/\allowbreak{}求和等会遍历但不删除段，重复扫很多段可达 O(\allowbreak{}nq)\allowbreak{}，有赋值也不保证性能。 仅赋值型删段操作有上述确定性均摊；混合操作的随机期望依赖输入分布，不能当最坏保证。}
+\begin{lstlisting}
 struct Node
 {
     int l,r;
@@ -3286,7 +3266,9 @@ struct Node
 };
 int n;
 set<Node> odt;
-// 把位置 pos 所在的段拆成 [l,pos-1] 和 [pos,r]，返回起点为 pos 的迭代器
+\end{lstlisting}
+\note{把位置 pos 所在的段拆成 [\allowbreak{}l,\allowbreak{}pos-\allowbreak{}1]\allowbreak{} 和 [\allowbreak{}pos,\allowbreak{}r]\allowbreak{}，返回起点为 pos 的迭代器}
+\begin{lstlisting}
 auto split(int pos)
 {
     if(pos>n)return odt.end();//右端越界，直接返回尾迭代器
@@ -3299,20 +3281,26 @@ auto split(int pos)
     odt.insert(Node(l,pos-1,v));
     return odt.insert(Node(pos,r,v)).first;
 }
-// 区间赋值，O(段数 log n)
+\end{lstlisting}
+\note{区间赋值，O(\allowbreak{}段数 log n)\allowbreak{}}
+\begin{lstlisting}
 void assign(int l,int r,ll v)
 {
     auto itr=split(r+1),itl=split(l);
     odt.erase(itl,itr);
     odt.insert(Node(l,r,v));
 }
-// 区间加，把 l..r 覆盖到的每段整体加上 v
+\end{lstlisting}
+\note{区间加，把 l.\allowbreak{}.\allowbreak{}r 覆盖到的每段整体加上 v}
+\begin{lstlisting}
 void add(int l,int r,ll v)
 {
     auto itr=split(r+1),itl=split(l);
     for(auto it=itl;it!=itr;++it)it->v+=v;
 }
-// 区间和
+\end{lstlisting}
+\note{区间和}
+\begin{lstlisting}
 ll query_sum(int l,int r)
 {
     auto itr=split(r+1),itl=split(l);
@@ -3320,7 +3308,9 @@ ll query_sum(int l,int r)
     for(auto it=itl;it!=itr;++it)s+=(ll)(it->r-it->l+1)*it->v;
     return s;
 }
-// 区间内等于 v 的个数
+\end{lstlisting}
+\note{区间内等于 v 的个数}
+\begin{lstlisting}
 int query_cnt(int l,int r,ll v)
 {
     auto itr=split(r+1),itl=split(l);
@@ -3329,7 +3319,9 @@ int query_cnt(int l,int r,ll v)
         if(it->v==v)c+=it->r-it->l+1;
     return c;
 }
-// 区间第 k 小(1<=k<=r-l+1)，把覆盖到的段按值排序后累加长度
+\end{lstlisting}
+\note{区间第 k 小(\allowbreak{}1<\allowbreak{}=\allowbreak{}k<\allowbreak{}=\allowbreak{}r-\allowbreak{}l+\allowbreak{}1)\allowbreak{}，把覆盖到的段按值排序后累加长度}
+\begin{lstlisting}
 ll query_kth(int l,int r,int k)
 {
     vector<pair<ll,int>> tmp;
@@ -3347,19 +3339,16 @@ ll query_kth(int l,int r,int k)
 % SOURCE: 02-数据结构/笛卡尔树.cpp
 \subsection{笛卡尔树}
 
+\note{笛卡尔树：O(\allowbreak{}n)\allowbreak{} 单调栈建树 性质：中序遍历就是原数组顺序；每个结点是「小根堆」（默认最小值在根）， 所以区间 [\allowbreak{}l,\allowbreak{}r]\allowbreak{} 的最小值就是 lca(\allowbreak{}l,\allowbreak{}r)\allowbreak{}，配合 O(\allowbreak{}1)\allowbreak{} LCA 就能做 RMQ 反过来：把「下标」当 BST 键、「值」当堆键，笛卡尔树唯一确定 单调栈过程：新点 x 从栈顶往下弹掉所有 val >\allowbreak{} a[\allowbreak{}x]\allowbreak{} 的点， 最后弹出来的那个点当 x 的左儿子（它右边的点都比它大，全在左边）}
 \begin{lstlisting}
-// 笛卡尔树：O(n) 单调栈建树
-// 性质：中序遍历就是原数组顺序；每个结点是「小根堆」（默认最小值在根），
-//       所以区间 [l,r] 的最小值就是 lca(l,r)，配合 O(1) LCA 就能做 RMQ
-// 反过来：把「下标」当 BST 键、「值」当堆键，笛卡尔树唯一确定
-// 单调栈过程：新点 x 从栈顶往下弹掉所有 val > a[x] 的点，
-//             最后弹出来的那个点当 x 的左儿子（它右边的点都比它大，全在左边）
 const int N=100005;
 const int LOG=18;
 int n,a[N];
 int lc[N],rc[N],fa[N],stk[N];
 int root;
-// O(n) 建笛卡尔树（小根堆）；返回根；相等时取靠前的当根（用 > 判断）
+\end{lstlisting}
+\note{O(\allowbreak{}n)\allowbreak{} 建笛卡尔树（小根堆）；返回根；相等时取靠前的当根（用 >\allowbreak{} 判断）}
+\begin{lstlisting}
 int build_cart()
 {
     int top=0,rt=0;
@@ -3382,9 +3371,9 @@ int build_cart()
 
 \begin{lstlisting}
 const int N=100005;
-// 线段树：区间乘 + 区间加 + 区间和，每次操作 O(log n)
-// T 为不超过 64 位的整数，mod>=0；不取模时结果须能放入 T。
-// 标记约定：先乘后加，儿子值 = 儿子值*mul + add*区间长度
+\end{lstlisting}
+\note{线段树：区间乘 +\allowbreak{} 区间加 +\allowbreak{} 区间和，每次操作 O(\allowbreak{}log n)\allowbreak{} T 为不超过 64 位的整数，mod>\allowbreak{}=\allowbreak{}0；不取模时结果须能放入 T。 标记约定：先乘后加，儿子值 =\allowbreak{} 儿子值*mul +\allowbreak{} add*区间长度}
+\begin{lstlisting}
 template<typename T,int NMAX=N>
 struct SegmentTree
 {
@@ -3463,7 +3452,9 @@ SegmentTree<ll,205> seg;
 
 \begin{lstlisting}
 const int N=100005;
-// 线段树：区间加 + 区间和，懒标记下推，每次操作 O(log n)
+\end{lstlisting}
+\note{线段树：区间加 +\allowbreak{} 区间和，懒标记下推，每次操作 O(\allowbreak{}log n)\allowbreak{}}
+\begin{lstlisting}
 template<typename T,int NMAX=N>
 struct SegmentTree
 {
@@ -3522,9 +3513,9 @@ SegmentTree<ll,205> seg;
 
 \begin{lstlisting}
 const int N=100005;
-// 线段树：区间开方(向下取整) + 区间和
-// 非负整数；64 位整数最多开方 7 次变成 0/1，用 flag 剪枝。区间和须不溢出。
-// 均摊复杂度 O((n+m) log n)
+\end{lstlisting}
+\note{线段树：区间开方(\allowbreak{}向下取整)\allowbreak{} +\allowbreak{} 区间和 非负整数；64 位整数最多开方 7 次变成 0/\allowbreak{}1，用 flag 剪枝。区间和须不溢出。 均摊复杂度 O(\allowbreak{}(\allowbreak{}n+\allowbreak{}m)\allowbreak{} log n)\allowbreak{}}
+\begin{lstlisting}
 template<typename T,int NMAX=N>
 struct SegmentTree
 {
@@ -3579,8 +3570,9 @@ SegmentTree<ll,205> seg;
 
 \begin{lstlisting}
 const int N=500005;
-// 线段树：单点修改 + 区间查询最大子段和(不能为空)
-// 每个结点维护 sum / lmax(左端起) / rmax(右端起) / mx，merge O(1)，每次操作 O(log n)
+\end{lstlisting}
+\note{线段树：单点修改 +\allowbreak{} 区间查询最大子段和(\allowbreak{}不能为空)\allowbreak{} 每个结点维护 sum /\allowbreak{} lmax(\allowbreak{}左端起)\allowbreak{} /\allowbreak{} rmax(\allowbreak{}右端起)\allowbreak{} /\allowbreak{} mx，merge O(\allowbreak{}1)\allowbreak{}，每次操作 O(\allowbreak{}log n)\allowbreak{}}
+\begin{lstlisting}
 template<typename T,int NMAX=N>
 struct SegmentTree
 {
@@ -3640,10 +3632,8 @@ SegmentTree<ll,205> seg;
 % SOURCE: 02-数据结构/线段树分裂与合并.cpp
 \subsection{线段树分裂与合并}
 
+\note{动态权值线段树，多重集频数非负；拆出 [\allowbreak{}L,\allowbreak{}R]\allowbreak{} 返回新根，原根按引用更新。 split O(\allowbreak{}log \ensuremath{\sigma})\allowbreak{} 边界节点，merge 摊还 O(\allowbreak{}总节点数)\allowbreak{}；所有操作是破坏性的，根不能共享节点。 节点用 vector 扩容；递归调用不得持有 vector 元素引用。值域 0.\allowbreak{}.\allowbreak{}\ensuremath{\sigma}-\allowbreak{}1。}
 \begin{lstlisting}
-// 动态权值线段树，多重集频数非负；拆出 [L,R] 返回新根，原根按引用更新。
-// split O(log (*@$\sigma$@*)) 边界节点，merge 摊还 O(总节点数)；所有操作是破坏性的，根不能共享节点。
-// 节点用 vector 扩容；递归调用不得持有 vector 元素引用。值域 0..(*@$\sigma$@*)-1。
 struct SplitMergeSeg
 {
     struct Node{int l=0,r=0;long long sum=0;};vector<Node> t={{}};int sigma;
@@ -3664,13 +3654,8 @@ struct SplitMergeSeg
 % SOURCE: 02-数据结构/线段树合并.cpp
 \subsection{线段树合并}
 
+\note{线段树合并（权值线段树合并）：求每个子树内不同颜色数 /\allowbreak{} 每个权值出现次数 建树 O(\allowbreak{}n log n)\allowbreak{}；合并总复杂度 O(\allowbreak{}结点总数)\allowbreak{} =\allowbreak{} O(\allowbreak{}n log n)\allowbreak{} 关键性质：merge 里只要有一边是空就直接返回另一边， 否则两边都不空 -\allowbreak{}>\allowbreak{} 当前这个结点被丢弃，每个结点一生只会被丢一次， 所以所有 merge 加起来是 O(\allowbreak{}总结点数)\allowbreak{}，均摊到一次合并是 O(\allowbreak{}log n)\allowbreak{} 坑：合并是「破坏性」的，merge(\allowbreak{}a,\allowbreak{}b)\allowbreak{} 之后 b 的子结点已经被挂到 a 上，b 不能再单独用}
 \begin{lstlisting}
-// 线段树合并（权值线段树合并）：求每个子树内不同颜色数 / 每个权值出现次数
-// 建树 O(n log n)；合并总复杂度 O(结点总数) = O(n log n)
-// 关键性质：merge 里只要有一边是空就直接返回另一边，
-//           否则两边都不空 -> 当前这个结点被丢弃，每个结点一生只会被丢一次，
-//           所以所有 merge 加起来是 O(总结点数)，均摊到一次合并是 O(log n)
-// 坑：合并是「破坏性」的，merge(a,b) 之后 b 的子结点已经被挂到 a 上，b 不能再单独用
 const int N=100005;
 const int LOG=18;      // log2(N)+1
 const int MAXNODE=N*(LOG+1);//n 个叶子各建一条到根的链
@@ -3733,7 +3718,9 @@ struct MergeSeg{
 }seg;
 int ans[N];//每个子树内不同颜色数
 int root[N];//每个点对应的权值线段树根
-// 自底向上：把自己的颜色建树，再把每个儿子的树合并进来，最后统计根上的 sum
+\end{lstlisting}
+\note{自底向上：把自己的颜色建树，再把每个儿子的树合并进来，最后统计根上的 sum}
+\begin{lstlisting}
 void dfs(int u,int fa)
 {
     root[u]=seg.insert(0,1,n,col[u],1);
@@ -3750,11 +3737,8 @@ void dfs(int u,int fa)
 % SOURCE: 02-数据结构/莫队变体.cpp
 \subsection{莫队变体}
 
+\note{三种莫队：输入值已经离散化到 0.\allowbreak{}.\allowbreak{}sigma-\allowbreak{}1；例题指标供替换 add/\allowbreak{}remove/\allowbreak{}check。 带修改：区间不同数，记录修改前后值；排序块长 n\textasciicircum{}(\allowbreak{}2/\allowbreak{}3)\allowbreak{}，典型移动量 O(\allowbreak{}n\textasciicircum{}(\allowbreak{}5/\allowbreak{}3)\allowbreak{})\allowbreak{}（q\textasciitilde{}n）。 树上：路径不同色，Euler 每点出现两次，进出时翻转 active；LCA 额外加入一次。 回滚：区间同值最远距离，只增加右端、临时增加左端后撤销，O(\allowbreak{}(\allowbreak{}n+\allowbreak{}q)\allowbreak{}sqrt n)\allowbreak{}。}
 \begin{lstlisting}
-// 三种莫队：输入值已经离散化到 0..sigma-1；例题指标供替换 add/remove/check。
-// 带修改：区间不同数，记录修改前后值；排序块长 n^(2/3)，典型移动量 O(n^(5/3))（q~n）。
-// 树上：路径不同色，Euler 每点出现两次，进出时翻转 active；LCA 额外加入一次。
-// 回滚：区间同值最远距离，只增加右端、临时增加左端后撤销，O((n+q)sqrt n)。
 struct Modification{int pos,before,after;};
 struct TimedQuery{int l,r,time;};
 vector<int> modified_mo(vector<int> a,int sigma,const vector<Modification> &change,const vector<TimedQuery> &query)
@@ -3805,10 +3789,8 @@ vector<int> rollback_mo(const vector<int> &a,int sigma,const vector<pair<int,int
 % SOURCE: 02-数据结构/莫队算法.cpp
 \subsection{莫队算法}
 
+\note{莫队算法（普通莫队）：离线处理区间询问，本例求「区间不同数个数」 分块 +\allowbreak{} 排序后左右指针总移动 O(\allowbreak{}n*sqrt(\allowbreak{}n)\allowbreak{})\allowbreak{}，单次移动 O(\allowbreak{}1)\allowbreak{} 排序时奇数块右端点反过来排，常数更小（这行别删）}
 \begin{lstlisting}
-// 莫队算法（普通莫队）：离线处理区间询问，本例求「区间不同数个数」
-// 分块 + 排序后左右指针总移动 O(n*sqrt(n))，单次移动 O(1)
-// 排序时奇数块右端点反过来排，常数更小（这行别删）
 const int N=100005;
 int n,m,block;
 int a[N],ans[N],cnt[N],now;
@@ -3830,7 +3812,9 @@ void del(int pos)
 {
     if(--cnt[a[pos]]==0)now--;
 }
-// 把询问排好序后统一回答，结果写回 ans[id]
+\end{lstlisting}
+\note{把询问排好序后统一回答，结果写回 ans[\allowbreak{}id]\allowbreak{}}
+\begin{lstlisting}
 void solve()
 {
     block=max(1,(int)sqrt(n));
@@ -3851,8 +3835,8 @@ void solve()
 % SOURCE: 02-数据结构/链接剖分LCT.cpp
 \subsection{链接剖分LCT}
 
+\note{动态森林：维护点权路径和，操作均摊 O(\allowbreak{}log n)\allowbreak{}，下标从 1 开始}
 \begin{lstlisting}
-// 动态森林：维护点权路径和，操作均摊 O(log n)，下标从 1 开始
 struct LCT
 {
     struct Node { int ch[2]={0,0},fa=0; ll v=0,sum=0; bool rev=false; };
@@ -3935,13 +3919,13 @@ struct LCT
 % SOURCE: 02-数据结构/链表.cpp
 \subsection{链表}
 
+\note{数组模拟双向链表 /\allowbreak{} 静态链表 用 pre/\allowbreak{}nxt 两个数组当指针，插入删除 O(\allowbreak{}1)\allowbreak{}，按下标随机访问 O(\allowbreak{}1)\allowbreak{}}
 \begin{lstlisting}
-// 数组模拟双向链表 / 静态链表
-// 用 pre/nxt 两个数组当指针，插入删除 O(1)，按下标随机访问 O(1)
 const int N=200005;
 int n,m;
-// 数组模拟双向链表：h 是头结点编号，t 是尾结点编号，0 表示空
-// 结点编号就是 val（值为 i 的结点编号 i），删除时按编号删
+\end{lstlisting}
+\note{数组模拟双向链表：h 是头结点编号，t 是尾结点编号，0 表示空 结点编号就是 val（值为 i 的结点编号 i），删除时按编号删}
+\begin{lstlisting}
 struct Link{
     int val[N],pre[N],nxt[N];
     bool used[N];        // 结点是否还在链表里

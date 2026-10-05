@@ -301,7 +301,7 @@ def explain(text):
 
 
 def manual_blocks(source, rel):
-    """第一章：模块说明独立排成正文，语句附近的注释保留在代码里。
+    """选定章节：模块说明独立排成正文，语句附近的注释保留在代码里。
 
     原 cpp 仍为复制与测试的入口；这里只重排手册，不修改实现。
     BigInt 的各区在同一个 struct 中，打印时可由正文隔开。
@@ -356,7 +356,7 @@ def render_template(source, rel):
         '05-数学/线性基.cpp', '03-字符串/AC自动机.cpp', '03-字符串/KMP.cpp',
         '05-数学/类欧几里得(floor_sum).cpp', '05-数学/行列式与矩阵树定理.cpp',
     }
-    if rel.startswith('01-基础与技巧/') or rel in prose_templates:
+    if rel.startswith(('01-基础与技巧/', '02-数据结构/')) or rel in prose_templates:
         blocks = manual_blocks(source, rel)
     else:
         blocks = [('code', clean_code(source, rel))]
