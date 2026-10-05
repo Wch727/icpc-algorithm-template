@@ -55,4 +55,4 @@
 | `s.substr(pos,len)` / `s.erase(pos,len)` | 第二参数是长度；到末尾为止，不是右端点。substr 复制结果，erase 移动后续字符。 |
 | `s.find(t,pos)` | 从 pos 开始查找子串，失败用 `string::npos` 判断，不存入普通 int 后与 -1 混用。 |
 | `deque` / `stack` / `queue` | deque 两端增删 O(1)，支持下标；stack 用 top，queue 用 front / back，push / pop 不返回元素。deque 两端插入使迭代器失效，旧元素引用仍有效；中间插删使两者均失效。 |
-| `bitset<N>` | 位编号从低位 0 起，容量是编译期常量；`to_ullong()` 的数值装不下会抛异常。批量位运算与 DP 用法见 [bitset 技巧](../09-其他/bitset优化技巧.cpp)。 |
+| `bitset<N>` | 位编号从低位 0 起，容量是编译期常量；`to_ullong()` 的数值装不下会抛异常。批量位运算与 DP 用法见 [bitset 技巧](../02-数据结构/bitset与字并行.cpp)。 |
