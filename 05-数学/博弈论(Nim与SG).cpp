@@ -15,7 +15,7 @@ int a[N];// 每堆石子数
 // Nim 博弈：异或和非 0 先手必胜，O(n)
 // 取石子游戏，每步可从任意一堆取任意多个
 // O(n)，判断普通 Nim 先手胜负；a 的有效下标是 1..n。
-bool nim_win(int n,int a[])
+bool nim_win()
 {
     int s=0;
     for(int i=1;i<=n;i++)s^=a[i];
@@ -25,7 +25,7 @@ bool nim_win(int n,int a[])
 // O(n)，Nim 的必胜第一步：返回 (堆编号, 取后剩余)，无必胜步返回 0
 // 原理：找最高位，把某堆改成 a[i]^(s) 使异或和为 0
 // O(n)，返回堆编号及取后剩余数；返回 (0,0) 表示没有必胜步，不是取走数量。
-pair<int,int> nim_first(int n,int a[])
+pair<int,int> nim_first()
 {
     int s=0;
     for(int i=1;i<=n;i++)s^=a[i];

@@ -33,7 +33,9 @@ struct RollbackDSU
 // 无向边允许重复加入：全部副本删完才失效；删除必须有对应的活动副本。
 // 每条边生效区间 [l,r) 挂到时间线段树；进入结点合并，退出撤销。
 // q 次操作 O(q log q log n)，存边 O(q log q)，按查询出现顺序返回 0/1。
-vector<int> dynamic_connectivity(int n,const vector<array<int,3>> &ops)
+int n;
+vector<array<int,3>> ops;
+vector<int> dynamic_connectivity()
 {
     int q=ops.size();
     if(!q)return {};

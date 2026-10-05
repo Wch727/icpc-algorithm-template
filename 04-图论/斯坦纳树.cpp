@@ -4,11 +4,14 @@
 #include<bits/stdc++.h>
 using namespace std;
 using ll=long long;
-ll steiner_tree(const vector<vector<pair<int,ll>>> &g,const vector<int> &terminal)
+vector<vector<pair<int,ll>>> g;
+vector<int> terminal;
+vector<vector<ll>> dp;
+ll steiner_tree()
 {
     const ll INF=LLONG_MAX/4;int n=g.size(),k=terminal.size();
-    if(!k)return 0;assert(k<25);int lim=1<<k;
-    vector<vector<ll>> dp(lim,vector<ll>(n,INF));
+    dp.clear();if(!k)return 0;assert(k<25);int lim=1<<k;
+    dp.assign(lim,vector<ll>(n,INF));
     for(int i=0;i<k;i++)dp[1<<i][terminal[i]]=0;
     for(int s=1;s<lim;s++)
     {

@@ -4,7 +4,8 @@
 // 应用：各前缀最小后缀、周期分段；前缀最小后缀需跟踪 Duval 扫描状态，不能只取分解首块。
 #include<bits/stdc++.h>
 using namespace std;
-vector<pair<int,int>> lyndon_factorization(const string &s)
+string s;
+vector<pair<int,int>> lyndon_factorization()
 {
     int n=s.size(),i=0;vector<pair<int,int>> ans;
     while(i<n){int j=i+1,k=i;while(j<n&&(unsigned char)s[k]<=(unsigned char)s[j]){if((unsigned char)s[k]<(unsigned char)s[j])k=i;else k++;j++;}int len=j-k;while(i<=k)ans.push_back({i,i+len}),i+=len;}

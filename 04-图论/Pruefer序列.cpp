@@ -3,17 +3,19 @@
 // 给定度数 d_i>=1 且 Σd_i=2n-2，树数量为 (n-2)!/Π(d_i-1)!。
 #include<bits/stdc++.h>
 using namespace std;
-vector<int> prufer_encode(const vector<vector<int>> &g)
+vector<vector<int>> g;
+vector<int> code;
+vector<int> prufer_encode()
 {
-    int n=g.size();assert(n>=2);vector<int>d(n),code;priority_queue<int,vector<int>,greater<int>> q;
+    int n=g.size();assert(n>=2);vector<int>d(n);code.clear();priority_queue<int,vector<int>,greater<int>> q;
     for(int i=0;i<n;i++){d[i]=g[i].size();if(d[i]==1)q.push(i);}
     for(int k=0;k<n-2;k++){int u=q.top();q.pop();d[u]=0;int v=-1;for(int x:g[u])if(d[x]){v=x;break;}assert(v>=0);code.push_back(v);if(--d[v]==1)q.push(v);}
     return code;
 }
-vector<vector<int>> prufer_decode(const vector<int>&code)
+vector<vector<int>> prufer_decode()
 {
     int n=code.size()+2;vector<int>d(n,1);for(int x:code){assert(x>=0&&x<n);d[x]++;}
-    priority_queue<int,vector<int>,greater<int>> q;for(int i=0;i<n;i++)if(d[i]==1)q.push(i);vector<vector<int>>g(n);
+    priority_queue<int,vector<int>,greater<int>> q;for(int i=0;i<n;i++)if(d[i]==1)q.push(i);g.assign(n,{});
     auto edge=[&](int u,int v){g[u].push_back(v);g[v].push_back(u);};
     for(int v:code){int u=q.top();q.pop();edge(u,v);if(--d[v]==1)q.push(v);}
     int u=q.top();q.pop();edge(u,q.top());return g;

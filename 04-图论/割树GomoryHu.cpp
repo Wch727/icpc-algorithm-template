@@ -13,7 +13,9 @@ struct CutDinic
     ll dfs(int u,int t,ll f){if(u==t)return f;for(int &i=it[u];i<(int)g[u].size();i++){auto &e=g[u][i];if(e.c&&d[e.v]==d[u]+1){ll z=dfs(e.v,t,min(f,e.c));if(z){e.c-=z;g[e.v][e.rev].c+=z;return z;}}}return 0;}
     ll flow(int s,int t){ll ans=0;while(bfs(s,t)){fill(it.begin(),it.end(),0);while(ll z=dfs(s,t,LLONG_MAX/4))ans+=z;}return ans;}
 };
-vector<array<ll,3>> gomory_hu(int n,const vector<array<ll,3>> &edges)
+int n;
+vector<array<ll,3>> edges;
+vector<array<ll,3>> gomory_hu()
 {
     vector<int> p(n);vector<array<ll,3>> tree;
     for(int s=1;s<n;s++)

@@ -34,7 +34,8 @@ Matrix qpow(Matrix a,ll n)
 }
 
 // O(k^3 log n)，f(n)=c[0]f(n-1)+...+c[k-1]f(n-k)，初值 f(0..k-1)
-ll solve(const vector<ll> &c,const vector<ll> &f,ll n)
+vector<ll> c,f;
+ll solve(ll n)
 {
     int k=c.size();
     assert(k>0&&f.size()==c.size()&&n>=0);

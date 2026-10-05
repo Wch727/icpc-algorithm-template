@@ -16,12 +16,13 @@ struct Job
     int d,p;
 };
 
-ll job_schedule(vector<Job> v)
+vector<Job> jobs;
+ll job_schedule()
 {
-    sort(v.begin(),v.end(),[](const Job &a,const Job &b){return a.d<b.d;});
+    sort(jobs.begin(),jobs.end(),[](const Job &a,const Job &b){return a.d<b.d;});
     priority_queue<int,vector<int>,greater<int> > q;
     ll ans=0;
-    for(Job x:v)
+    for(Job x:jobs)
     {
         q.push(x.p),ans+=x.p;
         if((int)q.size()>x.d)ans-=q.top(),q.pop(); // 连新任务一起比较，撤销最低收益
@@ -38,12 +39,13 @@ struct Task
     ll t,d;
 };
 
-int task_schedule(vector<Task> v)
+vector<Task> tasks;
+int task_schedule()
 {
-    sort(v.begin(),v.end(),[](const Task &a,const Task &b){return a.d<b.d;});
+    sort(tasks.begin(),tasks.end(),[](const Task &a,const Task &b){return a.d<b.d;});
     priority_queue<ll> q;
     ll tot=0;
-    for(Task x:v)
+    for(Task x:tasks)
     {
         if(tot+x.t<=x.d)
         {

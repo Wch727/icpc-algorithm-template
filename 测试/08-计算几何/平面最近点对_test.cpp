@@ -1,6 +1,8 @@
 // 平面最近点对 的测试与对拍代码
 // 模板本体：08-计算几何/平面最近点对.cpp
 #include "../../08-计算几何/平面最近点对.cpp"
+double closest_pair(vector<Point> arg_a){a=arg_a;return closest_pair();}
+double solve(vector<Point> &arg_a,vector<Point> &arg_tmp,int l,int r){a=arg_a;tmp=arg_tmp;double result=solve(l,r);arg_a=a;arg_tmp=tmp;return result;}
 
 double brute(vector<Point> a)
 {

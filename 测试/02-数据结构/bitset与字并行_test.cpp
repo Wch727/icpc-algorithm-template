@@ -1,6 +1,8 @@
 // bitset与字并行 的测试与对拍代码
 // 模板本体：02-数据结构/bitset与字并行.cpp
 #include "../../02-数据结构/bitset与字并行.cpp"
+bitset<N> subset_sum(const vector<int> &arg_a){a=arg_a;return subset_sum();}
+void closure(vector<bitset<N> > &arg_g){g=arg_g;closure();arg_g=g;}
 namespace masks {
 #include "../../01-基础与技巧/位运算技巧.cpp"
 }

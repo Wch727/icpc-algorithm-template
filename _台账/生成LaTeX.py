@@ -7,6 +7,7 @@ python _台账/生成LaTeX.py
 """
 import json
 import re
+from functools import lru_cache
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -293,7 +294,7 @@ def explain(text):
 
 
 def manual_blocks(source, rel):
-    """选定章节：模块说明独立排成正文，语句附近的注释保留在代码里。
+    """各章节：模块说明独立排成正文，语句附近的注释保留在代码里。
 
     原 cpp 仍为复制与测试的入口；这里只重排手册，不修改实现。
     BigInt 的各区在同一个 struct 中，打印时可由正文隔开。
@@ -387,18 +388,29 @@ def render_companion(source, md, rel):
     return '\n'.join(out)
 
 
+@lru_cache(maxsize=1)
+def variable_notes():
+    variable_file = ROOT / '说明' / '全局变量说明.md'
+    result = {}
+    for section in variable_file.read_text(encoding='utf-8-sig').split('\n## ')[1:]:
+        title, _, body = section.partition('\n')
+        title = title.strip()
+        if title in result or not body.strip():
+            raise ValueError('Duplicate or empty variable note: ' + title)
+        result[title] = math_notes(body.strip()) + '\n'
+    actual = {p.relative_to(ROOT).as_posix() for d, _ in CHAPTERS
+              for p in (ROOT / d).glob('*.cpp')}
+    if result.keys() != actual:
+        raise ValueError('Variable notes mismatch: ' + ', '.join(sorted(result.keys() ^ actual)))
+    return result
+
+
 def render_template(source, rel):
+    variable_text = variable_notes()[rel]
     companion = ROOT / '说明' / Path(rel).with_suffix('.md')
     if companion.exists():
-        return render_companion(source, companion.read_text(encoding='utf-8-sig'), rel)
-    prose_templates = {
-        '05-数学/线性基.cpp', '03-字符串/AC自动机.cpp', '03-字符串/KMP.cpp',
-        '05-数学/类欧几里得(floor_sum).cpp', '05-数学/行列式与矩阵树定理.cpp',
-    }
-    if rel.startswith(('01-基础与技巧/', '02-数据结构/')) or rel in prose_templates:
-        blocks = manual_blocks(source, rel)
-    else:
-        blocks = [('code', clean_code(source, rel))]
+        return variable_text + render_companion(source, companion.read_text(encoding='utf-8-sig'), rel)
+    blocks = manual_blocks(source, rel)
     out = []
     for kind, body in blocks:
         if kind == 'text':
@@ -407,7 +419,7 @@ def render_template(source, rel):
             if r'\end{lstlisting}' in body:
                 raise ValueError('Listing delimiter in ' + rel)
             out.extend([r'\begin{lstlisting}', body, r'\end{lstlisting}'])
-    return '\n'.join(out)
+    return variable_text + '\n'.join(out)
 
 def notes(md, common=False):
     out = []

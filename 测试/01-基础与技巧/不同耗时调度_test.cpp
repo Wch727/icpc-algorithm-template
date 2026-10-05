@@ -1,4 +1,5 @@
 #include "../../01-基础与技巧/反悔贪心.cpp"
+int task_schedule(vector<Task> input){tasks=move(input);return task_schedule();}
 
 int main()
 {

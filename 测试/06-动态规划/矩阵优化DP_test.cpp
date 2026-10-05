@@ -1,6 +1,7 @@
 // 矩阵优化DP 的测试与对拍代码
 // 模板本体：06-动态规划/矩阵优化DP.cpp
 #include "../../06-动态规划/矩阵优化DP.cpp"
+ll solve(const vector<ll> &arg_c,const vector<ll> &arg_f,ll n){c=arg_c;f=arg_f;return solve(n);}
 
 int main()
 {

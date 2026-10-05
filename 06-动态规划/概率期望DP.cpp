@@ -7,30 +7,31 @@ double p;// 每步向目标前进的概率
 double E[N];// 期望步数
 double P[N];// 当前时刻各位置的概率
 double A[N][N],bvec[N],sol[N];// 线性方程组用
+double np[N],st[15][15],ns[15][15];
 
 // O(n^3)，高斯消元解线性方程组，用来和期望 dp 对拍
-void gauss(int n,double A[][N],double b[],double x[])
+void gauss(int sz)
 {
-    for(int i=0;i<n;i++)
+    for(int i=0;i<sz;i++)
     {
         int piv=i;
-        for(int j=i;j<n;j++)
+        for(int j=i;j<sz;j++)
             if(fabs(A[j][i])>fabs(A[piv][i]))piv=j;
         if(fabs(A[piv][i])<1e-14)continue;
-        for(int j=0;j<n;j++)swap(A[i][j],A[piv][j]);
-        swap(b[i],b[piv]);
+        for(int j=0;j<sz;j++)swap(A[i][j],A[piv][j]);
+        swap(bvec[i],bvec[piv]);
         double d=A[i][i];
-        for(int j=i;j<n;j++)A[i][j]/=d;
-        b[i]/=d;
-        for(int j=0;j<n;j++)
+        for(int j=i;j<sz;j++)A[i][j]/=d;
+        bvec[i]/=d;
+        for(int j=0;j<sz;j++)
             if(j!=i&&fabs(A[j][i])>1e-15)
             {
                 double f=A[j][i];
-                for(int k=i;k<n;k++)A[j][k]-=f*A[i][k];
-                b[j]-=f*b[i];
+                for(int k=i;k<sz;k++)A[j][k]-=f*A[i][k];
+                bvec[j]-=f*bvec[i];
             }
     }
-    for(int i=0;i<n;i++)x[i]=b[i];
+    for(int i=0;i<sz;i++)sol[i]=bvec[i];
 }
 
 // ===== 期望 dp 逆推 =====
@@ -53,7 +54,7 @@ double exp_hit(int n,double p)
         if(i-1>=0)A[i][i-1]-=(1-p);// E[i] 里含 (1-p)*E[i-1]
         bvec[i]=1;
     }
-    gauss(sz,A,bvec,sol);
+    gauss(sz);
     return sol[0];
 }
 
@@ -74,7 +75,6 @@ double exp_forward_walk(int n,double p)
         for(int i=0;i<n;i++)cost+=P[i];// 还没到 n
         ans+=cost;
         if(cost<1e-14)break;
-        double np[N];
         for(int i=0;i<=n;i++)np[i]=0;
         for(int i=0;i<n;i++)
         {
@@ -92,7 +92,6 @@ double exp_forward_walk(int n,double p)
 // 每次 a 概率向右、b 概率向上、其余概率不动，走到 (n-1,m-1) 停，求期望步数
 double exp_forward_grid(int n,int m,double a,double b)
 {
-    double st[15][15];
     for(int i=0;i<n;i++)
         for(int j=0;j<m;j++)st[i][j]=0;
     st[0][0]=1;
@@ -106,7 +105,6 @@ double exp_forward_grid(int n,int m,double a,double b)
                 if(!(i==n-1&&j==m-1))cost+=st[i][j];// 此刻还没走到终点
         ans+=cost;
         if(cost<1e-14)break;
-        double ns[15][15];
         for(int i=0;i<n;i++)
             for(int j=0;j<m;j++)ns[i][j]=0;
         for(int i=0;i<n;i++)

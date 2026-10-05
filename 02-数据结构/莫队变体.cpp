@@ -6,7 +6,12 @@
 using namespace std;
 struct Modification{int pos,before,after;};
 struct TimedQuery{int l,r,time;};
-vector<int> modified_mo(vector<int> a,int sigma,const vector<Modification> &change,const vector<TimedQuery> &query)
+vector<int> a,color;
+vector<Modification> change;
+vector<TimedQuery> query;
+vector<vector<int>> g;
+vector<pair<int,int>> queries,range_query;
+vector<int> modified_mo(int sigma)
 {
     int n=a.size(),block=max(1,(int)pow(max(1,n),2.0/3));vector<int> order(query.size());iota(order.begin(),order.end(),0);
     sort(order.begin(),order.end(),[&](int x,int y){auto a=query[x],b=query[y];return tuple(a.l/block,a.r/block,a.time)<tuple(b.l/block,b.r/block,b.time);});
@@ -16,7 +21,7 @@ vector<int> modified_mo(vector<int> a,int sigma,const vector<Modification> &chan
     for(int id:order){auto q=query[id];while(t<q.time)apply(t++,true);while(t>q.time)apply(--t,false);while(l>q.l)add(a[--l]);while(r<q.r)add(a[++r]);while(l<q.l)del(a[l++]);while(r>q.r)del(a[r--]);ans[id]=different;}
     return ans;
 }
-vector<int> tree_mo(const vector<vector<int>> &g,const vector<int> &color,int sigma,const vector<pair<int,int>> &queries)
+vector<int> tree_mo(int sigma)
 {
     int n=g.size();if(!n){assert(queries.empty());return {};}
     int log=1;while((1LL<<log)<=n)log++;vector<vector<int>> up(log,vector<int>(n));vector<int> tin(n),tout(n),depth(n),euler,idx(n),parent(n,-1),stack={0};
@@ -33,17 +38,17 @@ vector<int> tree_mo(const vector<vector<int>> &g,const vector<int> &color,int si
     for(auto a:q){while(l>a.l)flip(euler[--l]);while(r<a.r)flip(euler[++r]);while(l<a.l)flip(euler[l++]);while(r>a.r)flip(euler[r--]);if(a.extra>=0)flip(a.extra);ans[a.id]=distinct;if(a.extra>=0)flip(a.extra);}
     return ans;
 }
-vector<int> rollback_mo(const vector<int> &a,int sigma,const vector<pair<int,int>> &query)
+vector<int> rollback_mo(int sigma)
 {
-    int n=a.size(),block=max(1,(int)sqrt(max(1,n)));vector<int> order(query.size()),ans(query.size());iota(order.begin(),order.end(),0);
-    sort(order.begin(),order.end(),[&](int i,int j){return pair(query[i].first/block,query[i].second)<pair(query[j].first/block,query[j].second);});
+    int n=a.size(),block=max(1,(int)sqrt(max(1,n)));vector<int> order(range_query.size()),ans(range_query.size());iota(order.begin(),order.end(),0);
+    sort(order.begin(),order.end(),[&](int i,int j){return pair(range_query[i].first/block,range_query[i].second)<pair(range_query[j].first/block,range_query[j].second);});
     vector<int> first(sigma,n),last(sigma,-1);struct Change{int v,first,last,best;};vector<Change> log;int best=0;
     auto add=[&](int pos){int v=a[pos];log.push_back({v,first[v],last[v],best});first[v]=min(first[v],pos);last[v]=max(last[v],pos);best=max(best,last[v]-first[v]);};
     auto rollback=[&](int size){while((int)log.size()>size){auto c=log.back();log.pop_back();first[c.v]=c.first;last[c.v]=c.last;best=c.best;}};
     int current=-1,right=-1;
     for(int id:order)
     {
-        auto [l,r]=query[id];int b=l/block,end=min(n,(b+1)*block);
+        auto [l,r]=range_query[id];int b=l/block,end=min(n,(b+1)*block);
         if(b!=current){rollback(0);current=b;right=end-1;}
         if(r<end){int save=log.size();for(int p=l;p<=r;p++)add(p);ans[id]=best;rollback(save);}
         else{while(right<r)add(++right);int save=log.size();for(int p=end-1;p>=l;p--)add(p);ans[id]=best;rollback(save);}

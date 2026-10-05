@@ -1,6 +1,8 @@
 // 中国剩余定理 的测试与对拍代码
 // 模板本体：05-数学/中国剩余定理.cpp
 #include "../../05-数学/中国剩余定理.cpp"
+ll crt(int arg_n,ll arg_a[],ll arg_m[]){n=arg_n;for(int i=1;i<=arg_n;i++)a[i]=arg_a[i];for(int i=1;i<=arg_n;i++)m[i]=arg_m[i];return crt();}
+ll crt_ex(int arg_n,ll arg_a[],ll arg_m[]){n=arg_n;for(int i=1;i<=arg_n;i++)a[i]=arg_a[i];for(int i=1;i<=arg_n;i++)m[i]=arg_m[i];return crt_ex();}
 
 int main()
 {

@@ -4,9 +4,11 @@ using namespace std;
 const int N=513;
 
 // @code knapsack
-bitset<N> subset_sum(const vector<int> &a)
+vector<int> a;
+bitset<N> f;
+bitset<N> subset_sum()
 {
-    bitset<N> f;
+    f.reset();
     f[0]=1;
     for(int x:a)
     {
@@ -17,7 +19,8 @@ bitset<N> subset_sum(const vector<int> &a)
 }
 
 // @code closure
-void closure(vector<bitset<N> > &g)
+vector<bitset<N>> g;
+void closure()
 {
     int n=g.size();
     assert(n<=N);

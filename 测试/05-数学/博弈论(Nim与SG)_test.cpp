@@ -1,6 +1,8 @@
 // 博弈论(Nim与SG) 的测试与对拍代码
 // 模板本体：05-数学/博弈论(Nim与SG).cpp
 #include "../../05-数学/博弈论(Nim与SG).cpp"
+bool nim_win(int arg_n,int arg_a[]){n=arg_n;for(int i=1;i<=arg_n;i++)a[i]=arg_a[i];return nim_win();}
+pair<int,int> nim_first(int arg_n,int arg_a[]){n=arg_n;for(int i=1;i<=arg_n;i++)a[i]=arg_a[i];return nim_first();}
 
 // 暴力博弈：每步从任意一堆取 1..k 个（k=0 表示不限制，即普通 Nim）
 // 返回当前局面先手是否必胜；memo 用按 k 分开的记忆化

@@ -3,7 +3,9 @@
 // O((n+m+q) log(m+2) * alpha(n))，空间 O(n+m+q)；边/查询向量从 0 起，点 1..n。
 #include<bits/stdc++.h>
 using namespace std;
-vector<int> first_connected(int n,const vector<pair<int,int>> &e,const vector<pair<int,int>> &query)
+int n;
+vector<pair<int,int>> e,query;
+vector<int> first_connected()
 {
     int m=e.size(),q=query.size();
     vector<int> l(q),r(q,m+1),fa(n+1),sz(n+1);

@@ -4,7 +4,8 @@
 #include<bits/stdc++.h>
 using namespace std;
 using ll=long long;
-pair<ll,vector<int>> hungarian(const vector<vector<ll>> &c)
+vector<vector<ll>> c;
+pair<ll,vector<int>> hungarian()
 {
     int n=c.size(),m=n?c[0].size():0;assert(n<=m);
     vector<ll> u(n+1),v(m+1);vector<int> p(m+1),way(m+1);

@@ -1,6 +1,7 @@
 #include "../../04-图论/Kruskal重构树.cpp"
 #include "../../04-图论/线段树优化建图.cpp"
 #include "../../02-数据结构/整体二分(前缀判定).cpp"
+vector<int> first_connected(int arg_n,const vector<pair<int,int>> &arg_e,const vector<pair<int,int>> &arg_query){n=arg_n;e=arg_e;query=arg_query;return first_connected();}
 const ll INF_TEST=LLONG_MAX/4;
 vector<ll> distances(const vector<vector<pair<int,ll>>> &g,int s)
 {

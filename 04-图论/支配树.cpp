@@ -3,7 +3,8 @@
 // DFS 与并查集压缩均迭代，避免长链爆栈；割点算法不能替代入口相关的有向支配。
 #include<bits/stdc++.h>
 using namespace std;
-vector<int> dominator_tree(const vector<vector<int>> &g,int root)
+vector<vector<int>> g;
+vector<int> dominator_tree(int root)
 {
     int n=g.size();assert(0<=root&&root<n);vector<int> dfn(n),ord={-1},parent(n+1),idx(n),stack={root};
     dfn[root]=1;ord.push_back(root);

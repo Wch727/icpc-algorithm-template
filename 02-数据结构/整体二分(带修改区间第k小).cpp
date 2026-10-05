@@ -7,7 +7,9 @@ struct Operation{int type,x,y,k;};
 // 查询去右半时 k 减掉左半数量；分组必须保持原时间顺序，递归前撤销 BIT。
 // 修改拆成旧值 -1、新值 +1；O((n+q) log V log n)，V 是不同值数。
 // 空间 O(n+q)：分组后释放父层事件，避免同一批事件在多层递归中重复保留。
-vector<int> range_kth(vector<int> a,const vector<Operation> &ops)
+vector<int> a;
+vector<Operation> ops;
+vector<int> range_kth()
 {
     int n=(int)a.size()-1;
     assert(n>=0);

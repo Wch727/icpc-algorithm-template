@@ -4,6 +4,7 @@ struct Point
 {
     double x,y;
 };
+vector<Point> a,tmp;
 double dis2(Point a,Point b)
 {
     return (a.x-b.x)*(a.x-b.x)+(a.y-b.y)*(a.y-b.y);
@@ -13,7 +14,7 @@ bool cmp_y(Point a,Point b)
     return a.y<b.y;
 }
 // 递归入口按 x 排序，出口按 y 排序；归并与带内扫描 O(n)。
-double solve(vector<Point> &a,vector<Point> &tmp,int l,int r)
+double solve(int l,int r)
 {
     if(r-l<=3)
     {
@@ -24,7 +25,7 @@ double solve(vector<Point> &a,vector<Point> &tmp,int l,int r)
     }
     int mid=(l+r)>>1;
     double x=a[mid].x;
-    double ans=min(solve(a,tmp,l,mid),solve(a,tmp,mid,r));
+    double ans=min(solve(l,mid),solve(mid,r));
     merge(a.begin()+l,a.begin()+mid,a.begin()+mid,a.begin()+r,tmp.begin()+l,cmp_y);
     copy(tmp.begin()+l,tmp.begin()+r,a.begin()+l);
     vector<Point> p;
@@ -37,9 +38,9 @@ double solve(vector<Point> &a,vector<Point> &tmp,int l,int r)
     return ans;
 }
 // O(n log n)，最近点对距离；少于两点返回正无穷，重合点返回 0。
-double closest_pair(vector<Point> a)
+double closest_pair()
 {
     sort(a.begin(),a.end(),[](Point x,Point y){return x.x!=y.x?x.x<y.x:x.y<y.y;});
-    vector<Point> tmp(a.size());
-    return sqrt(solve(a,tmp,0,a.size()));
+    tmp.resize(a.size());
+    return sqrt(solve(0,a.size()));
 }

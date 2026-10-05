@@ -6,7 +6,9 @@ using namespace std;
 // 从未匹配左点沿交错路：左->右走非匹配边，右->左走匹配边。
 // 最小点覆盖 = 未到达左点 + 到达右点；返回左右编号，O(n+m)。
 // 最大独立集取该覆盖的补集；本结论仅适用于二分图。
-pair<vector<int>,vector<int>> vertex_cover(const vector<vector<int>> &adj,const vector<int> &match)
+vector<vector<int>> adj;
+vector<int> match;
+pair<vector<int>,vector<int>> vertex_cover()
 {
     int nl=(int)adj.size()-1,nr=(int)match.size()-1;
     vector<int> ml(nl+1),vl(nl+1),vr(nr+1);

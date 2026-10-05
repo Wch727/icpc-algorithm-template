@@ -2,7 +2,8 @@
 // 返回左侧的伴侣；O(n²)，提议的左侧在所有稳定匹配中最优。目标不是最大总权。
 #include<bits/stdc++.h>
 using namespace std;
-vector<int> stable_matching(const vector<vector<int>> &a,const vector<vector<int>> &b)
+vector<vector<int>> a,b;
+vector<int> stable_matching()
 {
     int n=a.size();assert((int)b.size()==n);
     vector<vector<int>> rank(n,vector<int>(n));

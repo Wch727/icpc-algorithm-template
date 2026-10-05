@@ -7,7 +7,8 @@ typedef long long ll;
 // 每个点统计其他满足 x<=x_i,y<=y_i,z<=z_i 的点，按原输入顺序返回。
 // 相同三元组先合并，组内另加 w-1；不能直接拿重复点做 CDQ。
 // x 排序后分治，跨左右统计 y，树状数组统计 z；O(n log²n)，空间 O(n)。
-vector<ll> dominance(const vector<array<int,3>> &a)
+vector<array<int,3>> a;
+vector<ll> dominance()
 {
     struct Node{int x,y,z,w,id;ll ans;};
     int n=a.size();

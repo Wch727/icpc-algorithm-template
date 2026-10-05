@@ -14,6 +14,7 @@ namespace inversion {
 }
 namespace greedy {
 #include "../../01-基础与技巧/反悔贪心.cpp"
+ll job_schedule(vector<Job> input){jobs=move(input);return job_schedule();}
 }
 namespace ski {
 #include "../../01-基础与技巧/记忆化搜索.cpp"

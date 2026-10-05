@@ -17,7 +17,8 @@ struct StringLCE
     }
     int query(int i,int j)const{if(i<0||j<0||i>=n||j>=n)return 0;if(i==j)return n-i;int a=rank[i],b=rank[j];if(a>b)swap(a,b);int k=lg[b-a];return min(st[k][a+1],st[k][b-(1<<k)+1]);}
 };
-vector<array<int,3>> tandem_repeats(const string &s)
+string s;
+vector<array<int,3>> tandem_repeats()
 {
     int n=s.size();StringLCE forward(s);string rev=s;reverse(rev.begin(),rev.end());StringLCE backward(rev);vector<array<int,3>>ans;
     for(int p=1;p*2<=n;p++)for(int i=0;i+p<n;i+=p)

@@ -24,9 +24,11 @@ ll exgcd(ll a,ll b,ll &x,ll &y)
 // 用前缀积 p[i]=m[1..i]、后缀积 s[i]=m[i..n] 把 M/m[i] 控制在 1e18 内
 // 总模数乘积应 <= 1e18，否则解可能溢出
 // O(n log M)，合并 1..n 条互素同余；前后缀需 n+1 槽，输入乘积须可存。
-ll crt(int n,ll a[],ll m[])
+int n;
+ll a[N],m[N],p[N],s[N];
+ll crt()
 {
-    static ll p[N],s[N];
+
     p[0]=1;
     for(int i=1;i<=n;i++)p[i]=p[i-1]*m[i];
     s[n+1]=1;
@@ -68,7 +70,7 @@ bool crt_merge(ll &a1,ll &m1,ll a2,ll m2)
 
 // O(n log)，扩展 CRT 数组版，无解返回 -1（要求 lcm 不超过 9e18）
 // O(n log M)，输入模数可不互素，返回最小非负解或 -1；n 必须非零。
-ll crt_ex(int n,ll a[],ll m[])
+ll crt_ex()
 {
     ll ra=a[1],rm=m[1];
     for(int i=2;i<=n;i++)
