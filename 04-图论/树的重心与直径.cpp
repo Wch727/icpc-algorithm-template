@@ -1,7 +1,7 @@
 // 树的重心、直径、树上最远点
 // 直径两种写法：两遍 bfs / 树形 DP；求法都是 O(n)
 // 重心：删掉它之后最大连通块最小（重心最多两个，这里求编号最小的那个）
-// 最远点：任意点 x 的最远点一定是直径端点之一，O(1)（见 build_far/far_node/eccentricity）
+// 最远点：任意点 x 的某个最远点可取直径端点，O(1)（见 build_far/far_node/eccentricity）
 // 递归写法给 n<=3e4 用；n=1e5 的链请用下面的迭代版（显式栈），否则可能爆栈
 #include<bits/stdc++.h>
 using namespace std;
@@ -117,7 +117,7 @@ int get_centroid()
     return best;
 }
 
-// 树上最远点 / 偏心距：x 的最远点一定是直径端点 da 或 db 之一，O(1)
+// 树上最远点 / 偏心距：max(dist(x,da),dist(x,db))，并列时还可能有其他最远点。
 // 前提：dis 是 bfs(da) 的结果（dis[da]=0, dis[db]=dia）
 // 注意：不能写成 dia-dis[x]！那只在 x 落在直径路径上时才对，
 //       一般点要分别算 d(x,da)=dis[x] 和 d(x,db)，其中 d(x,db) 需要 dist_db[]

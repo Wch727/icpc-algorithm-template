@@ -2,6 +2,10 @@
 // 单独将该平面区域加半径 R 的三维球，体积 V=2*R*S+(pi/2)*R²*L+(4*pi/3)*R³。
 // 两步同时出现时先更新 S、L，再代入球半径；二维圆盘和三维球的半径不能直接相加。
 #include<bits/stdc++.h>
+// 随机平移交面积：非退化凸多边形 P、Q，在有正交面积的平移向量域内均匀采样 t。
+// 域为 P+(-Q) 的内部，E[area(P交(Q+t))]=area(P)*area(Q)/area(P+(-Q))。
+// 对每个 x属于P，积分指示[x属于Q+t]，可行 t 的面积均为 area(Q)；交换积分即得分子。
+// 需先把 Q 各点取负（不是反转点序），再调用 minkowski；不适用于任意矩形内采样或随机旋转。
 using namespace std;
 typedef long long ll;
 struct Point

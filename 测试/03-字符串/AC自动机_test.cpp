@@ -11,6 +11,31 @@ string rand_str(int len)
 
 int main()
 {
+    // 每个前缀枚举全部非空子集，独立核对最大 LCP 与异或累计值。
+    for(vector<string> a:{vector<string>{"a","a","ab","abc","b","ab"},
+                         vector<string>{"abcd","ab","abc","abcd","z","za"}})
+    {
+        PrefixLCP b;int r=0;
+        for(const string &s:a)
+        {
+            ll got=b.insert(s);++r;
+            vector<int> best(r+1);
+            for(int mask=1;mask<(1<<r);mask++)
+            {
+                string p;bool first=true;
+                for(int i=0;i<r;i++)if(mask>>i&1)
+                {
+                    if(first){p=a[i];first=false;}
+                    else {int k=0;while(k<(int)min(p.size(),a[i].size())&&p[k]==a[i][k])++k;p.resize(k);}
+                }
+                int j=__builtin_popcount((unsigned)mask);
+                best[j]=max(best[j],(int)p.size());
+            }
+            ll want=0;
+            for(int j=1;j<=r;j++){assert(b.f[j]==best[j]);want+=best[j]^j;}
+            assert(got==want);
+        }
+    }
     srand(12345);
 
     // 基础自测：模式串 he/she/his/hers，文本 ushershe

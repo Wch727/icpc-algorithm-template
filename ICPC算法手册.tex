@@ -52,7 +52,7 @@
 \begin{document}
 \fontsize{8.3}{9.8}\selectfont
 
-\begin{center}{\fontsize{15}{17}\selectfont\bfseries ICPC 算法手册}\quad\small 2026-10-02\end{center}
+\begin{center}{\fontsize{15}{17}\selectfont\bfseries ICPC 算法手册}\quad\small 2026-10-05\end{center}
 \note{双栏完整实现版\quad 199 份代码模板、1 份速查表。各模板独立使用；同名全局量和函数按题目取舍，不将整本直接拼接编译。公共头文件与 \texttt{ll} 定义仅在此列出，其他容量、类型和依赖保留在各模板中。}
 \begin{lstlisting}
 #include<bits/stdc++.h>
@@ -403,6 +403,11 @@ ll sum_min()
 \note{一侧严格、一侧非严格，把相同最小值归给最右位置，避免重复或遗漏。 求最大值之和：>\allowbreak{}=\allowbreak{} 改为 <\allowbreak{}=\allowbreak{}；子数组极差之和 =\allowbreak{} 最大值之和 -\allowbreak{} 最小值之和。}
 % SOURCE: 01-基础与技巧/单调队列.cpp
 \subsection{单调队列}
+
+\topic{等长区间平移：差集配对}
+\note{旧区间 $[s,s+L)$ 右移 $d$，$0\le d\le L$。重叠部分不变；移出 $[s,s+d)$，移入 $[s+L,s+L+d)$。记移出、移入边际收益为 $u_i,v_i$，则}
+\[\Delta(s,d)=\sum_{i=s}^{s+d-1}(u_i+v_{i+L}).\]
+\note{例如最大化恰被覆盖 $k$ 次的位置数，原覆盖次数为 $c_i$：$u_i=[c_i=k+1]-[c_i=k]$，$v_i=[c_i=k-1]-[c_i=k]$。令 $z_i=u_i+v_{i+L}$，允许 $d\le L$ 时变成长度至多 $L$ 的最大子段和，用前缀最小值队列。保留不移动的零收益；$d>L$ 为不交情形，须另算（2025 成都 K）。}
 
 \note{q 存候选下标；每个候选最多入队、出队一次，总 O(\allowbreak{}n)\allowbreak{}。 适用：候选按入队顺序失效，过期后不再有效；队首始终是当前最优候选。 新候选在旧候选剩余有效期内始终有效且不劣，才能永久删除旧候选。 若候选优劣随查询改变、可能反转，不能直接套这个循环。}
 \begin{lstlisting}
@@ -3266,8 +3271,9 @@ ll subtree_sum(int u){return seg.query(dfn[u],dfn[u]+sz[u]-1,1,n,1);}
 \begin{lstlisting}
 const int N=100005;
 // 珂朵莉树(ODT / 颜色段均摊)：set 维护极长同色段
-// 区间赋值时把中间段全删掉，段数均摊下降，随机数据下近似 O((n+m) log n)
-// 注意：必须保证有区间赋值操作，否则段数不收敛会退化成暴力
+// 区间赋值遍历并删除的段可按生命周期均摊；每次 split 只新增 O(1) 段。
+// add/kth/求和等会遍历但不删除段，重复扫很多段可达 O(nq)，有赋值也不保证性能。
+// 仅赋值型删段操作有上述确定性均摊；混合操作的随机期望依赖输入分布，不能当最坏保证。
 struct Node
 {
     int l,r;
@@ -4005,10 +4011,8 @@ Link L;
 % SOURCE: 03-字符串/AC自动机.cpp
 \subsection{AC自动机}
 
+\note{匹配文本前缀到状态 u：它的 fail 树祖先均为当前位置结束的匹配模式。 反过来模式结点 v 的出现次数/\allowbreak{}位置和，可统计 fail 子树内被访问状态；DFS 序转 BIT 区间。 多查询若对文本前缀长度单调，可共建一棵 AC，再整体二分按 mid 扫文本。}
 \begin{lstlisting}
-// 匹配文本前缀到状态 u：它的 fail 树祖先均为当前位置结束的匹配模式。
-// 反过来模式结点 v 的出现次数/位置和，可统计 fail 子树内被访问状态；DFS 序转 BIT 区间。
-// 多查询若对文本前缀长度单调，可共建一棵 AC，再整体二分按 mid 扫文本。
 const int N=200005;
 int n,m,root=1,tot=1;
 string s;
@@ -4016,7 +4020,9 @@ int trie[N][26];// Trie 儿子
 int nxt[N];// fail 指针
 int cnt[N];// 该结点被多少个模式串覆盖
 int id[N];// 每个模式串的终止结点
-// 插入模式串，返回终止结点编号
+\end{lstlisting}
+\note{插入模式串，返回终止结点编号}
+\begin{lstlisting}
 int insert(const string &str)
 {
     int p=root;
@@ -4029,7 +4035,9 @@ int insert(const string &str)
     cnt[p]++;//终止结点覆盖数 +1，重复模式串也累计
     return p;
 }
-// 清空 Trie，多组数据用；O(tot)
+\end{lstlisting}
+\note{清空 Trie，多组数据用；O(\allowbreak{}tot)\allowbreak{}}
+\begin{lstlisting}
 void clear_trie()
 {
     for(int i=0;i<=tot;i++)
@@ -4039,7 +4047,9 @@ void clear_trie()
     }
     tot=1;
 }
-// 建 fail 指针（BFS），根的儿子 fail 指向根；O(结点数*26)
+\end{lstlisting}
+\note{建 fail 指针（BFS），根的儿子 fail 指向根；O(\allowbreak{}结点数*26)\allowbreak{}}
+\begin{lstlisting}
 void build_fail()
 {
     queue<int> q;
@@ -4061,8 +4071,9 @@ void build_fail()
         }
     }
 }
-// 文本串在自动机上跑一遍，返回所有模式串出现次数之和（含重复计入）
-// 复杂度 O(|文本|)
+\end{lstlisting}
+\note{文本串在自动机上跑一遍，返回所有模式串出现次数之和（含重复计入） 复杂度 O(\allowbreak{}|文本|)\allowbreak{}}
+\begin{lstlisting}
 ll query(const string &txt)
 {
     int p=root;
@@ -4075,19 +4086,44 @@ ll query(const string &txt)
     return ans;
 }
 \end{lstlisting}
+\note{普通 Trie 应用（独立于上面的 AC）：f[\allowbreak{}j]\allowbreak{} 为选恰 j 个已插入串的最大 LCP 长度。 g[\allowbreak{}h]\allowbreak{} 为深度 h 的节点最大经过次数，f[\allowbreak{}j]\allowbreak{}>\allowbreak{}=\allowbreak{}h 等价于 g[\allowbreak{}h]\allowbreak{}>\allowbreak{}=\allowbreak{}j，是同一单调阶梯的转置。 节点 cnt 从 c-\allowbreak{}1 变 c，只需令 f[\allowbreak{}c]\allowbreak{}=\allowbreak{}max(\allowbreak{}f[\allowbreak{}c]\allowbreak{},\allowbreak{}h)\allowbreak{}；g 用于解释，不必实际存储。 小写非空串，重复串保留重数；插入后返回 sum(\allowbreak{}f[\allowbreak{}j]\allowbreak{} xor j)\allowbreak{}，j=\allowbreak{}1.\allowbreak{}.\allowbreak{}已插入串数。}
+\begin{lstlisting}
+struct PrefixLCP
+{
+    vector<array<int,26>> tr{array<int,26>{}};
+    vector<int> cnt{0},f{0};
+    ll sum=0;
+    ll insert(const string &s)
+    {
+        int r=f.size();f.push_back(0);sum+=r;// 新增 j=r 的基准项 0 xor r
+        int p=0,h=0;
+        for(char ch:s)
+        {
+            int x=ch-'a';++h;
+            if(!tr[p][x])
+            {
+                tr[p][x]=tr.size();
+                tr.push_back({});cnt.push_back(0);
+            }
+            p=tr[p][x];int c=++cnt[p];
+            if(h>f[c]){sum-=f[c]^c;f[c]=h;sum+=f[c]^c;}
+        }
+        return sum;
+    }
+};
+\end{lstlisting}
 % SOURCE: 03-字符串/KMP.cpp
 \subsection{KMP}
 
+\note{长 n 串最长 border 长 b：最短周期 p=\allowbreak{}n-\allowbreak{}b；整个串完整重复还需 n\%p=\allowbreak{}=\allowbreak{}0。 p,\allowbreak{}q 都是周期且 n>\allowbreak{}=\allowbreak{}p+\allowbreak{}q-\allowbreak{}gcd(\allowbreak{}p,\allowbreak{}q)\allowbreak{} 时，gcd(\allowbreak{}p,\allowbreak{}q)\allowbreak{} 也是周期；周期不等于整串循环节。 border 链能变成树，前缀出现/\allowbreak{}祖先约束可结合 DFS 序与树状数组，不必重复匹配整串。 长度超过 n/\allowbreak{}2 的真 border 沿链按最短周期 p 等差递减，可整段跳；短 border 仍需另处理。}
 \begin{lstlisting}
-// 长 n 串最长 border 长 b：最短周期 p=n-b；整个串完整重复还需 n%p==0。
-// p,q 都是周期且 n>=p+q-gcd(p,q) 时，gcd(p,q) 也是周期；周期不等于整串循环节。
-// border 链能变成树，前缀出现/祖先约束可结合 DFS 序与树状数组，不必重复匹配整串。
 const int N=1000005;
 int n,m;
 string s,t;
 int nxt[N];
-// 求模式串 p 的 nxt 数组，nxt[i] 表示 p[0..i-1] 的最长公共前后缀长度
-// nxt[0]=-1 便于失配跳转；O(|p|)
+\end{lstlisting}
+\note{求模式串 p 的 nxt 数组，nxt[\allowbreak{}i]\allowbreak{} 表示 p[\allowbreak{}0.\allowbreak{}.\allowbreak{}i-\allowbreak{}1]\allowbreak{} 的最长公共前后缀长度 nxt[\allowbreak{}0]\allowbreak{}=\allowbreak{}-\allowbreak{}1 便于失配跳转；O(\allowbreak{}|p|)\allowbreak{}}
+\begin{lstlisting}
 void get_nxt(const string &p)
 {
     int l=p.length();
@@ -4104,8 +4140,9 @@ void get_nxt(const string &p)
         else j=nxt[j];
     }
 }
-// 在 s 中找 p 的所有出现次数（允许重叠）；必须先 get_nxt(p)
-// 复杂度 O(|s|+|p|)
+\end{lstlisting}
+\note{在 s 中找 p 的所有出现次数（允许重叠）；必须先 get\_nxt(\allowbreak{}p)\allowbreak{} 复杂度 O(\allowbreak{}|s|+\allowbreak{}|p|)\allowbreak{}}
+\begin{lstlisting}
 int kmp(const string &s,const string &p)
 {
     int l1=s.length(),l2=p.length();
@@ -4132,8 +4169,9 @@ int kmp(const string &s,const string &p)
     if(j==l2)cnt++;
     return cnt;
 }
-// 最小循环节长度：n-nxt[n] 若能整除 n 就是循环节，否则整串自己当循环节
-// 例 "abcab" 长度 5、n-nxt[n]=3 不整除，返回 5
+\end{lstlisting}
+\note{最小循环节长度：n-\allowbreak{}nxt[\allowbreak{}n]\allowbreak{} 若能整除 n 就是循环节，否则整串自己当循环节 例 "abcab" 长度 5、n-\allowbreak{}nxt[\allowbreak{}n]\allowbreak{}=\allowbreak{}3 不整除，返回 5}
+\begin{lstlisting}
 int min_cycle(const string &p)
 {
     int l=p.length();
@@ -5346,19 +5384,22 @@ int spfa(int s)// 最坏 O(n*m)；返回 1 表示存在可达负环
 // 参数：顶点 1..n；根调用 tarjan(u,0)，fa 是入边编号而非父顶点。
 // 关键：桥要求 low[v]>dfn[u]，割点允许相等；根必须有至少两棵 DFS 子树。
 // 从 2 开始成对加边，i^1 为反向边；重边仅跳过真正的父边。
-// 边槽须容纳 2*m+2；重建时 num=1，清空 head 与各标记。
+// vector 邻接表保存 {目标,有向边编号}；重建时 num=1，清空 g 与各标记。
+// DFS 树边用 low[v]，已访问邻点用 dfn[v]；否则会把跨割点的返祖信息错误传播。
 // 复杂度：全图 O(n+m)，空间 O(n+m)，递归深度 O(n)；多组须清空标记与计数。
 const int N=100005;
 int n,m;
-int head[N],to[N<<1],nxt[N<<1],num=1;
+vector<pair<int,int>> g[N];
+int num=1;
 int dfn[N],low[N];
 int is_cut[N];// 是否为割点
 int timer=0;
-int ea[N],eb[N],cut_edge[N<<1],ecnt=0;// 桥的列表
+int ea[N],eb[N],ecnt=0;// 桥的列表
+vector<int> cut_edge(2);// 按有向边编号标记桥
 // O(1)，加一个方向的邻接边；编号由 num 决定，不能单独打乱配对。
 void add_edge(int u,int v)
 {
-    to[++num]=v,nxt[num]=head[u],head[u]=num;
+    g[u].push_back({v,++num});cut_edge.push_back(0);
 }
 // O(1)，按顺序加两个方向；注意现有边编号与异或反边约定的风险。
 void add_undirected(int u,int v)
@@ -5371,9 +5412,8 @@ void tarjan(int u,int fa)// 无向图求割点与桥，O(n+m)；fa 是边的入�
 {
     dfn[u]=low[u]=++timer;
     int child=0;
-    for(int i=head[u];i;i=nxt[i])
+    for(auto [v,i]:g[u])
     {
-        int v=to[i];
         if(!dfn[v])
         {
             child++;
@@ -7061,7 +7101,7 @@ struct BIT{
 // 树的重心、直径、树上最远点
 // 直径两种写法：两遍 bfs / 树形 DP；求法都是 O(n)
 // 重心：删掉它之后最大连通块最小（重心最多两个，这里求编号最小的那个）
-// 最远点：任意点 x 的最远点一定是直径端点之一，O(1)（见 build_far/far_node/eccentricity）
+// 最远点：任意点 x 的某个最远点可取直径端点，O(1)（见 build_far/far_node/eccentricity）
 // 递归写法给 n<=3e4 用；n=1e5 的链请用下面的迭代版（显式栈），否则可能爆栈
 const int N=100005;
 int n;
@@ -7168,7 +7208,7 @@ int get_centroid()
     }
     return best;
 }
-// 树上最远点 / 偏心距：x 的最远点一定是直径端点 da 或 db 之一，O(1)
+// 树上最远点 / 偏心距：max(dist(x,da),dist(x,db))，并列时还可能有其他最远点。
 // 前提：dis 是 bfs(da) 的结果（dis[da]=0, dis[db]=dia）
 // 注意：不能写成 dia-dis[x]！那只在 x 落在直径路径上时才对，
 //       一般点要分别算 d(x,da)=dis[x] 和 d(x,db)，其中 d(x,db) 需要 dist_db[]
@@ -7465,6 +7505,10 @@ vector<int> stable_matching(const vector<vector<int>> &a,const vector<vector<int
 \end{lstlisting}
 % SOURCE: 04-图论/线段树优化建图.cpp
 \subsection{线段树优化建图}
+
+\topic{子树同深度约束压成区间}
+\note{DFS 序用半开子树区间 $[tin_u,tout_u)$；按绝对深度分桶，桶内按 $tin$ 排序。目标深度桶中两次 \texttt{lower\_bound} 定位子树集合，用桶内编号作线段树区间坐标。各桶总长度 $O(n)$，不需开“深度乘点数”个节点。}
+\note{禁止 $u$ 与区间内任一 $x$ 同选时，蕴含为 $u\to\neg x$ 和 $x\to\neg u$，分别压成点到区间、区间到点。辅助节点仅压缩可达性，不代表布尔变量，不可随意用 xor 1 取反；需排除 $u$ 时拆开它所在位置（2025 武汉 B）。}
 
 \begin{lstlisting}
 // 原点 1..n；闭区间连边。出树父->子，入树子->父；两树在叶子共用原点。
@@ -9741,13 +9785,8 @@ bool solve_matrix_mod(vector<vector<long long>> a,vector<vector<long long>> &b,l
 % SOURCE: 05-数学/类欧几里得(floor_sum).cpp
 \subsection{类欧几里得(floor\_sum)}
 
+\note{\ensuremath{\Sigma}\_\{i=\allowbreak{}0\}\textasciicircum{}\{n-\allowbreak{}1\} floor(\allowbreak{}(\allowbreak{}a*i+\allowbreak{}b)\allowbreak{}/\allowbreak{}m)\allowbreak{}，n>\allowbreak{}=\allowbreak{}0、m>\allowbreak{}0，a/\allowbreak{}b 可负，返回值须放入 ll。 C+\allowbreak{}+\allowbreak{} 负数除法向 0 截断，先改为向下取整；a*n+\allowbreak{}b 与累计用 \_\_int128。 去掉整商后交换横纵轴，类似欧几里得；O(\allowbreak{}log m)\allowbreak{}，空间 O(\allowbreak{}1)\allowbreak{}。 FS 记本函数，u=\allowbreak{}(\allowbreak{}f*t+\allowbreak{}x)\allowbreak{} mod m、v=\allowbreak{}(\allowbreak{}g*t+\allowbreak{}y)\allowbreak{} mod m，余数规范到 [\allowbreak{}0,\allowbreak{}m)\allowbreak{}。 \#满足 u<\allowbreak{}v (\allowbreak{}0<\allowbreak{}=\allowbreak{}t<\allowbreak{}n)\allowbreak{}=\allowbreak{}n-\allowbreak{}FS(\allowbreak{}n,\allowbreak{}m,\allowbreak{}g,\allowbreak{}y)\allowbreak{}+\allowbreak{}FS(\allowbreak{}n,\allowbreak{}m,\allowbreak{}f,\allowbreak{}x)\allowbreak{}+\allowbreak{}FS(\allowbreak{}n,\allowbreak{}m,\allowbreak{}g-\allowbreak{}f,\allowbreak{}y-\allowbreak{}x-\allowbreak{}1)\allowbreak{}。 因为 [\allowbreak{}u<\allowbreak{}v]\allowbreak{}=\allowbreak{}1+\allowbreak{}floor(\allowbreak{}(\allowbreak{}v-\allowbreak{}u-\allowbreak{}1)\allowbreak{}/\allowbreak{}m)\allowbreak{}；第三项可能有负参数，f/\allowbreak{}g/\allowbreak{}x/\allowbreak{}y 的差也须防溢出。}
 \begin{lstlisting}
-// Σ_{i=0}^{n-1} floor((a*i+b)/m)，n>=0、m>0，a/b 可负，返回值须放入 ll。
-// C++ 负数除法向 0 截断，先改为向下取整；a*n+b 与累计用 __int128。
-// 去掉整商后交换横纵轴，类似欧几里得；O(log m)，空间 O(1)。
-// FS 记本函数，u=(f*t+x) mod m、v=(g*t+y) mod m，余数规范到 [0,m)。
-// #满足 u<v (0<=t<n)=n-FS(n,m,g,y)+FS(n,m,f,x)+FS(n,m,g-f,y-x-1)。
-// 因为 [u<v]=1+floor((v-u-1)/m)；第三项可能有负参数，f/g/x/y 的差也须防溢出。
 ll floor_sum(ll n,ll m,ll a,ll b)
 {
     assert(n>=0&&m>0);
@@ -9771,22 +9810,15 @@ ll floor_sum(ll n,ll m,ll a,ll b)
 % SOURCE: 05-数学/线性基.cpp
 \subsection{线性基}
 
+\note{适用：集合子集异或的最大值、可表示性与不同异或值的第 k 小。 位数：只处理 ll 的 0.\allowbreak{}.\allowbreak{}62 位，输入须非负；b[\allowbreak{}i]\allowbreak{} 最高位为 i，秩 cnt<\allowbreak{}=\allowbreak{}63。 关键：高位消元保证每个最高位唯一，相关向量不增加秩；insert 返回是否独立。 易错：query\_kth 包含空集 0，k 是 1-\allowbreak{}indexed；先 build，后插入新向量要重新 build。 k 用 unsigned long long，秩 63 时最后一项的序号是 2\textasciicircum{}63；zero 不改变不同值的计数。 空间判等：普通基依赖插入顺序；各自 build 后逐项比较 b[\allowbreak{}0.\allowbreak{}.\allowbreak{}62]\allowbreak{} 才是唯一规范形。 如 \{3,\allowbreak{}5\} 与 \{6,\allowbreak{}3\} 张成同一空间。判等不比较 zero：它记录输入相关性，不是空间性质。 哈希只能加速筛选，须考虑碰撞；全零非空区间也会生成零空间，不能直接丢弃。}
+\note{异或线性基：支持插入、最大异或和、第 k 小异或和、判断能否异或得到 b[\allowbreak{}i]\allowbreak{} 存最高位为 i 的基向量；只有 build(\allowbreak{})\allowbreak{} 之后才能保证 b 是简化阶梯形}
 \begin{lstlisting}
-// 适用：集合子集异或的最大值、可表示性与不同异或值的第 k 小。
-// 位数：只处理 ll 的 0..62 位，输入须非负；b[i] 最高位为 i，秩 cnt<=63。
-// 关键：高位消元保证每个最高位唯一，相关向量不增加秩；build 消去基向量的低位主元。
-// 结论：insert 返回 true 表示新向量独立，false 表示相关；原“返回是否相关”注释方向相反。
-// 易错：query_kth 包含空集 0，k 是 1-indexed；先 build，后插入新向量要重新 build。
-// k 用 unsigned long long，秩 63 时最后一项的序号是 2^63；zero 不改变不同值的计数。
-const int N=100005;
-// 异或线性基：支持插入、最大异或和、第 k 小异或和、判断能否异或得到
-// b[i] 存最高位为 i 的基向量；只有 build() 之后才能保证 b 是简化阶梯形
 struct LinearBasis{
     ll b[64];
     int cnt;// 基的大小（秩）
-    bool zero;// 是否能异或出 0（插入时出现过线性相关）
+    bool zero;// 是否存在异或为 0 的非空子集
     LinearBasis(){memset(b,0,sizeof(b));cnt=0;zero=false;}
-    // O(60)，插入 x，返回 x 是否独立
+    // O(63)，插入 x，返回 x 是否独立
     bool insert(ll x)
     {
         for(int i=62;i>=0;i--)
@@ -9798,7 +9830,7 @@ struct LinearBasis{
         zero=true;// 异或成 0
         return false;
     }
-    // O(60)，最大异或和
+    // O(63)，最大异或和
     ll query_max()
     {
         ll res=0;
@@ -9806,7 +9838,7 @@ struct LinearBasis{
             if((res^b[i])>res)res^=b[i];
         return res;
     }
-    // O(60)，能否把 x 异或出来（含 0，0 恒可）
+    // O(63)，能否把 x 异或出来（含 0，0 恒可）
     bool check(ll x)
     {
         if(!x)return true;
@@ -9818,7 +9850,7 @@ struct LinearBasis{
         }
         return true;
     }
-    // O(60^2)，化成简化阶梯形：每个 b[i] 的最高位就是 i，且该位在其他基向量里为 0
+    // O(63^2)，化成唯一约化形；所有主元位在其他向量里均为 0
     // 第 k 小查询前必须先调用
     void build()
     {
@@ -9829,7 +9861,7 @@ struct LinearBasis{
                 if(b[i]>>j&1)b[i]^=b[j];
         }
     }
-    // O(60)，枚举张成里的数，k 从 1 开始且 1<=k<=2^cnt
+    // O(63)，枚举张成里的数，k 从 1 开始且 1<=k<=2^cnt
     // 第 1 小一定是 0（空集或某个异或为 0 的组合），之后是非零值升序
     ll query_kth(unsigned long long k)
     {
@@ -9847,6 +9879,32 @@ struct LinearBasis{
     }
 };
 \end{lstlisting}
+\note{区间异或：按位置 1.\allowbreak{}.\allowbreak{}n 插入 a[\allowbreak{}r]\allowbreak{}，此时 query\_max(\allowbreak{}l)\allowbreak{} 查 [\allowbreak{}l,\allowbreak{}r]\allowbreak{} 的最大子集异或。 同主元优先保留靠右的向量，被换出的旧向量继续消元；不能只覆盖而丢掉它。 每个 b[\allowbreak{}i]\allowbreak{} 能由 pos[\allowbreak{}i]\allowbreak{}.\allowbreak{}.\allowbreak{}r 的元素表示，筛选 pos[\allowbreak{}i]\allowbreak{}>\allowbreak{}=\allowbreak{}l 后恰好张成 [\allowbreak{}l,\allowbreak{}r]\allowbreak{}。 插入、查询 O(\allowbreak{}63)\allowbreak{}，空间 O(\allowbreak{}63)\allowbreak{}。离线询问按右端点排序，不必保存所有前缀。}
+\begin{lstlisting}
+struct RangeLinearBasis
+{
+    ll b[63]{};
+    int pos[63]{};
+    void insert(ll x,int p)
+    {
+        for(int i=62;i>=0;i--)
+        {
+            if(!(x>>i&1))continue;
+            if(!b[i]){b[i]=x;pos[i]=p;return;}
+            if(pos[i]<p){swap(b[i],x);swap(pos[i],p);}
+            x^=b[i];
+        }
+    }
+    ll query_max(int l)
+    {
+        ll res=0;
+        for(int i=62;i>=0;i--)
+            if(pos[i]>=l&&(res^b[i])>res)res^=b[i];
+        return res;
+    }
+};
+\end{lstlisting}
+\note{求区间空间的规范形：把满足 pos[\allowbreak{}i]\allowbreak{}>\allowbreak{}=\allowbreak{}l 的向量插入普通基，再 build，O(\allowbreak{}63\textasciicircum{}2)\allowbreak{}。 固定 r 移动 l，仅跨过至多 63 个有效位置时空间会改变，可跳过其余左端点。 位置基不能直接 build：反消可能混入更早的位置，破坏区间筛选的不变量。}
 % SOURCE: 05-数学/线性筛与欧拉函数.cpp
 \subsection{线性筛与欧拉函数}
 
@@ -10127,23 +10185,16 @@ ll sum_coprime(int n,int m)
 % SOURCE: 05-数学/行列式与矩阵树定理.cpp
 \subsection{行列式与矩阵树定理}
 
+\note{适用：无向多重图生成树计数；拉普拉斯任意 n-\allowbreak{}1 阶主子式相等。 下标：矩阵 a/\allowbreak{}g 使用 1.\allowbreak{}.\allowbreak{}n，n<\allowbreak{}N；g[\allowbreak{}u]\allowbreak{}[\allowbreak{}v]\allowbreak{} 是边的重数，须对称。 参数：det\_mod 的 p 为素数，matrix\_tree 使用全局 mod；无向自环不计。 关键：度数放对角、邻接重数取负，删去同一编号行列；换行必须翻转行列式符号。 易错：det\_mod 原地消元，保留原矩阵要先复制；精确 det\_naive 和返回值会受 ll 范围限制。 复杂度：模行列式 O(\allowbreak{}n\textasciicircum{}3+\allowbreak{}n log p)\allowbreak{}，空间 O(\allowbreak{}n\textasciicircum{}2)\allowbreak{}；暴力仅供极小图核对。 秩一更新：det(\allowbreak{}I+\allowbreak{}u*v\textasciicircum{}T)\allowbreak{}=\allowbreak{}1+\allowbreak{}v\textasciicircum{}T*u；A 可逆时 det(\allowbreak{}A+\allowbreak{}u*v\textasciicircum{}T)\allowbreak{}=\allowbreak{}det(\allowbreak{}A)\allowbreak{}*(\allowbreak{}1+\allowbreak{}v\textasciicircum{}T*A\textasciicircum{}-\allowbreak{}1*u)\allowbreak{}。 已知精确 |det|=\allowbreak{}D 只判正负：选不整除 D 的奇素数 p，模行列式比较 ±D；D=\allowbreak{}0 单独处理。 必须是素数才可复用模高斯消元；仅“奇模数”不足以保证主元可逆。}
 \begin{lstlisting}
-// 适用：无向多重图生成树计数；拉普拉斯任意 n-1 阶主子式相等。
-// 下标：矩阵 a/g 使用 1..n，n<N；g[u][v] 是边的重数，须对称。
-// 参数：det_mod 的 p 为素数，matrix_tree 使用全局 mod；无向自环不计。
-// 关键：度数放对角、邻接重数取负，删去同一编号行列；换行必须翻转行列式符号。
-// 易错：det_mod 原地消元，保留原矩阵要先复制；精确 det_naive 和返回值会受 ll 范围限制。
-// 复杂度：模行列式 O(n^3+n log p)，空间 O(n^2)；暴力仅供极小图核对。
-// 秩一更新：det(I+u*v^T)=1+v^T*u；A 可逆时 det(A+u*v^T)=det(A)*(1+v^T*A^-1*u)。
-// 已知精确 |det|=D 只判正负：选不整除 D 的奇素数 p，模行列式比较 ±D；D=0 单独处理。
-// 必须是素数才可复用模高斯消元；仅“奇模数”不足以保证主元可逆。
 typedef __int128 lll;
 const int N=105;
 const int E=1005;// 边的上限
 int n,m;
 ll mod=1000000007;
-// O(log p)，快速幂
-// O(log n)，a 为底数、n>=0 为指数，p 为正模数，模乘先扩宽。
+\end{lstlisting}
+\note{O(\allowbreak{}log p)\allowbreak{}，快速幂 O(\allowbreak{}log n)\allowbreak{}，a 为底数、n>\allowbreak{}=\allowbreak{}0 为指数，p 为正模数，模乘先扩宽。}
+\begin{lstlisting}
 ll qpow(ll a,ll n,ll p)
 {
     ll res=1%p;
@@ -10156,8 +10207,9 @@ ll qpow(ll a,ll n,ll p)
     }
     return res;
 }
-// O(n^3)，模素数意义下高斯消元求行列式（不取模则要求 mod 为素数以便求逆）
-// O(n^3+n log p)，a 是 n 阶方阵，p 为素数；找不到非零主元返回 0。
+\end{lstlisting}
+\note{O(\allowbreak{}n\textasciicircum{}3)\allowbreak{}，模素数意义下高斯消元求行列式（不取模则要求 mod 为素数以便求逆） O(\allowbreak{}n\textasciicircum{}3+\allowbreak{}n log p)\allowbreak{}，a 是 n 阶方阵，p 为素数；找不到非零主元返回 0。}
+\begin{lstlisting}
 ll det_mod(ll a[N][N],int n,ll p)
 {
     ll res=1;
@@ -10183,11 +10235,10 @@ ll det_mod(ll a[N][N],int n,ll p)
     }
     return (res%p<0?res%p+p:res%p);
 }
-// O(n! )，按第一行展开求行列式，只用于小矩阵对拍
-// O(n!) 递归展开，n>=1；临时矩阵在递归栈上，只用于小阶数。
-// O(n^2 + n^3)，矩阵树定理：邻接矩阵直接建拉普拉斯矩阵，求任意 n-1 阶主子式
-// 返回 n 个点的无向（允许重边、自环不加）生成树个数，边权全为 1
-// O(n^3+n log mod)，g 为对称重数矩阵；返回模 mod 的生成树数，单点返回 1。
+\end{lstlisting}
+\note{O(\allowbreak{}n! )\allowbreak{}，按第一行展开求行列式，只用于小矩阵对拍 O(\allowbreak{}n!)\allowbreak{} 递归展开，n>\allowbreak{}=\allowbreak{}1；临时矩阵在递归栈上，只用于小阶数。}
+\note{O(\allowbreak{}n\textasciicircum{}2 +\allowbreak{} n\textasciicircum{}3)\allowbreak{}，矩阵树定理：邻接矩阵直接建拉普拉斯矩阵，求任意 n-\allowbreak{}1 阶主子式 返回 n 个点的无向（允许重边、自环不加）生成树个数，边权全为 1 O(\allowbreak{}n\textasciicircum{}3+\allowbreak{}n log mod)\allowbreak{}，g 为对称重数矩阵；返回模 mod 的生成树数，单点返回 1。}
+\begin{lstlisting}
 ll matrix_tree(int n,ll g[N][N])
 {
     if(n==1)return 1;// 单点视为 1 棵树
@@ -10969,6 +11020,9 @@ ll domino_tiling(int n,int m)
 % SOURCE: 06-动态规划/数位DP.cpp
 \subsection{数位DP}
 
+\topic{最优计数：后续乘零}
+\note{同一状态的历史，若后续目标乘非负系数 $w$，应同时维护最优值、最优方案数 \texttt{ways} 与全部可行方案数 \texttt{all}。$w>0$ 延用 \texttt{ways}，$w=0$ 改用 \texttt{all}：旧分数 2、5 各一种，乘零后有两种最优方案。负系数还需维护最小值。分支须无重复，且状态内历史的后续可行性相同；仅方案数取模，目标值不可取模后比较（2025 沈阳 D）。}
+
 \begin{lstlisting}
 const int N=25;// 位数
 int dig[N],len;// 拆位，dig[1] 是个位
@@ -11425,6 +11479,7 @@ E=c+pE+\sum_jq_jE_j
 \]
 \note{第一式要求 $p<1$ 且期望有限；尾和适用于非负整数随机变量。
 无需独立性即可使用期望线性性。}
+\note{正推代码是截断近似；当前存活概率小并不保证期望尾项小。若未终止状态的剩余期望统一不超过 $B$，截断到 $K$ 后的误差才可界为 $B\Pr(T>K)$。终点可能永不到达时，须先判断期望是否有限。}
 \note{若 $S$ 是已取得的项目集合，每步等概率抽取 $n$ 项中的一项：}
 \[
 E[S]=\frac{n+\sum_{i\notin S}E[S\cup\{i\}]}{n-|S|},
@@ -13684,6 +13739,11 @@ Circle min_circle(vector<Point> a)
 % SOURCE: 08-计算几何/闵可夫斯基和.cpp
 \subsection{闵可夫斯基和}
 
+\topic{随机平移下的交面积期望}
+\note{非退化凸多边形 $P,Q$，在交面积为正的平移向量域内均匀采样 $t$。该域为 $P+(-Q)$ 的内部，边界零测度，因此}
+\[\mathbb E\,|P\cap(Q+t)|=\frac{|P|\,|Q|}{|P+(-Q)|}.\]
+\note{交换积分：固定 $x\in P$，使 $x\in Q+t$ 的 $t$ 集合面积为 $|Q|$，总积分即 $|P||Q|$。将 $Q$ 的坐标取负后求闵可夫斯基和，逆时针顺序仍保留。不适用于任意矩形内均匀采样或随机旋转（2025 沈阳 G）。}
+
 \note{平面凸区域面积 $S$、周长 $L$，先加半径 $r$ 的圆盘，再加半径 $R$ 的三维球：}
 \begin{align*}
 S'&=S+Lr+\pi r^2,\qquad L'=L+2\pi r,\\
@@ -14440,5 +14500,96 @@ nc^{(n+1)/2},&n\text{ 奇},\\
 LGV：DAG 中 M[\allowbreak{}i]\allowbreak{}[\allowbreak{}j]\allowbreak{} 为起点 s\_i 到终点 t\_j 的路径数，则 det(\allowbreak{}M)\allowbreak{} 是按终点排列符号加权的、两两点不相交路径族数量。只有起终点满足兼容顺序、交叉排列必相交时，才能把行列式当作固定配对的非负计数。边权版本用路径权积；求路径数用拓扑 DP，行列式复用现有模板。\par\smallskip
 Prüfer：新增编码/\allowbreak{}解码实现。n 个标号顶点的树为 n\textasciicircum{}(\allowbreak{}n-\allowbreak{}2)\allowbreak{}（n>=\allowbreak{}2）；度数 d\_i>=\allowbreak{}1 且和为 2n-\allowbreak{}2 时为 (\allowbreak{}n-\allowbreak{}2)\allowbreak{}!/\allowbreak{}\ensuremath{\prod}(\allowbreak{}d\_i-\allowbreak{}1)\allowbreak{}!。模除法仍要求分母可逆，合数模不能直接费马求逆。\par\smallskip
 同余最短路：正硬币无限使用，取最小硬币 m，dist[\allowbreak{}r]\allowbreak{} 是可表示的最小 r 类数；x 可表示当且仅当 x>=\allowbreak{}dist[\allowbreak{}x\%m]\allowbreak{}。gcd>1 时无有限的最大不可表示数；gcd=\allowbreak{}1 时 max(\allowbreak{}dist)\allowbreak{}-\allowbreak{}m 是最大不可表示数。新增模板按隐式边做 Dijkstra，不另建 m*k 条边。\par\smallskip
+\section{赛事建模与技巧}
+\note{从已核对题面与题解中提炼可复用部分。复用已有模板，以下条件与公式不代表整道原题的全部解法；不重复收录基础操作。}
+\topic{可合并信息与贡献}
+\par\textbf{点集只留直径端点}\quad
+\note{非负边权树中，非空点集 A 的直径端点 a,\allowbreak{}b 满足 $\max_{x\in A}d(v,x)=\max(d(v,a),d(v,b))$。合并两个点集，只比较原来两条直径和四组跨集合端点距离；空集为单位元。并列时其他点也可能最远，不能说最远点只能是端点。复用 LCA 距离（2021 澳门 J、2022 沈阳 G）。}
+\par\textbf{整体加下的 gcd 摘要}\quad
+\note{非空整数集合存任一元素 f 及 $g=\gcd\{|x-f|\}$。整体加只改 f；合并两集合得 $(f_1,\gcd(g_1,g_2,|f_2-f_1|))$，实际元素 gcd 为 $\gcd(|f|,g)$。单点 g=\allowbreak{}0，空集另标记；差与绝对值须防溢出（2022 杭州 M）。}
+\par\textbf{截零累加的可结合变换}\quad
+\note{$s\gets\max(s+t_i,0)$，s 非负。一段存总和 S 与含空后缀的最大后缀和 M，作用为 $T(s)=\max(s+S,M)$。先 A 后 B：$S=S_A+S_B$，$M=\max(M_A+S_B,M_B)$；空段 (\allowbreak{}0,\allowbreak{}0)\allowbreak{}。重复 k 次（k\ensuremath{\ge}1）：$T^k(s)=\max(s+kS,M+\max(0,(k-1)S))$。可作线段树摘要（2022 济南 B）。}
+\par\textbf{段生命周期与离线矩形}\quad
+\note{只有端点 split 和区间赋值创建段时，总创建数 O(\allowbreak{}n+\allowbreak{}q)\allowbreak{}，赋值删除段的遍历可按生命周期收费。每段对应下标区间\ensuremath{\times}活跃时间半开区间，可转离线二维扫描。add、查询反复遍历却不删段，不适用此均摊，最坏仍可 O(\allowbreak{}nq)\allowbreak{}（2022 广州 B）。}
+\par\textbf{置换分环转循环相关}\quad
+\note{环长 L，$R_k=\sum_{i=0}^{L-1}a_i a_{(i+k)\bmod L}$。令 $b_i=a_{(-i)\bmod L}$，普通卷积 c=\allowbreak{}b*a，则 $R_k=c_k+c_{k+L}$，越界项记0。同长度环先累加；所有环长度和为 n，不同长度仅 O(\allowbreak{}√n)\allowbreak{}，查询枚举长度取 k mod L。精确整数结果需控制 FFT 误差或用足够多模数（2021 澳门 E）。}
+\par\textbf{多项式权重换二项式基}\quad
+\note{维护 $\sum_{\text{方案}}\binom tj$，一次增加段数由 $\binom{t+1}j=\binom tj+\binom t{j-1}$ 转移。$t^2=2\binom t2+\binom t1$；一般 $t^d=\sum_j S(d,j)j!\binom tj$，无须模除法（2023 CCPC 预选 A）。}
+\par\textbf{绝对差拆成阈值}\quad
+\note{整数 x,\allowbreak{}y 有 $|x-y|=\sum_{t\in\mathbb Z}|[x>t]-[y>t]|$。按阈值统计01贡献，值域大时按相邻不同值间距压缩。连通无向图上 $\sum_{uv\in E}|a_u-a_v|\ge\max a-\min a$；等号要求每个非平凡阈值割恰一条边，故边双连通块内同值，重边按条计（2021 澳门 H、2023 EC I）。}
+\par\textbf{积水量化为前后缀最大值}\quad
+\note{$P_i=\max_{j\le i}a_j$、$S_i=\max_{j\ge i}a_j$、$M=\max a$，则积水为 $\sum P_i+\sum S_i-nM-\sum a_i$。仅单点增高时，被更高纪录覆盖的旧纪录不再复活，可用 set 删段均摊；允许降低时不成立（2023 南京 M）。}
+\topic{贪心、逆推与构造}
+\par\textbf{全部资源任务的安全次序}\quad
+\note{每任务先消耗 a\ensuremath{\ge}0，再返还 b\ensuremath{\ge}0，执行前资源至少 a。先做 a\ensuremath{\le}b 的任务，按 a 升序；再做 a>\allowbreak{}b 的任务，按 b 降序。此顺序最小初始资源为 $\max(0,\max_i(a_i+\sum_{j<i}(a_j-b_j)))$。不直接推广到任选任务或收益最大化（2023 CCPC 预选 I）。}
+\par\textbf{免费名额与背包边界}\quad
+\note{每件至多一次，免费 k 件，其他所选重量和\ensuremath{\le}W。若免费件比付费件轻，交换身份不增加付费重量，因此存在免费件均不轻于付费件的最优解。重量降序后枚举分界：前缀取价值最大的 k 件，后缀做01背包。免费件不必是全局最重 k 件（2023 南京 G）。}
+\par\textbf{除当前物品外的背包}\quad
+\note{分治候选下标 [\allowbreak{}l,\allowbreak{}r]\allowbreak{}，入口 DP 已加入区间外所有物品。下传左边时加入右半，反之亦然；到叶 i 就得到排除 i 的 DP。容量 V 的01背包总 O(\allowbreak{}nV log n)\allowbreak{}，按 DFS 复制数组需要 O(\allowbreak{}V log n)\allowbreak{} 额外空间；保存全部分支会更多。不能对非单调特殊收益再套贪心（2022 杭州 C）。}
+\par\textbf{逆推 max 约束与位置计数}\quad
+\note{从 $f_i=\max(f_{i-1}+c_i,g_i)$ 的上界反推，可消除正向等待决策；每个分支的上界都必须满足。若最终得到 n 个不同对象必须放在不同位置、且第 i 个允许的前缀位置数为 b\_i，排序 b 后方案数为 $\prod_{i=1}^n\max(0,b_i-i+1)$。位置同质、限制确为前缀是前提；概率由计数除 n! 得到，尾和从 k=\allowbreak{}0 起（2025 成都 C、沈阳 E；2026 预选 II D）。}
+\par\textbf{先规范最优形态，再枚举}\quad
+\note{先通过交换证明操作可收拢为层、后缀、主路径加完整挂树等形态，再对少量形态做 DP 或贪心。分别排序两组量前要证明配对关系无关；不能凭样例推断。先手工检查零代价、空方案和端点，避免把题目特有结论当通用模板（2025 沈阳 B、武汉 I、杭州 G）。}
+\par\textbf{特殊角色的线性不变量}\quad
+\note{活跃位置 i 反射到 $P'_i=2P_j-P_i$，随后活跃角色交给 j，其他位置不变，则 $\sum P-2P_i$ 保持。终态可用 $\sum P-2P_s=\sum Q-2Q_t$ 筛选 t；这是必要条件，充分性还需对应规则证明，不可任意推广（2025 沈阳 K）。}
+\topic{图与树}
+\par\textbf{最小瓶颈路径}\quad
+\note{非负边权，最小化路径最大边：Dijkstra 松弛改为 $nd=\max(dis_u,w)$，源距离0，仍用小根堆与过期项检查。无向图也可用最小生成树路径；最大生成树对应的方向不同，不能混用（2022 威海 F、2023 合肥 J）。}
+\par\textbf{最大匹配与可增益边}\quad
+\note{已求最大二分匹配，在残量网络中，左点 u 从源可达、右点 v 能达汇，当且仅当新增边 (\allowbreak{}u,\allowbreak{}v)\allowbreak{} 可增大匹配。因此增益端点对数是两集合大小之积；已有边不同时满足此条件，重边不产生新端点对（2023 济南 E）。}
+\note{无向无重复访问的行走博弈：双方轮流把同一棋子沿边移到未访问点，不能走者输。起点 s 必胜，当且仅当每个最大匹配都覆盖 s，等价于删除 s 后匹配数下降1。取匹配伙伴作为应对；若某最大匹配不覆盖 s，对手可按配对回应。一般无向图需一般图匹配，不仅限二分图（2025 武汉 D）。}
+\par\textbf{连通点集与路径：点减边}\quad
+\note{树上非空连通点集 C 与路径 P 的交仍连通，所以 $[C\cap P\ne\varnothing]=|C\cap V(P)|-|E(C)\cap E(P)|$。对各连通点集求和，查询变成路径点贡献减边贡献。消息 $f_{u\to v}=\prod_{w\in N(u),w\ne v}(1+f_{w\to u})$；点贡献为全邻居积，边 uv 贡献为 $f_{u\to v}f_{v\to u}$。模意义用前后缀积，不因因子零而求逆（2024 成都 E）。}
+\par\textbf{动态根路径并}\quad
+\note{关键点按 DFS 序排，加入 x 时与旧集合的最深 LCA 可在前驱、后继取得。根永久作为辅助关键点，新增覆盖为 (\allowbreak{}L,\allowbreak{}x]\allowbreak{}；删点在去掉 x 后找邻居反向更新。根路径并边权总和为 $\frac12\sum_{\text{循环相邻 }u,v}d(u,v)$，集合计重及根点是否计数须单独处理（Metropolis J）。}
+\par\textbf{SCC 中检查非零和环}\quad
+\note{一个 SCC 内，所有有向环权和为0，当且仅当存在整数势能 h，全部内部边满足 $h_v-h_u=w_{uv}$。沿遍历树赋值，再检查所有内部边，冲突即存在非零和环；不是只判负环。缩点后可反向传播能到达冲突块的起点。势能范围须足够，负余数规范到 [\allowbreak{}0,\allowbreak{}n)\allowbreak{}（2024 沈阳 M，原题按 n 取模）。}
+\par\textbf{路径公共边的二阶矩}\quad
+\note{n\ensuremath{\ge}2，两条独立均匀无向非空路径，$K=n(n-1)/2$。边 e 两侧大小 s,\allowbreak{}n-\allowbreak{}s，$\lambda_e=s(n-s)$；不同边 e,\allowbreak{}f 删去后，两端分量大小 a,\allowbreak{}c，$\lambda_{ef}=ac$。公共边数 X 满足 $\mathbb E[X^2]=(\sum_e\lambda_e^2+2\sum_{e<f}\lambda_{ef}^2)/K^2$。不同边项不含对角；计算可按 LCA 分类，不直接 O(\allowbreak{}n\ensuremath{^2})\allowbreak{} 枚举大树（2024 哈尔滨 L）。}
+\par\textbf{小 k 匹配核化}\quad
+\note{简单二分图，任意边权，求所有恰好 t\ensuremath{\le}k 条的最优匹配。先每个左点只留最重 k 边，再在所得图每个右点留最重 k 边；最后留全局最重 $(2k-1)(k-1)+1$ 边，保持这些最优值。顺序不能换成双侧各自独立筛边，同端点重边先取最大。费用流按每次增广分别记录，不能只取最大流结果（Metropolis K）。}
+\topic{字符串、矩阵与位运算}
+\par\textbf{自定义字母序的逆序计数}\quad
+\note{固定字符串序列，预统计 C[\allowbreak{}a]\allowbreak{}[\allowbreak{}b]\allowbreak{}：i<\allowbreak{}j 的两串首次不同字符分别为 a,\allowbreak{}b；另计后串为前串真前缀的对数 P。字符顺序 rank 下答案 $P+\sum_{rank(a)>rank(b)}C[a][b]$。相同串无贡献，前缀项不随字母序变化。Trie 顺序插入可 O(\allowbreak{}\ensuremath{\sigma}·总字长)\allowbreak{} 统计，每问 O(\allowbreak{}\ensuremath{\sigma}\ensuremath{^2})\allowbreak{}，计数用64位（2022 杭州 K）。}
+\par\textbf{自动机长字符段与递归串}\quad
+\note{固定自动机，消费一个字符 c 后统计到达状态权：$G_0(u,c)=go(u,c)$、$H_0(u,c)=val(G_0(u,c))$；$G_{j+1}=G_j(G_j(u,c),c)$，$H_{j+1}=H_j(u,c)+H_j(G_j(u,c),c)$。长同字符段按位倍增，O(\allowbreak{}log L)\allowbreak{}（2021 哈尔滨 L）。}
+\note{子序列匹配目标 T，行向量状态 j 表示已匹配前 j 字符。字符矩阵对角为1，若 T[\allowbreak{}j]\allowbreak{}=\allowbreak{}c，则 j→j+\allowbreak{}1 加1；单字符不能跳过多个位置。递归串 $U_i=U_{i-1}+c_i+U_{i-1}$ 的矩阵为 $G_0=I$，$G_i=G_{i-1}F_{c_i}G_{i-1}$。答案 $G_n[0][|T|]$，空目标恰1种（2024 CCPC 网络 D）。}
+\par\textbf{固定掩码操作的仿射复合}\quad
+\note{在 W 位 GF(\allowbreak{}2)\allowbreak{} 向量上，AND 是对角矩阵，OR m 是 $diag(\sim m)x+m$，XOR 是 $x+c$，循环移位是置换矩阵；补码只限 W 位。若 f=\allowbreak{}Ax+\allowbreak{}b、g=\allowbreak{}Bx+\allowbreak{}c，则 $g\circ f=(BA,Bb+c)$。列压整数后作用 O(\allowbreak{}W)\allowbreak{}，复合 O(\allowbreak{}W\ensuremath{^2})\allowbreak{}，非交换顺序要和线段树合并方向一致（2023 深圳 H）。}
+\note{$0\le a\le x,0\le b\le y$ 时最大 a OR b：若 x AND y=\allowbreak{}0，为 x OR y；否则 h 为 x AND y 的最高置位值，答案 $(x\mathbin{\mathrm{OR}}y)\mathbin{\mathrm{OR}}(h-1)$。最高公共位以下可补满，h 不能取 OR 的最高位（2023 深圳 E）。}
+\par\textbf{空间交、包含与共同 xor}\quad
+\note{固定 W 维 GF(\allowbreak{}2)\allowbreak{} 标准点积，$(A\cap B)^\perp=A^\perp+B^\perp$，$(A^\perp)^\perp=A$，$\dim A^\perp=W-\dim A$。正交补用模2消元求零空间，仿射集合不能直接套用（2022 沈阳 M）。}
+\note{两个线性子空间的并还是子空间，当且仅当一者包含另一者。W 维空间中，超过半数的向量必张满，因为真子空间最多一半；等于一半不够（2026 预选 II A）。}
+\note{同时给 A,\allowbreak{}B xor 一个可表示 x，A xor B 不变，不能各自独立最小化。若 A\ensuremath{\ne}B，设 h 为差的最高位：先最小化 h 以上共同前缀，再分 h 位主元用或不用，确定较大者，低位基最小化它，取两支较优；A=\allowbreak{}B 直接求最小 xor（2024 CCPC 网络 J）。}
+\topic{数学与概率}
+\par\textbf{路径计数诱导均匀采样}\quad
+\note{DAG 中 cnt[\allowbreak{}u]\allowbreak{} 为到终点的路径数，沿 u→v 以 cnt[\allowbreak{}v]\allowbreak{}/\allowbreak{}cnt[\allowbreak{}u]\allowbreak{} 选分支，才使完整路径均匀；每条出边均分通常只使下一步均匀。重边按独立边是否计为不同路线须统一；不可达点 cnt=\allowbreak{}0 不可除（2026 CCPC 预选 K）。}
+\par\textbf{零频率叶与编码长度}\quad
+\note{Huffman 模型若要求给每个名册对象编码，零频率对象仍是叶，不能因不影响直接代价就删除，因为会改变树结构。单符号若规定编码非空，须至少一位，经典根深度0的约定不适用。相同频率可批量配对，但奇数余项仍要与全局下一最小项合并（2026 CCPC 预选 L）。}
+\par\textbf{等长排列前缀集合不用哈希}\quad
+\note{两排列中，将第一排列前 k 项映射到第二排列的位置。因为恰有 k 个不同位置，其最大值等于 k 当且仅当两者前 k 项集合相同。真排列与等长是前提，存在重复值时不成立；可扫描前缀最大值 O(\allowbreak{}n)\allowbreak{} 判全部边界（2026 CCPC 预选 E）。}
+\par\textbf{可撤销 Bernoulli 因子}\quad
+\note{独立 Bernoulli 和的生成多项式 $F(z)=\prod_i((1-p_i)+p_i z)$。撤销一个因子后 $F_k=(1-p)G_k+pG_{k-1}$；1-\allowbreak{}p 非零时从低次递推，p=\allowbreak{}1 时 $G_k=F_{k+1}$，p=\allowbreak{}0 不变。模意义要求实际除数可逆，不等于实数非零就可用逆元；更新一项再乘新因子 O(\allowbreak{}次数)\allowbreak{}（2024 哈尔滨 E）。}
+\par\textbf{布尔卷积的精确性}\quad
+\note{0/\allowbreak{}1 数组长度 L₁,\allowbreak{}L₂，普通卷积每系数\ensuremath{\le}min(\allowbreak{}L₁,\allowbreak{}L₂)\allowbreak{}。NTT 模数严格大于该界时，结果非零恰为可达，之后恢复0/\allowbreak{}1。连续计数卷积不二值化时不能保证无模后假零；截断指数范围必须另证可达路径不会被截掉（2024 昆明 I）。}
+\par\textbf{小质因子掩码，大质因子分组}\quad
+\note{数值\ensuremath{\le}V 时，每个数最多含一个大于√V的质因子。对小质因子的出现做掩码，按唯一大质因子分组。对子集乘积求 \ensuremath{\varphi}，先乘选中的数，再对出现的不同质因子各乘一次 (\allowbreak{}p-\allowbreak{}1)\allowbreak{}/\allowbreak{}p，空集贡献 \ensuremath{\varphi}(\allowbreak{}1)\allowbreak{}=\allowbreak{}1；模数须让相关 p 可逆。小质因子数量也必须能承受指数状态（2024 重庆 A）。}
+\par\textbf{整数区间选不同数的和}\quad
+\note{l\ensuremath{\le}r，$1\le k\le r-l+1$，选 k 个不同整数的可能和恰为无空洞区间 $[k(2l+k-1)/2,\ k(2r-k+1)/2]$，因此只需上下界判断。k=\allowbreak{}0 仅有和0，乘法先扩宽（2022 威海 K）。}
+\par\textbf{下中位数的符号和}\quad
+\note{排列区间含唯一值 x，a\ensuremath{\ge}x 记+\allowbreak{}1，其余-\allowbreak{}1。x 为排序第 ceil(\allowbreak{}L/\allowbreak{}2)\allowbreak{} 个，当且仅当奇长度和为1、偶长度和为2。上中位数的偶长条件不同；存在相等重复值时不能用此唯一 x 判据（2023 EC D）。}
+\par\textbf{参数消耗证明根号种类数}\quad
+\note{若每种不同正整数参数值 d 都至少消耗 d 个互不重叠单位，总消耗\ensuremath{\le}N，则不同值 k 满足 $1+\cdots+k\le N$，故 k=\allowbreak{}O(\allowbreak{}√N)\allowbreak{}。只能在消耗不重复收费且参数为不同正整数时使用，不能把“值很快变”当证明（2026 预选 II F）。}
+\par\textbf{单位群中阶的 lcm 分解}\quad
+\note{对模 n 的单位群，CRT 拆质数幂；奇素数幂单位群循环，$2^e$ 在 e\ensuremath{\ge}3 时为 $C_2\times C_{2^{e-2}}$。分解为循环因子后，对每个质数 q，若其在各因子阶中的指数为 e\_i，则最大阶指数\ensuremath{\le}t 的选择数为 $F_q(t)=q^{\sum_i\min(t,e_i)}$。阶和该质因子贡献 $1+\sum_{t\ge1}q^t(F_q(t)-F_q(t-1))$，最后乘各质因子贡献；只对单位成立，n=\allowbreak{}1 单独约定（2026 预选 II E）。}
+\topic{搜索与几何}
+\par\textbf{奇偶层 BFS 的等待条件}\quad
+\note{无向无孤点图且必须每步走边，往返可延迟任意偶数步。对 (\allowbreak{}点,\allowbreak{}时间奇偶)\allowbreak{} 多源 BFS 得最早危险时间 τ；若危险只活 d 步，仅 τ\ensuremath{\le}d 生效。玩家时刻 t 到达 v 须 $t<\tau[v][t\bmod2]$，同时到达失败。是否允许对向过边、停留、孤点均会改变模型，不套到任意有向图（2024 预选 II E）。}
+\par\textbf{最短路 DAG 与自适应折半}\quad
+\note{从源、汇分别 BFS，仅保留 $d_s(u)+1+d_t(v)=d_s(t)$ 的边，所有最少边路径落在 DAG。非负费用可剪枝；以路径分支量而非固定层数选折半界，跨边配对时起终点费用各算一次。n=\allowbreak{}1 单点路线单独处理，路径计数需精确上界，不能拿溢出后的数分类（2026 预选 I G）。}
+\par\textbf{二次曲线包络消共同项}\quad
+\note{圆心在 x 轴的上半圆：$y^2=R_i^2-(x-c_i)^2$。令 $z=x^2+y^2$，比较变为直线 $z=2c_i x+R_i^2-c_i^2$ 的上包络；仍需限制圆弧有效 x 区间及 y\ensuremath{\ge}0。全局直径的旋转卡壳不能直接求每个顶点的最远点（2026 预选 II B）。}
+\par\textbf{整数 incircle 的符号与容量}\quad
+\note{平移查询点 p 到原点，a=\allowbreak{}A-\allowbreak{}p、b=\allowbreak{}B-\allowbreak{}p、c=\allowbreak{}C-\allowbreak{}p：$D=|a|^2\operatorname{cross}(b,c)-|b|^2\operatorname{cross}(a,c)+|c|^2\operatorname{cross}(a,b)$。A,\allowbreak{}B,\allowbreak{}C 非共线时，D 与 cross(\allowbreak{}B-\allowbreak{}A,\allowbreak{}C-\allowbreak{}A)\allowbreak{} 同号表示圆内，D=\allowbreak{}0 共圆。平移坐标绝对值\ensuremath{\le}M 时保守界为 $12M^4$；减法先扩宽，界与中间积均能放128位才用该类型，不能只看原坐标是64位（Metropolis M）。}
 \end{multicols}
 \end{document}

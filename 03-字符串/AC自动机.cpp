@@ -74,3 +74,31 @@ ll query(const string &txt)
     }
     return ans;
 }
+
+// 普通 Trie 应用（独立于上面的 AC）：f[j] 为选恰 j 个已插入串的最大 LCP 长度。
+// g[h] 为深度 h 的节点最大经过次数，f[j]>=h 等价于 g[h]>=j，是同一单调阶梯的转置。
+// 节点 cnt 从 c-1 变 c，只需令 f[c]=max(f[c],h)；g 用于解释，不必实际存储。
+// 小写非空串，重复串保留重数；插入后返回 sum(f[j] xor j)，j=1..已插入串数。
+struct PrefixLCP
+{
+    vector<array<int,26>> tr{array<int,26>{}};
+    vector<int> cnt{0},f{0};
+    ll sum=0;
+    ll insert(const string &s)
+    {
+        int r=f.size();f.push_back(0);sum+=r;// 新增 j=r 的基准项 0 xor r
+        int p=0,h=0;
+        for(char ch:s)
+        {
+            int x=ch-'a';++h;
+            if(!tr[p][x])
+            {
+                tr[p][x]=tr.size();
+                tr.push_back({});cnt.push_back(0);
+            }
+            p=tr[p][x];int c=++cnt[p];
+            if(h>f[c]){sum-=f[c]^c;f[c]=h;sum+=f[c]^c;}
+        }
+        return sum;
+    }
+};

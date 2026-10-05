@@ -17,12 +17,23 @@ int main()
     for(int i=1;i<=ecnt;i++)printf("(%d,%d) ",ea[i],eb[i]);
     printf("\n期望 (3,4)\n");
     // 自测 2：随机图，割点/桥与「删点(边)后连通块数变多」暴力对拍
+    // 两个环共一个非根割点：返祖边若误取 low[v]，会漏判 3。
+    for(int i=1;i<=6;i++)g[i].clear(),dfn[i]=low[i]=is_cut[i]=0;
+    num=1;timer=ecnt=0;cut_edge.assign(2,0);n=5;
+    for(auto [u,v]:vector<pair<int,int>>{{1,2},{2,3},{3,1},{3,4},{4,5},{5,3}})add_undirected(u,v);
+    tarjan(1,0);assert(is_cut[3]&&ecnt==0);
+    // 重边不是桥；自环不影响割点；另有孤立点。
+    for(int i=1;i<=5;i++)g[i].clear(),dfn[i]=low[i]=is_cut[i]=0;
+    num=1;timer=ecnt=0;cut_edge.assign(2,0);n=4;
+    add_undirected(1,2);add_undirected(1,2);add_undirected(2,3);add_undirected(3,3);
+    for(int i=1;i<=n;i++)if(!dfn[i])tarjan(i,0);
+    assert(ecnt==1&&is_cut[2]&&!cut_edge[2]&&!cut_edge[4]);
     for(int t=1;t<=300;t++)
     {
         n=rand()%7+1;
-        for(int i=1;i<=n;i++)head[i]=0,dfn[i]=0,low[i]=0,is_cut[i]=0;
+        for(int i=1;i<=n;i++)g[i].clear(),dfn[i]=0,low[i]=0,is_cut[i]=0;
         num=1,timer=0,ecnt=0;// 边编号从 2 开始，保证 i^1 成对
-        memset(cut_edge,0,sizeof(cut_edge));
+        cut_edge.assign(2,0);
         int e1[70],e2[70],mm=0;
         for(int i=1;i<=n;i++)
             for(int j=i+1;j<=n;j++)

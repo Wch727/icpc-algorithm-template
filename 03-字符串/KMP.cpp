@@ -1,6 +1,7 @@
 // 长 n 串最长 border 长 b：最短周期 p=n-b；整个串完整重复还需 n%p==0。
 // p,q 都是周期且 n>=p+q-gcd(p,q) 时，gcd(p,q) 也是周期；周期不等于整串循环节。
 // border 链能变成树，前缀出现/祖先约束可结合 DFS 序与树状数组，不必重复匹配整串。
+// 长度超过 n/2 的真 border 沿链按最短周期 p 等差递减，可整段跳；短 border 仍需另处理。
 #include<bits/stdc++.h>
 using namespace std;
 typedef long long ll;

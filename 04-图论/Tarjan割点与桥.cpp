@@ -2,23 +2,26 @@
 // 参数：顶点 1..n；根调用 tarjan(u,0)，fa 是入边编号而非父顶点。
 // 关键：桥要求 low[v]>dfn[u]，割点允许相等；根必须有至少两棵 DFS 子树。
 // 从 2 开始成对加边，i^1 为反向边；重边仅跳过真正的父边。
-// 边槽须容纳 2*m+2；重建时 num=1，清空 head 与各标记。
+// vector 邻接表保存 {目标,有向边编号}；重建时 num=1，清空 g 与各标记。
+// DFS 树边用 low[v]，已访问邻点用 dfn[v]；否则会把跨割点的返祖信息错误传播。
 // 复杂度：全图 O(n+m)，空间 O(n+m)，递归深度 O(n)；多组须清空标记与计数。
 #include<bits/stdc++.h>
 using namespace std;
 typedef long long ll;
 const int N=100005;
 int n,m;
-int head[N],to[N<<1],nxt[N<<1],num=1;
+vector<pair<int,int>> g[N];
+int num=1;
 int dfn[N],low[N];
 int is_cut[N];// 是否为割点
 int timer=0;
-int ea[N],eb[N],cut_edge[N<<1],ecnt=0;// 桥的列表
+int ea[N],eb[N],ecnt=0;// 桥的列表
+vector<int> cut_edge(2);// 按有向边编号标记桥
 
 // O(1)，加一个方向的邻接边；编号由 num 决定，不能单独打乱配对。
 void add_edge(int u,int v)
 {
-    to[++num]=v,nxt[num]=head[u],head[u]=num;
+    g[u].push_back({v,++num});cut_edge.push_back(0);
 }
 
 // O(1)，按顺序加两个方向；注意现有边编号与异或反边约定的风险。
@@ -33,9 +36,8 @@ void tarjan(int u,int fa)// 无向图求割点与桥，O(n+m)；fa 是边的入�
 {
     dfn[u]=low[u]=++timer;
     int child=0;
-    for(int i=head[u];i;i=nxt[i])
+    for(auto [v,i]:g[u])
     {
-        int v=to[i];
         if(!dfn[v])
         {
             child++;

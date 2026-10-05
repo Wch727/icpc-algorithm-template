@@ -75,6 +75,21 @@ PREAMBLE = r'''% 自动生成；修改模板或打印配置后运行 _台账/生
 '''
 
 FORMULAS = {
+    '01-基础与技巧/单调队列.cpp': r'''
+\topic{等长区间平移：差集配对}
+\note{旧区间 $[s,s+L)$ 右移 $d$，$0\le d\le L$。重叠部分不变；移出 $[s,s+d)$，移入 $[s+L,s+L+d)$。记移出、移入边际收益为 $u_i,v_i$，则}
+\[\Delta(s,d)=\sum_{i=s}^{s+d-1}(u_i+v_{i+L}).\]
+\note{例如最大化恰被覆盖 $k$ 次的位置数，原覆盖次数为 $c_i$：$u_i=[c_i=k+1]-[c_i=k]$，$v_i=[c_i=k-1]-[c_i=k]$。令 $z_i=u_i+v_{i+L}$，允许 $d\le L$ 时变成长度至多 $L$ 的最大子段和，用前缀最小值队列。保留不移动的零收益；$d>L$ 为不交情形，须另算（2025 成都 K）。}
+''',
+    '06-动态规划/数位DP.cpp': r'''
+\topic{最优计数：后续乘零}
+\note{同一状态的历史，若后续目标乘非负系数 $w$，应同时维护最优值、最优方案数 \texttt{ways} 与全部可行方案数 \texttt{all}。$w>0$ 延用 \texttt{ways}，$w=0$ 改用 \texttt{all}：旧分数 2、5 各一种，乘零后有两种最优方案。负系数还需维护最小值。分支须无重复，且状态内历史的后续可行性相同；仅方案数取模，目标值不可取模后比较（2025 沈阳 D）。}
+''',
+    '04-图论/线段树优化建图.cpp': r'''
+\topic{子树同深度约束压成区间}
+\note{DFS 序用半开子树区间 $[tin_u,tout_u)$；按绝对深度分桶，桶内按 $tin$ 排序。目标深度桶中两次 \texttt{lower\_bound} 定位子树集合，用桶内编号作线段树区间坐标。各桶总长度 $O(n)$，不需开“深度乘点数”个节点。}
+\note{禁止 $u$ 与区间内任一 $x$ 同选时，蕴含为 $u\to\neg x$ 和 $x\to\neg u$，分别压成点到区间、区间到点。辅助节点仅压缩可达性，不代表布尔变量，不可随意用 xor 1 取反；需排除 $u$ 时拆开它所在位置（2025 武汉 B）。}
+''',
     '01-基础与技巧/高维差分.cpp': r'''
 \note{令 $x=(x_1,\ldots,x_D)$，$e_i$ 为单位向量，$b\in\{0,1\}^D$，
 $|b|=\sum b_i$。任一坐标为 0 时，数组及中间阶段的值均为 0。}
@@ -121,6 +136,7 @@ E=c+pE+\sum_jq_jE_j
 \]
 \note{第一式要求 $p<1$ 且期望有限；尾和适用于非负整数随机变量。
 无需独立性即可使用期望线性性。}
+\note{正推代码是截断近似；当前存活概率小并不保证期望尾项小。若未终止状态的剩余期望统一不超过 $B$，截断到 $K$ 后的误差才可界为 $B\Pr(T>K)$。终点可能永不到达时，须先判断期望是否有限。}
 \note{若 $S$ 是已取得的项目集合，每步等概率抽取 $n$ 项中的一项：}
 \[
 E[S]=\frac{n+\sum_{i\notin S}E[S\cup\{i\}]}{n-|S|},
@@ -149,6 +165,10 @@ $\binom{i-1}{j-1}2^{n-i}$。若该位置权重依次为 $1,1,2,4,\ldots$，总�
 $k!-2(k-1)!+(k-2)!$。模意义除法须可逆。}
 ''',
     '08-计算几何/闵可夫斯基和.cpp': r'''
+\topic{随机平移下的交面积期望}
+\note{非退化凸多边形 $P,Q$，在交面积为正的平移向量域内均匀采样 $t$。该域为 $P+(-Q)$ 的内部，边界零测度，因此}
+\[\mathbb E\,|P\cap(Q+t)|=\frac{|P|\,|Q|}{|P+(-Q)|}.\]
+\note{交换积分：固定 $x\in P$，使 $x\in Q+t$ 的 $t$ 集合面积为 $|Q|$，总积分即 $|P||Q|$。将 $Q$ 的坐标取负后求闵可夫斯基和，逆时针顺序仍保留。不适用于任意矩形内均匀采样或随机旋转（2025 沈阳 G）。}
 \note{平面凸区域面积 $S$、周长 $L$，先加半径 $r$ 的圆盘，再加半径 $R$ 的三维球：}
 \begin{align*}
 S'&=S+Lr+\pi r^2,\qquad L'=L+2\pi r,\\
@@ -227,7 +247,17 @@ def clean_code(s, rel, preserve_indent=False):
                       r'typedef long long ll;|using ll\s*=\s*long long;)\s*$')
     if rel == '01-基础与技巧/高维差分.cpp':
         s = s.split('// D 维统一公式：')[0]
-    lines = [l.rstrip() for l in s.splitlines() if not drop.match(l)]
+    # 以下新增应用说明已单独排为正文，不在代码块重复打印。
+    printed_prose = (
+        '// 等长区间右移', '// 重叠部分不变', '// 恰覆盖 k 次', '// 前缀和后，允许', '// 注意 d=0',
+        '// 最优方案计数陷阱', '// 此时需另存 all', '// 例如历史得分', '// 分支须无重复计数',
+        '// 下方正推函数均为截断近似', '// 剩余误差是', '// 若终点可能永不到达',
+        '// 随机平移交面积', '// 域为 P+(-Q)', '// 对每个 x属于P', '// 需先把 Q 各点取负',
+        '// 子树同深度', '// 在目标深度桶中', '// 桶内顺序作为区间坐标',
+        '// 禁止 u 与区间内 x 同选', '// 图上的辅助点不代表布尔变量',
+    )
+    lines = [l.rstrip() for l in s.splitlines()
+             if not drop.match(l) and not l.startswith(printed_prose)]
     # xeCJK 的 listings 适配对部分符号不应用 literate；只处理注释中的数学字符。
     for i, line in enumerate(lines):
         if '//' not in line:
@@ -278,6 +308,8 @@ def manual_blocks(source, rel):
     """
     if rel == '01-基础与技巧/高维差分.cpp':
         source = source.split('// D 维统一公式：')[0]
+    if rel == '01-基础与技巧/单调队列.cpp':
+        source = source.split('// 等长区间右移：')[0]
     blocks, code, prose = [], [], []
     depth = 0
 
@@ -320,7 +352,11 @@ def manual_blocks(source, rel):
 
 
 def render_template(source, rel):
-    if rel.startswith('01-基础与技巧/'):
+    prose_templates = {
+        '05-数学/线性基.cpp', '03-字符串/AC自动机.cpp', '03-字符串/KMP.cpp',
+        '05-数学/类欧几里得(floor_sum).cpp', '05-数学/行列式与矩阵树定理.cpp',
+    }
+    if rel.startswith('01-基础与技巧/') or rel in prose_templates:
         blocks = manual_blocks(source, rel)
     else:
         blocks = [('code', clean_code(source, rel))]
@@ -394,6 +430,27 @@ def reference(md):
     return '\n'.join(out)
 
 
+def math_notes(md):
+    """紧凑技巧正文：Markdown 标题、段落及受控的 $...$ 数学公式。"""
+    out = []
+    for line in md.splitlines():
+        if not line.strip() or line.startswith('# '):
+            continue
+        if line.startswith('## '):
+            out.append(r'\topic{' + escape(line[3:]) + '}')
+        elif line.startswith('### '):
+            out.append(r'\par\textbf{' + escape(line[4:]) + r'}\quad')
+        else:
+            if line.startswith('- '):
+                line = line[2:]
+            parts = re.split(r'(\$[^$]+\$)', line)
+            if sum(p.count('$') for p in parts) % 2:
+                raise ValueError('Unclosed math formula: ' + line)
+            out.append(r'\note{' + ''.join(p if p.startswith('$') and p.endswith('$')
+                                          else inline(p) for p in parts) + '}')
+    return '\n'.join(out)
+
+
 def main():
     cfg = json.loads(CFG.read_text(encoding='utf-8-sig'))
     excluded = set(cfg.get('exclude', []))
@@ -409,7 +466,7 @@ def main():
     ref_total = total - code_total
     pre = PREAMBLE.replace('@CODE@', str(cfg['code_font_pt'])).replace('@LEAD@', str(cfg['code_leading_pt']))
     tex = [pre, r'\begin{center}{\fontsize{15}{17}\selectfont\bfseries ICPC 算法手册}\quad'
-           r'\small 2026-10-02\end{center}',
+           r'\small 2026-10-05\end{center}',
            r'\note{双栏完整实现版\quad ' + str(code_total) + ' 份代码模板、' + str(ref_total) +
            r' 份速查表。各模板独立使用；同名全局量和函数按题目取舍，不将整本直接拼接编译。'
            r'公共头文件与 \texttt{ll} 定义仅在此列出，其他容量、类型和依赖保留在各模板中。}',
@@ -438,6 +495,8 @@ def main():
         tex.append(r'\section{模型判据与常用结论}')
         tex.append(notes((ROOT / '结论速查.md').read_text(encoding='utf-8-sig')))
         tex.append(notes((ROOT / '结论速查' / 'ICPC常用结论.md').read_text(encoding='utf-8-sig'), True))
+        tex.append(r'\section{赛事建模与技巧}')
+        tex.append(math_notes((ROOT / '结论速查' / '赛事建模与技巧.md').read_text(encoding='utf-8-sig')))
     tex.extend([r'\end{multicols}', r'\end{document}'])
     OUT.write_text('\n'.join(tex) + '\n', encoding='utf-8')
     print(f'Generated {OUT.name.encode("ascii", "backslashreplace").decode()}: '

@@ -59,6 +59,9 @@ double exp_hit(int n,double p)
 
 // 正推法：把"某个时刻还在游走的概率"记作 cost，期望 = sum_{t>=0} P(T>t)
 // 这里 T 是首次到达 n 的时刻，P(T>t)=P(X_t<n)
+// 下方正推函数均为截断近似：固定步数或当前存活概率小，不等于期望尾项误差已小。
+// 剩余误差是 sum(t>=K)P(T>t)；若所有未终止状态的剩余期望<=B，才有尾项<=B*P(T>K)。
+// 若终点可能永不到达，期望可为无穷，不能用有限截断结果冒充完整期望。
 double exp_forward_walk(int n,double p)
 {
     for(int i=0;i<=n;i++)P[i]=0;

@@ -4,6 +4,42 @@
 
 int main()
 {
+    // 同一空间的不同生成集、相关输入，不应改变规范形。
+    {
+        LinearBasis a,b,c;
+        a.insert(3);a.insert(5);
+        b.insert(6);b.insert(3);
+        c.insert(0);c.insert(5);c.insert(3);
+        assert(a.b[2]!=b.b[2]);
+        a.build();b.build();c.build();
+        for(int i=0;i<63;i++)assert(a.b[i]==b.b[i]&&a.b[i]==c.b[i]);
+        assert(!a.zero&&c.zero);
+    }
+    // 每个前缀的全部区间，独立枚举原数组子集，核最大值与规范空间。
+    for(vector<ll> a: {vector<ll>{0,0,3,5,6,3},vector<ll>{1LL<<62,1,1LL<<62,3,0}})
+    {
+        RangeLinearBasis b;
+        for(int r=1;r<=(int)a.size();r++)
+        {
+            b.insert(a[r-1],r);
+            for(int l=1;l<=r;l++)
+            {
+                ll want=0;
+                for(int s=0;s<(1<<(r-l+1));s++)
+                {
+                    ll x=0;
+                    for(int i=l;i<=r;i++)if(s>>(i-l)&1)x^=a[i-1];
+                    want=max(want,x);
+                }
+                assert(b.query_max(l)==want);
+                LinearBasis direct,filtered;
+                for(int i=l;i<=r;i++)direct.insert(a[i-1]);
+                for(int i=0;i<63;i++)if(b.pos[i]>=l)filtered.insert(b.b[i]);
+                direct.build();filtered.build();
+                for(int i=0;i<63;i++)assert(direct.b[i]==filtered.b[i]);
+            }
+        }
+    }
     // 审核回归：覆盖原随机小值测试遗漏的边界。
     {
         LinearBasis z; for(int i=0;i<63;i++)z.insert(1LL<<i); z.build();
@@ -70,7 +106,7 @@ int main()
     }
     // 2) 大数不参与暴力，只验证最大异或和可达
     LinearBasis lb2;
-    ll seed=1;
+    unsigned long long seed=1;
     for(int i=1;i<=50;i++)
     {
         seed=seed*6364136223846793005ULL+1442695040888963407ULL;
@@ -103,7 +139,7 @@ int main()
     return 0;
 }
 // 样例：P1469 找筷子，出现奇数次的数 = 全部异或和（线性基是异或性质的推广）
-// 边界：query_kth 的 k 从 1 开始；k 超过 2^cnt 返回 -1；zero 只表示 0 可达
+// 边界：query_kth 的 k 从 1 开始；k 超过 2^cnt 返回 -1；zero 表示非空子集可异或为 0
 
 /*
 自测记录：
