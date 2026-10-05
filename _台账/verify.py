@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-并行验证器（比 自检.ps1 快很多）：
+模板与测试并行验证器：
   1. 每个纯模板用 g++ -fsyntax-only 检查（不生成目标文件，快）
   2. 每个测试文件编译 + 运行（带超时），并检查输出里的 FAIL/FAILED
 用法:
@@ -65,7 +65,7 @@ def main():
     global GXX, ONLY, JOBS
     parser = argparse.ArgumentParser(description='检查模板语法、代码风格并编译运行测试。')
     parser.add_argument('chapter', nargs='?', choices=DIRS, help='只检查指定章节')
-    parser.add_argument('--compiler', help='GCC 可执行文件路径或名称；默认读取 CXX，再查 PATH')
+    parser.add_argument('--compiler', help='g++ 可执行文件路径或名称；默认读取 CXX，再查 PATH')
     parser.add_argument('--jobs', type=int, default=4, help='并行任务数（默认 4）')
     args = parser.parse_args()
     if args.jobs < 1:
@@ -77,11 +77,11 @@ def main():
             parser.error('找不到指定编译器；请传入可执行文件路径，不要附带编译参数')
     else:
         GXX = shutil.which('g++')
-        local_gcc = r'C:\mingw64\bin\g++.exe'
-        if not GXX and os.name == 'nt' and os.path.isfile(local_gcc):
-            GXX = local_gcc
+        local_gxx = r'C:\mingw64\bin\g++.exe'
+        if not GXX and os.name == 'nt' and os.path.isfile(local_gxx):
+            GXX = local_gxx
         if not GXX:
-            parser.error('找不到 g++；请将 GCC 加入 PATH，或使用 --compiler 指定路径')
+            parser.error('找不到 g++；请将 g++ 加入 PATH，或使用 --compiler 指定路径')
     ONLY = args.chapter or ''
     JOBS = args.jobs
     os.makedirs(BIN, exist_ok=True)
