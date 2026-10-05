@@ -54,7 +54,7 @@
 \fontsize{8.3}{9.8}\selectfont
 
 \begin{center}{\fontsize{15}{17}\selectfont\bfseries ICPC 算法手册}\quad\small 2026-10-05\end{center}
-\note{双栏完整实现版\quad 197 份代码模板、1 份速查表。各模板独立使用；同名全局量和函数按题目取舍，不将整本直接拼接编译。公共头文件与 \texttt{ll} 定义仅在此列出，其他容量、类型和依赖保留在各模板中。}
+\note{双栏完整实现版\quad 196 份代码模板、1 份速查表。各模板独立使用；同名全局量和函数按题目取舍，不将整本直接拼接编译。公共头文件与 \texttt{ll} 定义仅在此列出，其他容量、类型和依赖保留在各模板中。}
 \begin{lstlisting}
 #include<bits/stdc++.h>
 using namespace std;
@@ -3762,86 +3762,6 @@ struct Scapegoat
         return kth(k+1,v);
     }
 };
-\end{lstlisting}
-% SOURCE: 02-数据结构/哈希表.cpp
-\subsection{哈希表}
-
-\note{hc/\allowbreak{}ho分别是链式/\allowbreak{}开放寻址哈希表，x是键；节点或槽位保存键、计数及访问标记。两种实现按需选一种，换数据集清空；开放寻址容量须留空槽，不能填满后无限探测。}
-\note{哈希表（整数键）：拉链法 +\allowbreak{} 开放寻址法 拉链法 平均 O(\allowbreak{}1)\allowbreak{}，天然支持负数；开放寻址法 平均 O(\allowbreak{}1)\allowbreak{}，装太满会退化}
-\begin{lstlisting}
-const int N=100003;         // 容量；质数不能保证无冲突
-\end{lstlisting}
-\note{-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{} 拉链法 -\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{} h[\allowbreak{}k]\allowbreak{} 存链表头（结点下标），e[\allowbreak{}]\allowbreak{} 存值，nxt[\allowbreak{}]\allowbreak{} 存后继，idx 从 0 开始}
-\begin{lstlisting}
-struct HashChain{
-    int h[N],e[N],nxt[N],idx;
-    void init()
-    {
-        memset(h,-1,sizeof(h));   // -1 表示空
-        idx=0;
-    }
-    int get_key(int x)
-    {
-        return (x%N+N)%N;         // 负数取模也要落在 [0,N)
-    }
-    void insert(int x)            // O(1) 平均
-    {
-        int k=get_key(x);
-        e[idx]=x,nxt[idx]=h[k],h[k]=idx++;
-    }
-    bool find(int x)              // O(1) 平均
-    {
-        int k=get_key(x);
-        for(int i=h[k];i!=-1;i=nxt[i])
-            if(e[i]==x)return true;
-        return false;
-    }
-};
-\end{lstlisting}
-\note{-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{} 开放寻址法 -\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{}-\allowbreak{} h[\allowbreak{}k]\allowbreak{} 为 null 表示空位；线性探测，key 冲突就往后找 注意：表要开 2\textasciitilde{}3 倍，装载因子太高会退化成 O(\allowbreak{}n)\allowbreak{}}
-\begin{lstlisting}
-struct HashOpen{
-    const int null=0x3f3f3f3f;    // 空标记，保证没有输入等于它
-    int h[N];
-    void init()
-    {
-        memset(h,0x3f,sizeof(h));
-    }
-    int get_key(int x)
-    {
-        return (x%N+N)%N;
-    }
-    // 已有位置或首个空位；表满且不存在时返回 -1。x 不能等于 null。
-    int find(int x)
-    {
-        int k=get_key(x);
-        int start=k;
-        while(h[k]!=null&&h[k]!=x)
-        {
-            k++;
-            if(k==N)k=0;          // 走到表尾绕回表头
-            if(k==start)return -1;
-        }
-        return k;
-    }
-    bool insert(int x)            // 重复插入只留一份；满表返回 false
-    {
-        if(x==null)return false;
-        int p=find(x);
-        if(p<0)return false;
-        h[p]=x;
-        return true;
-    }
-    bool count(int x)
-    {
-        if(x==null)return false;
-        int p=find(x);
-        return p>=0&&h[p]==x;
-    }
-};
-HashChain hc;
-HashOpen ho;
-int n,x;
 \end{lstlisting}
 % SOURCE: 02-数据结构/二叉搜索树.cpp
 \subsection{二叉搜索树}
