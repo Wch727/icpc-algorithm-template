@@ -33,6 +33,11 @@ if (fs.existsSync(csvPath)) {
 function describe(file) {
     const txt = fs.readFileSync(file, 'utf8');
     if (file.endsWith('.md')) return '去重的操作表格：常用写法、复杂度、比较器和迭代器失效规则。';
+    const companion = path.join(ROOT, '说明', path.relative(ROOT, file).replace(/\.cpp$/, '.md'));
+    if (fs.existsSync(companion)) {
+        return fs.readFileSync(companion, 'utf8').split(/\r?\n/)
+            .find(line => line.trim() && !/^(#|\[|<!--)/.test(line.trim())) || '';
+    }
     for (const line of txt.split(/\r?\n/).slice(0, 40)) {
         const m = /^\s*\/\/\s*(.+)$/.exec(line);
         if (m && /[\u4e00-\u9fa5]/.test(m[1]) && !/^={2,}|^----|^自测|^\[/.test(m[1])) {
@@ -57,7 +62,9 @@ for (const d of DIRS) {
     md.push('| 模板 | 说明 | 台账里带同类标签的题（示例） |', '|---|---|---|');
     for (const f of files) {
         const rel = `${d}/${f}`;
-        const desc = describe(path.join(ROOT, d, f)).replace(/\|/g, '\\|');
+        let desc = describe(path.join(ROOT, d, f)).replace(/\|/g, '\\|');
+        const companion = `说明/${rel.replace(/\.cpp$/, '.md')}`;
+        if (fs.existsSync(path.join(ROOT, companion))) desc += ` [说明](<${companion}>)`;
         const probs = (fileToProbs.get(rel) || []).join('、');
         md.push(`| [${f.replace(/\.(cpp|md)$/, '')}](<${rel}>) | ${desc} | ${probs} |`);
         total++;

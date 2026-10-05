@@ -1,10 +1,11 @@
+// @code common
 #include<bits/stdc++.h>
 using namespace std;
 typedef long long ll;
 const int N=100005;
 const int M=1005;//二维树状数组的默认边长
 
-// 树状数组：单点加 + 前缀和/区间和，O(log n)
+// @code bit
 template<typename T,int NMAX=N>
 struct BIT
 {
@@ -30,7 +31,7 @@ struct BIT
         if(l>r)return 0;
         return sum(r)-sum(l-1);
     }
-    // 求最小的 x 使前缀和 >= k(要求 tr 全程非负)，不存在返回 n+1，O(log n)
+    // 前缀二分；使用条件见对应说明。
     int kth(T k)
     {
         int p=0,lg=1;
@@ -42,7 +43,7 @@ struct BIT
     }
 };
 
-// 区间加 + 单点查：差分树状数组，update/query 都是 O(log n)
+// @code difference
 template<typename T,int NMAX=N>
 struct DiffBIT
 {
@@ -63,7 +64,7 @@ struct DiffBIT
     }
 };
 
-// 二维树状数组：单点加 + 子矩阵和，O(log n log m)
+// @code bit2d
 template<typename T,int NMAX=M>
 struct BIT2D
 {
@@ -93,11 +94,11 @@ struct BIT2D
     }
 };
 
+// @code inversions
 int n;
 int a[N],tmp[N];
 BIT<int> bit_inv;
 
-// 离散化求逆序对对数，O(n log n)
 ll calc_inv(int len)
 {
     for(int i=1;i<=len;i++)tmp[i]=a[i];

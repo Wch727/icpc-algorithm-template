@@ -351,7 +351,54 @@ def manual_blocks(source, rel):
     return blocks
 
 
+def render_companion(source, md, rel):
+    """说明引用源码模块；每个模块必须恰好收录一次。"""
+    modules, current = {}, None
+    for line in source.splitlines():
+        marker = re.fullmatch(r'// @code ([a-zA-Z0-9_]+)', line)
+        if marker:
+            current = marker[1]
+            if current in modules:
+                raise ValueError('Duplicate source module in ' + rel + ': ' + current)
+            modules[current] = []
+        elif current is None:
+            if line.strip():
+                raise ValueError('Code before first module in ' + rel)
+        else:
+            modules[current].append(line)
+    out, prose, used = [], [], set()
+    def flush():
+        if prose:
+            out.append(math_notes('\n'.join(prose)))
+            prose.clear()
+    for line in md.splitlines():
+        marker = re.fullmatch(r'<!-- code: ([a-zA-Z0-9_]+) -->', line)
+        if marker:
+            flush()
+            name = marker[1]
+            if name not in modules or name in used:
+                raise ValueError('Unknown or repeated module in ' + rel + ': ' + name)
+            used.add(name)
+            body = clean_code('\n'.join(modules[name]), rel, preserve_indent=True)
+            if r'\end{lstlisting}' in body:
+                raise ValueError('Listing delimiter in ' + rel)
+            out.extend([r'\begin{lstlisting}', body, r'\end{lstlisting}'])
+        elif line.strip().startswith('<!-- code:'):
+            raise ValueError('Malformed module reference in ' + rel)
+        elif re.fullmatch(r'(?:\[[^]]+\]\([^)]+\)(?:\s*·\s*)?)+', line.strip()):
+            continue  # 电子版导航链接，不进入打印正文。
+        else:
+            prose.append(line)
+    flush()
+    if used != modules.keys():
+        raise ValueError('Unprinted modules in ' + rel + ': ' + ','.join(modules.keys()-used))
+    return '\n'.join(out)
+
+
 def render_template(source, rel):
+    companion = ROOT / '说明' / Path(rel).with_suffix('.md')
+    if companion.exists():
+        return render_companion(source, companion.read_text(encoding='utf-8-sig'), rel)
     prose_templates = {
         '05-数学/线性基.cpp', '03-字符串/AC自动机.cpp', '03-字符串/KMP.cpp',
         '05-数学/类欧几里得(floor_sum).cpp', '05-数学/行列式与矩阵树定理.cpp',

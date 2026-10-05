@@ -2960,12 +2960,16 @@ struct LiChao
 \end{lstlisting}
 % SOURCE: 02-数据结构/树状数组.cpp
 \subsection{树状数组}
-
+\note{一维、二维点加求和，差分区间加，以及频数顺序统计与逆序对计数。}
+\topic{公共容量}
+\note{下标从1开始；容量模板参数包含第0格，须满足 $1\le n<NMAX$。二维同样要求 $1\le n,m<NMAX$。默认N用于一维、M用于二维；按题目容量调整，不必同时摘取全部模块。}
 \begin{lstlisting}
 const int N=100005;
 const int M=1005;//二维树状数组的默认边长
 \end{lstlisting}
-\note{树状数组：单点加 +\allowbreak{} 前缀和/\allowbreak{}区间和，O(\allowbreak{}log n)\allowbreak{}}
+\topic{单点加、区间和与第k个}
+\note{BIT：先init(\allowbreak{}n)\allowbreak{}，add(\allowbreak{}x,\allowbreak{}v)\allowbreak{}加到单点，sum(\allowbreak{}x)\allowbreak{}求[\allowbreak{}1,\allowbreak{}x]\allowbreak{}，query(\allowbreak{}l,\allowbreak{}r)\allowbreak{}求闭区间和。单次操作 $O(\log n)$、初始化 $O(n)$，空间 $O(n)$。add的x必须至少1，否则lowbit为0；区间查询允许l>\allowbreak{}r返回0，其他下标须在范围内。T须容纳各前缀和。}
+\note{kth(\allowbreak{}k)\allowbreak{}返回首个前缀和至少k的位置，不存在返回n+\allowbreak{}1，要求k>\allowbreak{}0且每个位置的当前值非负，使前缀和单调。普通区间和可以存负数；用了负数后不能继续套kth。频数树上的第k小直接用这一接口。}
 \begin{lstlisting}
 template<typename T,int NMAX=N>
 struct BIT
@@ -2992,7 +2996,7 @@ struct BIT
         if(l>r)return 0;
         return sum(r)-sum(l-1);
     }
-    // 求最小的 x 使前缀和 >= k(要求 tr 全程非负)，不存在返回 n+1，O(log n)
+    // 前缀二分；使用条件见对应说明。
     int kth(T k)
     {
         int p=0,lg=1;
@@ -3004,7 +3008,8 @@ struct BIT
     }
 };
 \end{lstlisting}
-\note{区间加 +\allowbreak{} 单点查：差分树状数组，update/\allowbreak{}query 都是 O(\allowbreak{}log n)\allowbreak{}}
+\topic{区间加、单点查}
+\note{DiffBIT依赖BIT。以差分存储，update(\allowbreak{}l,\allowbreak{}r,\allowbreak{}v)\allowbreak{}修改两端点，query(\allowbreak{}x)\allowbreak{}还原单点；两者均 $O(\log n)$。从全零开始，r=\allowbreak{}n时不修改n+\allowbreak{}1。它不提供区间和接口；需要区间加与区间和时采用两棵树状数组或线段树。}
 \begin{lstlisting}
 template<typename T,int NMAX=N>
 struct DiffBIT
@@ -3026,7 +3031,8 @@ struct DiffBIT
     }
 };
 \end{lstlisting}
-\note{二维树状数组：单点加 +\allowbreak{} 子矩阵和，O(\allowbreak{}log n log m)\allowbreak{}}
+\topic{二维单点加、子矩阵和}
+\note{BIT2D：add(\allowbreak{}x,\allowbreak{}y,\allowbreak{}v)\allowbreak{}单点加，sum(\allowbreak{}x,\allowbreak{}y)\allowbreak{}求左上前缀，query(\allowbreak{}x1,\allowbreak{}y1,\allowbreak{}x2,\allowbreak{}y2)\allowbreak{}用四项容斥求闭子矩阵。单次 $O(\log n\log m)$，初始化和空间 $O(nm)$；两个更新坐标都必须大于0。大网格先检查平方容量与内存。}
 \begin{lstlisting}
 template<typename T,int NMAX=M>
 struct BIT2D
@@ -3056,12 +3062,13 @@ struct BIT2D
         return sum(x2,y2)-sum(x1-1,y2)-sum(x2,y1-1)+sum(x1-1,y1-1);
     }
 };
+\end{lstlisting}
+\topic{离散化计逆序对}
+\note{依赖BIT。把输入放在a[\allowbreak{}1.\allowbreak{}.\allowbreak{}len]\allowbreak{}，调用calc\_inv(\allowbreak{}len)\allowbreak{}，返回严格逆序对数：只计 $i<j$ 且 $a_i>a_j$，相等值不计。先压缩值域，再从左到右查询之前大于当前值的数量；时间 $O(n\log n)$，额外空间 $O(n)$，答案为ll。tmp和bit\_inv会被重置，原数组a不变。}
+\begin{lstlisting}
 int n;
 int a[N],tmp[N];
 BIT<int> bit_inv;
-\end{lstlisting}
-\note{离散化求逆序对对数，O(\allowbreak{}n log n)\allowbreak{}}
-\begin{lstlisting}
 ll calc_inv(int len)
 {
     for(int i=1;i<=len;i++)tmp[i]=a[i];
