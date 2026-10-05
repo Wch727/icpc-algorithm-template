@@ -15,8 +15,8 @@ int main()
     printf("\n期望 2 2 2 3 1 之类：1,2,3 同块，4、5 各自一块\n");
     // 缩点建 DAG + 最长点权和 DP
     for(int u=1;u<=n;u++)
-        for(int i=head[u];i;i=nxt[i])
-            if(belong[u]!=belong[to[i]])dag[belong[u]].push_back(belong[to[i]]);
+        for(int v:adj[u])
+            if(belong[u]!=belong[v])dag[belong[u]].push_back(belong[v]);
     for(int i=1;i<=scc_cnt;i++)val[i]=sz[i],dp[i]=sz[i];
     // 缩点后跑一遍拓扑排序，保证递推顺序正确（Tarjan 的出块顺序不一定是拓扑序）
     int deg[N],que[N],hh=0,tt=0;
@@ -41,8 +41,8 @@ int main()
     for(int t=1;t<=200;t++)
     {
         n=rand()%8+1;
-        for(int i=1;i<=n;i++)head[i]=0,dag[i].clear();
-        num=0,timer=0,top=0,scc_cnt=0;
+        for(int i=1;i<=n;i++)adj[i].clear(),dag[i].clear();
+        timer=0,top=0,scc_cnt=0;
         for(int i=1;i<=n;i++)dfn[i]=low[i]=in_stk[i]=belong[i]=sz[i]=0;
         int re[70][2],mm=0;
         for(int i=1;i<=n;i++)

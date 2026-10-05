@@ -7,7 +7,7 @@ int check_flow()// 自测用：检查当前图上的真实流量在上下界内�
     ll bal[12]={0};
     for(int i=1;i<=m;i++)
     {
-        ll f=elow[i]+cap[eidx[i]^1];
+        ll f=elow[i]+e[eidx[i]^1].cap;
         if(f<elow[i]||f>eup[i])return 0;
         bal[eu[i]]-=f,bal[ev[i]]+=f;
     }
@@ -24,7 +24,7 @@ int main()
     eu[3]=3,ev[3]=1,elow[3]=1,eup[3]=2;
     printf("无源汇成环 可行=%d（期望 1）\n",solve_lr(0)>=0);
     printf("实际流量=");
-    for(int i=1;i<=m;i++)printf("%lld ",elow[i]+cap[eidx[i]^1]);// 下界 + 残量反向边 = 真实流量
+    for(int i=1;i<=m;i++)printf("%lld ",elow[i]+e[eidx[i]^1].cap);// 下界 + 残量反向边 = 真实流量
     printf("校验=%d（期望 1，环内可能多流到 2）\n",check_flow());
     // 自测 2：无源汇无解，1->2[2,2] 与 3->2[1,1]，点 2 只有入边没有出边
     n=3,m=2;

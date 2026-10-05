@@ -31,8 +31,7 @@ int main()
     n=5;
     int ini[]={0,1,2,1,3,2};
     for(int i=1;i<=n;i++)col[i]=ini[i];
-    tot_edge=0;
-    for(int i=1;i<=n;i++)head[i]=0;
+    for(int i=1;i<=n;i++)adj[i].clear();
     for(int i=1;i<n;i++)add_edge(i,i+1),add_edge(i+1,i);
     seg.init();
     dfs(1,0);
@@ -47,8 +46,7 @@ int main()
         n=rand()%60+1;
         int C=rand()%5+1;
         for(int i=1;i<=n;i++)col[i]=rand()%C+1,son[i].clear();
-        tot_edge=0;
-        for(int i=1;i<=n;i++)head[i]=0;
+        for(int i=1;i<=n;i++)adj[i].clear();
         for(int i=2;i<=n;i++)      // 随机父结点，保证是棵树
         {
             int fa=rand()%(i-1)+1;
@@ -73,8 +71,7 @@ int main()
     // 3. 菊花图：根 1 挂 n-1 个叶子，每个点一种颜色 -> 根答案是 n（n 种颜色）
     n=8;
     for(int i=1;i<=n;i++)col[i]=i,son[i].clear();
-    tot_edge=0;
-    for(int i=1;i<=n;i++)head[i]=0;
+    for(int i=1;i<=n;i++)adj[i].clear();
     for(int i=2;i<=n;i++)add_edge(1,i),add_edge(i,1),son[1].push_back(i);
     seg.init();
     dfs(1,0);
@@ -84,8 +81,7 @@ int main()
     // 4. 规模测试：n=100000 的随机树，全是 1 种颜色 -> 所有答案都是 1
     n=100000;
     for(int i=1;i<=n;i++)col[i]=1;
-    tot_edge=0;
-    for(int i=1;i<=n;i++)head[i]=0;
+    for(int i=1;i<=n;i++)adj[i].clear();
     for(int i=2;i<=n;i++)
     {
         int fa=(int)(rand()%(i-1))+1;

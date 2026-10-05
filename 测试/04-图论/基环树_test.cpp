@@ -18,7 +18,7 @@ int check_cycle_edges(int *c,int len)// 校验 c[1..len] 是简单环
     for(int i=1;i<=len;i++)
     {
         int u=c[i],v=c[i%len+1],found=0;
-        for(int e=head[u];e;e=nxt[e])if(to[e]==v){found=1;break;}
+        for(auto [v,id]:adj[u])if(v==v){found=1;break;}
         if(!found)return 0;
     }
     return 1;
@@ -26,9 +26,8 @@ int check_cycle_edges(int *c,int len)// 校验 c[1..len] 是简单环
 void dfs_cycle(int s,int u,int dep)// 从 s 出发找回到 s 的简单环，O(n!)（n 很小才用）
 {
     bvis[u]=1,bpath[dep]=u;
-    for(int e=head[u];e;e=nxt[e])
+    for(auto [v,id]:adj[u])
     {
-        int v=to[e];
         if(v==s)
         {
             if(dep>=3)bcyc.insert(dep);// 只记环长
@@ -49,8 +48,8 @@ ll brute_mis(int n_)
         for(int u=1;u<=n_&&flag;u++)
         {
             if(!(mask>>(u-1)&1))continue;
-            for(int e=head[u];e;e=nxt[e])
-                if(to[e]>u&&(mask>>(to[e]-1)&1)){flag=0;break;}
+            for(auto [v,id]:adj[u])
+                if(v>u&&(mask>>(v-1)&1)){flag=0;break;}
         }
         if(flag)want=max(want,s);
     }
@@ -61,9 +60,9 @@ int main()
 {
     // 审核回归：覆盖原随机小值测试遗漏的边界。
     {
-        n=2; ecnt=0; head[1]=head[2]=0; val[1]=3;val[2]=4;
+        n=2; ecnt=0; adj[1].clear(); adj[2].clear(); val[1]=3;val[2]=4;
         add_edge(1,2); add_edge(1,2); assert(max_independent_set(1)==4);
-        n=1;ecnt=0;head[1]=0;val[1]=9;add_edge(1,1);assert(max_independent_set(1)==0);
+        n=1;ecnt=0;adj[1].clear();val[1]=9;add_edge(1,1);assert(max_independent_set(1)==0);
     }
 
     srand(20240516);
@@ -71,7 +70,7 @@ int main()
     // 自测 1：4 元环 1-2-3-4-1，再挂树：5-1、6-2、7-6
     // 点权 1..7 = 3,2,5,1,4,6,7；答案由暴力给出，不手算
     n=7,ecnt=0;
-    for(int i=1;i<=n;i++)head[i]=0;
+    for(int i=1;i<=n;i++)adj[i].clear();
     val[1]=3,val[2]=2,val[3]=5,val[4]=1,val[5]=4,val[6]=6,val[7]=7;
     add_edge(1,2),add_edge(2,3),add_edge(3,4),add_edge(4,1),add_edge(1,5),add_edge(2,6),add_edge(6,7);
     int want1=brute_mis(n);
@@ -84,7 +83,7 @@ int main()
 
     // 自测 2：3 元环 1-2-3-1，4 挂在 1 上，权 1,2,3,4
     n=4,ecnt=0;
-    for(int i=1;i<=n;i++)head[i]=0;
+    for(int i=1;i<=n;i++)adj[i].clear();
     val[1]=1,val[2]=2,val[3]=3,val[4]=4;
     add_edge(1,2),add_edge(2,3),add_edge(3,1),add_edge(1,4);
     int want2=brute_mis(n);
@@ -93,10 +92,10 @@ int main()
 
     // 自测 3：有向基环树找环：1->2->3->4->2
     n=4,ecnt=0;
-    for(int i=1;i<=n;i++)head[i]=0;
+    for(int i=1;i<=n;i++)adj[i].clear();
     // 有向样例只加出边，不能复用无向加边函数
     for(auto [u,v]:vector<pair<int,int> >{{1,2},{2,3},{3,4},{4,2}})
-        to[++ecnt]=v,nxt[ecnt]=head[u],head[u]=ecnt;
+        adj[u].push_back({v,++ecnt});
     find_ring_directed(1);
     printf("有向图 1->2->3->4->2：环长 %d（期望 3）环上点",rn);
     for(int i=1;i<=rn;i++)printf(" %d",ring[i]);
@@ -119,7 +118,7 @@ int main()
         eu[++ec]=a,ev[ec]=b;
         m=ec;
         ecnt=0;
-        for(int i=1;i<=n;i++)head[i]=0,val[i]=rand()%10+1;
+        for(int i=1;i<=n;i++)adj[i].clear(),val[i]=rand()%10+1;
         for(int i=1;i<=m;i++)add_edge(eu[i],ev[i]);
         // 先暴力枚举所有简单环（n 很小），记录环长的多重集
         bpc=0;
@@ -147,8 +146,8 @@ int main()
         int edge_on_ring=0,bad=0;
         for(int i=1;i<=rs;i++)if(!on_ring[rsave[i]])bad=1;
         for(int u=1;u<=n;u++)if(on_ring[u])
-            for(int i=head[u];i;i=nxt[i])
-                if(on_ring[to[i]])edge_on_ring++;
+            for(auto [v,id]:adj[u])
+                if(on_ring[v])edge_on_ring++;
         edge_on_ring>>=1;
         if(bad||edge_on_ring!=rs)
         {
@@ -173,7 +172,7 @@ int main()
 
     // 自测 5：n=1e5 大环，迭代不爆栈（环长 1e5，最大独立集 50000）
     n=100000,ecnt=0;
-    for(int i=1;i<=n;i++)head[i]=0,val[i]=1;
+    for(int i=1;i<=n;i++)adj[i].clear(),val[i]=1;
     for(int i=1;i<=n;i++)add_edge(i,i%n+1);
     ll big_ans=max_independent_set(1);
     printf("大环 n=100000：环长 %d（期望 100000）最大独立集 %lld（期望 50000）\n",

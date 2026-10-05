@@ -12,11 +12,11 @@ const int LOG=18;      // log2(N)+1
 const int MAXNODE=N*(LOG+1);//n 个叶子各建一条到根的链
 
 int n,col[N];
-int head[N],to[N<<1],nxt[N<<1],tot_edge;//链式前向星存树
+vector<int> adj[N];
 
 void add_edge(int u,int v)
 {
-    to[++tot_edge]=v,nxt[tot_edge]=head[u],head[u]=tot_edge;
+    adj[u].push_back(v);
 }
 
 struct MergeSeg{
@@ -78,9 +78,8 @@ int root[N];//每个点对应的权值线段树根
 void dfs(int u,int fa)
 {
     root[u]=seg.insert(0,1,n,col[u],1);
-    for(int e=head[u];e;e=nxt[e])
+    for(int v:adj[u])
     {
-        int v=to[e];
         if(v==fa)continue;
         dfs(v,u);
         root[u]=seg.merge(root[u],root[v]);

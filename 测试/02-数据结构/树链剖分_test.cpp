@@ -51,8 +51,8 @@ int main()
     srand(20240513);
 
     // 1. 手测：链 1-2-3-4-5，点权 1..5
-    n=5,rt=1,ecnt=0,cnt=0;
-    for(int i=1;i<=n;i++)head[i]=0,a[i]=i;
+    n=5,rt=1,cnt=0;
+    for(int i=1;i<=n;i++)adj[i].clear(),a[i]=i;
     for(int i=1;i<n;i++)add_edge(i,i+1);
     dfs1_iter(rt),dfs2(rt,rt);
     for(int i=1;i<=n;i++)val[i]=a[i],bval[i]=a[i];
@@ -67,8 +67,8 @@ int main()
     bool ok=true;
     for(int T=1;T<=20&&ok;T++)
     {
-        n=rand()%14+2,rt=rand()%n+1,ecnt=0,cnt=0;
-        for(int i=1;i<=n;i++)head[i]=0;
+        n=rand()%14+2,rt=rand()%n+1,cnt=0;
+        for(int i=1;i<=n;i++)adj[i].clear();
         for(int i=2;i<=n;i++)
         {
             int f=rand()%(i-1)+1;
@@ -106,8 +106,8 @@ int main()
     }
 
     // 3. 链状极限数据：100000 个点，路径和 / 子树和不能爆栈超时
-    n=100000,rt=1,ecnt=0,cnt=0;
-    for(int i=1;i<=n;i++)head[i]=0,a[i]=1;
+    n=100000,rt=1,cnt=0;
+    for(int i=1;i<=n;i++)adj[i].clear(),a[i]=1;
     for(int i=1;i<n;i++)add_edge(i,i+1);
     dfs1_iter(rt),dfs2(rt,rt);
     for(int i=1;i<=n;i++)val[i]=a[i];

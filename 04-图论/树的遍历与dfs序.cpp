@@ -7,16 +7,17 @@
 using namespace std;
 typedef long long ll;
 const int N=100005;
-int n,root,ecnt;
-int head[N],to[N<<1],nxt[N<<1],val[N];
+int n,root;
+vector<int> adj[N];
+int val[N];
 int in[N],out[N],rnk[N],par[N],sz[N],timer_;
 int euler[N<<1],first[N],edep[N<<1],elog[N<<1],st[20][N<<1];// 欧拉序 + ST 表
-int stk[N],it[N];// 显式栈：stk 存点，it 存下一条要走的边（模拟递归）
+int stk[N],it[N];// 显式栈：stk 存点，it 存下一邻点的位置，从 0 起（模拟递归）
 
 void add_edge(int u,int v)
 {
-    to[++ecnt]=v,nxt[ecnt]=head[u],head[u]=ecnt;
-    to[++ecnt]=u,nxt[ecnt]=head[v],head[v]=ecnt;
+    adj[u].push_back(v);
+    adj[v].push_back(u);
 }
 
 // 迭代 dfs 求 dfs 序 + 时间戳 + 子树大小 + 欧拉序，O(n)
@@ -24,22 +25,20 @@ void get_dfn(int rt)
 {
     timer_=0;
     int tp=0,cnt=0;
-    stk[++tp]=rt,it[tp]=head[rt],par[rt]=0,sz[rt]=1;
+    stk[++tp]=rt,it[tp]=0,par[rt]=0,sz[rt]=1;
     in[rt]=++timer_,rnk[timer_]=rt;
     euler[++cnt]=rt,first[rt]=cnt,edep[cnt]=0;
     while(tp)
     {
         int u=stk[tp];
-        if(it[tp])
+        if(it[tp]<(int)adj[u].size())
         {
-            int e=it[tp];
-            it[tp]=nxt[e];// 回溯到这里时接着走下一条边
-            int v=to[e];
+            int v=adj[u][it[tp]++];// 回溯时接着走下一个邻点
             if(v==par[u])continue;
             par[v]=u,sz[v]=1;
             in[v]=++timer_,rnk[timer_]=v;
             euler[++cnt]=v,first[v]=cnt,edep[cnt]=edep[first[u]]+1;
-            stk[++tp]=v,it[tp]=head[v];
+            stk[++tp]=v,it[tp]=0;
         }
         else
         {

@@ -14,8 +14,8 @@ int main()
     {
         n=rand()%2+3;// 3 或 4 个点
         s=1,t=n;
-        for(int i=1;i<=n;i++)head[i]=0;
-        num=1;
+        for(int i=1;i<=n;i++)adj[i].clear();
+        e.clear();
         int eu[12],ev[12],ec[12],ew[12];
         int pot[12];
         for(int i=1;i<=n;i++)pot[i]=rand()%7;// 用势能差造费用，保证任何环的费用和 >= 0（无负费用环）

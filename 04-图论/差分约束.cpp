@@ -4,14 +4,14 @@ typedef long long ll;
 const int N=100005;
 const ll INF=1e18;
 int n,m;
-int head[N],to[N<<1],nxt[N<<1],num;
-ll w[N<<1];
+struct Edge{int to;ll w;};
+vector<Edge> adj[N];
 ll dis[N];// dis[i] 就是变量 x_i 的一组可行解
 int cnt[N],inq[N];
 
 void add_edge(int u,int v,ll c)// 有向边 u->v 权 c，表示 x_v <= x_u + c
 {
-    to[++num]=v,w[num]=c,nxt[num]=head[u],head[u]=num;
+    adj[u].push_back({v,c});
 }
 
 void add_leq(int u,int v,ll c)// 条件 x_v - x_u <= c，直接就是一条 u->v 边权 c
@@ -34,12 +34,11 @@ int spfa(int s)// 从超级源点 0 跑最短路，返回 1 表示有负环（�
         int u=q.front();
         q.pop();
         inq[u]=0;
-        for(int i=head[u];i;i=nxt[i])
+        for(auto [v,w]:adj[u])
         {
-            int v=to[i];
-            if(dis[u]+w[i]<dis[v])
+            if(dis[u]+w<dis[v])
             {
-                dis[v]=dis[u]+w[i];
+                dis[v]=dis[u]+w;
                 cnt[v]=cnt[u]+1;
                 if(cnt[v]>n)return 1;// 最短路用到的边数超过 n，必有负环
                 if(!inq[v])inq[v]=1,q.push(v);
@@ -57,6 +56,5 @@ int solve()// 建超级源点 0 连向所有变量，返回是否有解
 
 void clear_all()
 {
-    for(int i=0;i<=n;i++)head[i]=0;
-    num=0;
+    for(int i=0;i<=n;i++)adj[i].clear();
 }

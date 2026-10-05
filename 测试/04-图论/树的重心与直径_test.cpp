@@ -7,8 +7,8 @@ int main()
     srand(20240514);
 
     // 自测 1：手造链 1-2-3-4-5，直径 4、重心 3、最远点
-    n=5,num=0;
-    for(int i=1;i<=n;i++)head[i]=0;
+    n=5;
+    for(int i=1;i<=n;i++)adj[i].clear();
     for(int i=1;i<n;i++)add_edge(i,i+1);
     printf("链 n=5：直径 %d（期望 4），重心 %d（期望 3）\n",get_diameter(),get_centroid());
     build_far();
@@ -16,14 +16,14 @@ int main()
     printf("重心 %d 到直径端点之一 %d 的距离 %d（期望 2）\n",c,far_node(c),eccentricity(c));
 
     // 自测 2：手造星形 1 为心，直径 2、重心 1
-    n=6,num=0;
-    for(int i=1;i<=n;i++)head[i]=0;
+    n=6;
+    for(int i=1;i<=n;i++)adj[i].clear();
     for(int i=2;i<=n;i++)add_edge(1,i);
     printf("星形 n=6：直径 %d（期望 2），重心 %d（期望 1）\n",get_diameter(),get_centroid());
 
     // 自测 3：三条叉的树 1-2,2-3,3-4,2-5,5-6，直径 4，重心 2 或 3（取小编号 2）
-    n=6,num=0;
-    for(int i=1;i<=n;i++)head[i]=0;
+    n=6;
+    for(int i=1;i<=n;i++)adj[i].clear();
     add_edge(1,2),add_edge(2,3),add_edge(3,4),add_edge(2,5),add_edge(5,6);
     printf("叉树 n=6：直径 %d（期望 4），重心 %d（期望 2）\n",get_diameter(),get_centroid());
 
@@ -32,8 +32,8 @@ int main()
     int round=0;
     for(int T=1;T<=300;T++)
     {
-        n=rand()%12+2,num=0;
-        for(int i=1;i<=n;i++)head[i]=0;
+        n=rand()%12+2;
+        for(int i=1;i<=n;i++)adj[i].clear();
         for(int i=2;i<=n;i++)add_edge(rand()%(i-1)+1,i);
         // 暴力：矩阵 bfs 求所有点对距离
         int bd[15][15];
@@ -45,8 +45,8 @@ int main()
             while(h2<t2)
             {
                 int u=q2[h2++];
-                for(int i=head[u];i;i=nxt[i])
-                    if(bd[s][to[i]]==-1)bd[s][to[i]]=bd[s][u]+1,q2[t2++]=to[i];
+                for(int v:adj[u])
+                    if(bd[s][v]==-1)bd[s][v]=bd[s][u]+1,q2[t2++]=v;
             }
         }
         int bdia=0;
@@ -108,8 +108,8 @@ int main()
                 {
                     int x=q2[h2++];
                     cnt++;
-                    for(int i=head[x];i;i=nxt[i])
-                        if(!mark[to[i]])mark[to[i]]=1,q2[t2++]=to[i];
+                    for(int v:adj[x])
+                        if(!mark[v])mark[v]=1,q2[t2++]=v;
                 }
                 m=max(m,cnt);
             }
@@ -128,8 +128,8 @@ int main()
     printf("随机树直径/重心/最远点对拍 %d 轮 %s\n",round,ok?"OK":"FAILED");
 
     // 自测 5：n=1e5 的链（深度 1e5），迭代版不能爆栈
-    n=100000,num=0;
-    for(int i=1;i<=n;i++)head[i]=0;
+    n=100000;
+    for(int i=1;i<=n;i++)adj[i].clear();
     for(int i=1;i<n;i++)add_edge(i,i+1);
     get_diameter(),build_far();
     // 注意：最远点查询依赖 dis/dist_db，get_centroid() 会改写 dis，所以先把答案存下来

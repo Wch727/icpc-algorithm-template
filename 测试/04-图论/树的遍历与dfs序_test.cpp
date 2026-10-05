@@ -7,8 +7,8 @@ int main()
     srand(20240515);
 
     // 自测 1：手造树 1-2 1-3 2-4 2-5 3-6，检查 dfs 序与子树区间
-    n=6,ecnt=0,root=1;
-    for(int i=1;i<=n;i++)head[i]=0,val[i]=i;
+    n=6,root=1;
+    for(int i=1;i<=n;i++)adj[i].clear(),val[i]=i;
     add_edge(1,2),add_edge(1,3),add_edge(2,4),add_edge(2,5),add_edge(3,6);
     get_dfn(root);
     printf("树 1-2,1-3,2-4,2-5,3-6，dfn：");
@@ -29,8 +29,8 @@ int main()
     int round=0;
     for(int T=1;T<=200;T++)
     {
-        n=rand()%12+2,ecnt=0,root=1;
-        for(int u=1;u<=n;u++)head[u]=0,val[u]=rand()%20+1,bit.tr[u]=0;
+        n=rand()%12+2,root=1;
+        for(int u=1;u<=n;u++)adj[u].clear(),val[u]=rand()%20+1,bit.tr[u]=0;
         for(int i=2;i<=n;i++)add_edge(rand()%(i-1)+1,i);
         get_dfn(root);
         int bpar[15]={0},q2[15],h2=0,t2=0;
@@ -38,8 +38,8 @@ int main()
         while(h2<t2)
         {
             int u=q2[h2++];
-            for(int i=head[u];i;i=nxt[i])
-                if(to[i]!=bpar[u])bpar[to[i]]=u,q2[t2++]=to[i];
+            for(int v:adj[u])
+                if(v!=bpar[u])bpar[v]=u,q2[t2++]=v;
         }
         // 时间戳合法 且 区间长度 == 子树大小
         for(int u=1;u<=n;u++)
@@ -100,8 +100,8 @@ int main()
     printf("dfs 序/欧拉序/子树区间对拍 %d 轮 %s\n",round,ok?"OK":"FAILED");
 
     // 自测 4：链 n=1e5，迭代 dfs 不爆栈；LCA 正确
-    n=100000,ecnt=0,root=1;
-    for(int i=1;i<=n;i++)head[i]=0,val[i]=1;
+    n=100000,root=1;
+    for(int i=1;i<=n;i++)adj[i].clear(),val[i]=1;
     for(int i=1;i<n;i++)add_edge(i,i+1);
     get_dfn(root);
     printf("大链 n=100000：in[1]=%d out[1]=%d（期望 1 100000）sz[1]=%d lca(1,100000)=%d lca(50000,99999)=%d\n",

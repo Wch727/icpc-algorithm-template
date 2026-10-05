@@ -3,13 +3,13 @@ using namespace std;
 typedef long long ll;
 const int N=100005;
 int n,m,root;
-int head[N],to[N<<1],nxt[N<<1],num=0;
+vector<int> adj[N];
 int dep[N],fa[N][20];// fa[u][k]：u 往上跳 2^k 步的祖先
 int diff[N];// 树上差分数组
 
 void add_edge(int u,int v)
 {
-    to[++num]=v,nxt[num]=head[u],head[u]=num;
+    adj[u].push_back(v);
 }
 
 void add_undirected(int u,int v)
@@ -23,8 +23,8 @@ void dfs(int u,int f)// 预处理深度和倍增表，O(n log n)
     dep[u]=dep[f]+1;
     fa[u][0]=f;
     for(int k=1;k<20;k++)fa[u][k]=fa[fa[u][k-1]][k-1];
-    for(int i=head[u];i;i=nxt[i])
-        if(to[i]!=f)dfs(to[i],u);
+    for(int v:adj[u])
+        if(v!=f)dfs(v,u);
 }
 
 int lca(int x,int y)// 倍增求 LCA，O(log n)
@@ -52,10 +52,10 @@ void add_path(int x,int y)// 路径 (x,y) 差分打标记
 
 void collect(int u,int f)// 自底向上合并差分，得到每条边被覆盖的次数
 {
-    for(int i=head[u];i;i=nxt[i])
-        if(to[i]!=f)
+    for(int v:adj[u])
+        if(v!=f)
         {
-            collect(to[i],u);
-            diff[u]+=diff[to[i]];
+            collect(v,u);
+            diff[u]+=diff[v];
         }
 }

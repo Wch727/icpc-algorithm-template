@@ -8,37 +8,38 @@ using namespace std;
 typedef long long ll;
 const int N=100005;
 int n,m;
-// 无向图：链式前向星，边成对存，(e^1) 是反向边
-int head[N],to[N<<1],nxt[N<<1],ecnt;
-int deg[N],used[N<<1],it[N],stk[N+5];
-// 有向图：出边的链式前向星 + 入度
-int dhead[N],dto[N],dnxt[N],decnt,din[N],dout[N],dvis[N];
-int path_[N+5],pcnt;
+struct Edge{int to,id;};
+vector<Edge> adj[N],dadj[N];// 无向边两端共用 id；有向边各有一个 id
+int ecnt,decnt,deg[N],din[N],dout[N],it[N],pcnt;
+vector<int> used,dvis,stk,path_;// 路径和栈按边数扩展，path_[1..pcnt] 为结果
 
 void init_undirected(int n_)
 {
-    n=n_,ecnt=1,pcnt=0;
-    for(int i=1;i<=n;i++)head[i]=0,deg[i]=0;
-    memset(used,0,sizeof(used));
+    n=n_,ecnt=0,pcnt=0;
+    for(int i=1;i<=n;i++)adj[i].clear(),deg[i]=0;
+    used.assign(1,0);
 }
 
 void add_uedge(int u,int v)// 无向边，一次加一对
 {
-    to[++ecnt]=v,nxt[ecnt]=head[u],head[u]=ecnt;
-    to[++ecnt]=u,nxt[ecnt]=head[v],head[v]=ecnt;
+    ++ecnt;
+    adj[u].push_back({v,ecnt});
+    adj[v].push_back({u,ecnt});
+    used.push_back(0);
     deg[u]++,deg[v]++;
 }
 
 void init_directed(int n_)
 {
     n=n_,decnt=0,pcnt=0;
-    for(int i=1;i<=n;i++)dhead[i]=0,din[i]=0,dout[i]=0;
+    for(int i=1;i<=n;i++)dadj[i].clear(),din[i]=0,dout[i]=0;
+    dvis.assign(1,0);
 }
 
 void add_dedge(int u,int v)// 有向边
 {
-    dto[++decnt]=v,dnxt[decnt]=dhead[u],dhead[u]=decnt;
-    dvis[decnt]=0;
+    dadj[u].push_back({v,++decnt});
+    dvis.push_back(0);
     dout[u]++,din[v]++;
 }
 
@@ -55,8 +56,8 @@ int connected_undirected()
     {
         int u=q[hd++];
         cnt++;
-        for(int i=head[u];i;i=nxt[i])
-            if(!vis2[to[i]])vis2[to[i]]=1,q[tl++]=to[i];
+        for(auto [v,id]:adj[u])
+            if(!vis2[v])vis2[v]=1,q[tl++]=v;
     }
     return cnt==all;
 }
@@ -70,8 +71,8 @@ int connected_directed()
     int all=0;
     for(int i=1;i<=n;i++)if(din[i]||dout[i])all++;
     for(int u=1;u<=n;u++)
-        for(int e=dhead[u];e;e=dnxt[e])
-            ufa[findd(u)]=findd(dto[e]);
+        for(auto [v,id]:dadj[u])
+            ufa[findd(u)]=findd(v);
     if(!all)return 1;
     int r=-1;
     for(int i=1;i<=n;i++)if(din[i]||dout[i]){r=findd(i);break;}
@@ -99,19 +100,21 @@ int euler_undirected(int &s)
     }
     if(!s)return 2;
     if(!connected_undirected())return 0;
-    for(int i=1;i<=n;i++)it[i]=head[i];
+    for(int i=1;i<=n;i++)it[i]=0;
+    used.assign(ecnt+1,0);
+    stk.resize(ecnt+2),path_.resize(ecnt+2);
     int tp=0;
     stk[++tp]=s,pcnt=0;
     while(tp)
     {
         int u=stk[tp];
-        int e=it[u];
-        while(e&&used[e])e=nxt[e];// 跳过已经走过的边
-        it[u]=e;
-        if(e)
+        int &p=it[u];
+        while(p<(int)adj[u].size()&&used[adj[u][p].id])p++;
+        if(p<(int)adj[u].size())
         {
-            used[e]=used[e^1]=1;
-            stk[++tp]=to[e];
+            auto [v,id]=adj[u][p++];
+            used[id]=1;
+            stk[++tp]=v;
         }
         else
         {
@@ -119,7 +122,7 @@ int euler_undirected(int &s)
             tp--;
         }
     }
-    reverse(path_+1,path_+pcnt+1);
+    reverse(path_.begin()+1,path_.begin()+pcnt+1);
     if(pcnt!=m+1)return 0;// 边没走完说明图不连通
     return odd==2?1:2;
 }
@@ -143,19 +146,21 @@ int euler_directed(int &s)
     }
     if(!s)return 2;
     if(!connected_directed())return 0;
-    for(int i=1;i<=n;i++)it[i]=dhead[i];
+    for(int i=1;i<=n;i++)it[i]=0;
+    dvis.assign(decnt+1,0);
+    stk.resize(decnt+2),path_.resize(decnt+2);
     int tp=0;
     stk[++tp]=s,pcnt=0;
     while(tp)
     {
         int u=stk[tp];
-        int e=it[u];
-        while(e&&dvis[e])e=dnxt[e];
-        it[u]=e;
-        if(e)
+        int &p=it[u];
+        while(p<(int)dadj[u].size()&&dvis[dadj[u][p].id])p++;
+        if(p<(int)dadj[u].size())
         {
-            dvis[e]=1;
-            stk[++tp]=dto[e];
+            auto [v,id]=dadj[u][p++];
+            dvis[id]=1;
+            stk[++tp]=v;
         }
         else
         {
@@ -163,7 +168,7 @@ int euler_directed(int &s)
             tp--;
         }
     }
-    reverse(path_+1,path_+pcnt+1);
+    reverse(path_.begin()+1,path_.begin()+pcnt+1);
     if(pcnt!=m+1)return 0;
     return c1==1?1:2;
 }

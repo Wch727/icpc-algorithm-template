@@ -27,8 +27,7 @@ int main()
     for(int t=1;t<=200;t++)
     {
         n=rand()%30+2;
-        for(int i=1;i<=n;i++)head[i]=0;
-        num=0;
+        for(int i=1;i<=n;i++)adj[i].clear();
         for(int i=2;i<=n;i++)
         {
             int u=rand()%(i-1)+1;
@@ -66,8 +65,7 @@ int main()
     for(int t=1;t<=100;t++)
     {
         n=rand()%20+2;
-        for(int i=1;i<=n;i++)head[i]=0;
-        num=0;
+        for(int i=1;i<=n;i++)adj[i].clear();
         for(int i=2;i<=n;i++)add_undirected(rand()%(i-1)+1,i);
         root=1;
         dfs(root,0);

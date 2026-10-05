@@ -4,6 +4,15 @@
 
 int main()
 {
+    // 第二条增广路需要撤销第一次匹配；另覆盖自环、零容量和重复调用。
+    n=6,s=1,t=6;
+    add_edge(1,2,1); add_edge(1,3,1);
+    add_edge(2,4,1); add_edge(2,5,1); add_edge(3,4,1);
+    add_edge(4,6,1); add_edge(5,6,1);
+    add_edge(2,2,7); add_edge(1,6,0);
+    assert(dinic()==2&&dinic()==0);
+    for(int u=1;u<=n;u++)adj[u].clear();
+    e.clear();
     // 自测 1：手造网络 1->2(3) 1->3(2) 2->3(1) 2->4(2) 3->4(3)，最大流 = 5
     n=4,s=1,t=4;
     add_edge(1,2,3),add_edge(1,3,2),add_edge(2,3,1),add_edge(2,4,2),add_edge(3,4,3);
@@ -12,8 +21,8 @@ int main()
     for(int T=1;T<=200;T++)
     {
         n=rand()%5+3;
-        for(int i=1;i<=n;i++)head[i]=0;
-        num=1;
+        for(int i=1;i<=n;i++)adj[i].clear();
+        e.clear();
         s=1,t=n;
         int eu[60],ev[60];
         ll ew[60];
@@ -50,8 +59,8 @@ int main()
     {
         int nl=rand()%4+1,nr=rand()%4+1;
         n=nl+nr+2;
-        for(int i=1;i<=n;i++)head[i]=0;
-        num=1;
+        for(int i=1;i<=n;i++)adj[i].clear();
+        e.clear();
         s=n-1,t=n;
         for(int i=1;i<=nl;i++)add_edge(s,i,1);
         for(int j=1;j<=nr;j++)add_edge(nl+j,t,1);

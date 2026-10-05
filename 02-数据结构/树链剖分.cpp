@@ -8,14 +8,14 @@ typedef long long ll;
 const int N=100005;
 int n,m,rt,cnt,op;
 int a[N],val[N];
-int head[N],to[N<<1],nxt[N<<1],ecnt;
+vector<int> adj[N];
 int fa[N],dep[N],sz[N],son[N],top[N],dfn[N],rnk[N];
 int stk[N],stk2[N];                     // 迭代 dfs 用的栈
 
 void add_edge(int u,int v)
 {
-    to[++ecnt]=v,nxt[ecnt]=head[u],head[u]=ecnt;
-    to[++ecnt]=u,nxt[ecnt]=head[v],head[v]=ecnt;
+    adj[u].push_back(v);
+    adj[v].push_back(u);
 }
 
 // 第一遍（迭代）：求 fa / dep / sz / 重儿子
@@ -29,9 +29,8 @@ void dfs1_iter(int root)
     {
         int u=stk[tp--];
         order[++ocnt]=u;
-        for(int i=head[u];i;i=nxt[i])
+        for(int v:adj[u])
         {
-            int v=to[i];
             if(v==fa[u])continue;
             fa[v]=u,dep[v]=dep[u]+1;
             stk[++tp]=v;
@@ -41,9 +40,8 @@ void dfs1_iter(int root)
     {
         int u=order[i];
         sz[u]=1,son[u]=0;
-        for(int j=head[u];j;j=nxt[j])
+        for(int v:adj[u])
         {
-            int v=to[j];
             if(v==fa[u])continue;
             sz[u]+=sz[v];
             if(sz[v]>sz[son[u]])son[u]=v;
@@ -62,9 +60,8 @@ void dfs2(int root,int tproot)
         tp--;
         int u=stk[tp],tpv=stk2[tp];
         top[u]=tpv,dfn[u]=++cnt,rnk[cnt]=u;
-        for(int i=head[u];i;i=nxt[i])   // 轻儿子各自开新链
+        for(int v:adj[u])   // 轻儿子各自开新链
         {
-            int v=to[i];
             if(v==fa[u]||v==son[u])continue;
             stk[tp]=v,stk2[tp]=v,tp++;
         }

@@ -2,7 +2,7 @@
 // 参数：顶点 1..n，s!=t；c 是非负容量，f 是单位费用，可为负。
 // 前提：源点可达残量图不能有负费用环；初始化 SPFA 没有负环检测。
 // 关键：fee+h[u]-h[v] 为约化费用；势能保持最短路选择与真实费用一致。
-// 易错：cap 会被原地修改；重建时 head 清零、num=1；边槽需含反向边。
+// 易错：e[id].cap 会被原地修改；重建时 清空 adj 与 e；反向边也占一个元素。
 // 复杂度：初始化最坏 O(n*m)，A 次增广 O(A*(n+m)*log(n+m))；f*fee 和总费用须能放入 ll。
 // 有限容量负费用边可先预置到上界，计入费用与点供需，再用其反向边撤销多余预流。
 // 预置后必须平衡每个点的流量；这不是“直接灌满负边然后跑普通 s-t 流”，更不能用于无界负环。
@@ -12,8 +12,9 @@ typedef long long ll;
 const int N=100005;
 const ll INF=1e18;
 int n,m,s,t;
-int head[N],to[N<<1],nxt[N<<1],num=1;// 边从 2 开始编号，i^1 是反向边
-ll cap[N<<1],fee[N<<1];// 剩余容量、单位费用
+struct Edge{int to;ll cap,fee;};
+vector<Edge> e;
+vector<int> adj[N];// 存 e 的下标，从 0 起；id^1 是反向边
 ll dis[N],h[N];// dis：本次的约化费用最短路；h：势能，保证约化费用非负
 int vis[N],pre[N];// pre[v]：最短路上到 v 的那条入边编号
 ll ans_flow,ans_cost;
@@ -21,8 +22,11 @@ ll ans_flow,ans_cost;
 // O(1)，添加 u->v；c 为容量，f 为单价，反向边单价取负以抵消旧费用。
 void add_edge(int u,int v,ll c,ll f)
 {
-    to[++num]=v,cap[num]=c,fee[num]=f,nxt[num]=head[u],head[u]=num;
-    to[++num]=u,cap[num]=0,fee[num]=-f,nxt[num]=head[v],head[v]=num;// 反向边容量 0、费用取负
+    int id=e.size();
+    e.push_back({v,c,f});
+    e.push_back({u,0,-f});
+    adj[u].push_back(id);
+    adj[v].push_back(id^1);
 }
 
 // 最坏 O(n*m)，从全局 s 求初始势能；先处理负边才能使用 Dijkstra。
@@ -36,12 +40,12 @@ void spfa_init()// 先用 SPFA 求一遍初始势能，这样有负费用边也�
         int u=q.front();
         q.pop();
         vis[u]=0;
-        for(int i=head[u];i;i=nxt[i])
+        for(int i:adj[u])
         {
-            int v=to[i];
-            if(cap[i]>0&&h[u]+fee[i]<h[v])
+            int v=e[i].to;
+            if(e[i].cap>0&&h[u]+e[i].fee<h[v])
             {
-                h[v]=h[u]+fee[i];
+                h[v]=h[u]+e[i].fee;
                 if(!vis[v])vis[v]=1,q.push(v);
             }
         }
@@ -62,12 +66,12 @@ int dijkstra()// 沿约化费用最短路增广，O(m log n)；返回能否找�
         int u=p.second;
         if(vis[u])continue;// 过期的旧距离，跳过
         vis[u]=1;
-        for(int i=head[u];i;i=nxt[i])
+        for(int i:adj[u])
         {
-            int v=to[i];
-            if(cap[i]>0&&dis[u]+fee[i]+h[u]-h[v]<dis[v])
+            int v=e[i].to;
+            if(e[i].cap>0&&dis[u]+e[i].fee+h[u]-h[v]<dis[v])
             {
-                dis[v]=dis[u]+fee[i]+h[u]-h[v];
+                dis[v]=dis[u]+e[i].fee+h[u]-h[v];
                 pre[v]=i;
                 q.push(make_pair(dis[v],v));
             }
@@ -86,12 +90,12 @@ void mcmf()// 最小费用最大流，结果放 ans_flow / ans_cost
     {
         for(int i=1;i<=n;i++)if(dis[i]<INF)h[i]+=dis[i];// 累加势能
         ll f=INF;
-        for(int v=t;v!=s;v=to[pre[v]^1])f=min(f,cap[pre[v]]);// 沿路径找瓶颈
-        for(int v=t;v!=s;v=to[pre[v]^1])
+        for(int v=t;v!=s;v=e[pre[v]^1].to)f=min(f,e[pre[v]].cap);// 沿路径找瓶颈
+        for(int v=t;v!=s;v=e[pre[v]^1].to)
         {
-            cap[pre[v]]-=f;
-            cap[pre[v]^1]+=f;
-            ans_cost+=f*fee[pre[v]];// 按真实费用累加
+            e[pre[v]].cap-=f;
+            e[pre[v]^1].cap+=f;
+            ans_cost+=f*e[pre[v]].fee;// 按真实费用累加
         }
         ans_flow+=f;
     }

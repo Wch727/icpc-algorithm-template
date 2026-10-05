@@ -7,15 +7,14 @@
 int check_undirected()
 {
     if(pcnt!=m+1)return 0;
-    int visq[N<<1]={0},tmphead[N];
-    for(int i=1;i<=n;i++)tmphead[i]=head[i];
+    vector<int> visq(ecnt+1);
     for(int i=1;i+1<=pcnt;i++)
     {
         int u=path_[i],v=path_[i+1],found=0;
-        for(int e=tmphead[u];e;e=nxt[e])
-            if(!visq[e]&&to[e]==v)// 顺着用过的边往下挪
+        for(auto [to,id]:adj[u])
+            if(!visq[id]&&to==v)// 顺着用过的边往下挪
             {
-                visq[e]=visq[e^1]=1,found=1;
+                visq[id]=1,found=1;
                 // 不能跳过此前未使用的其他终点边
                 break;
             }
@@ -27,12 +26,12 @@ int check_undirected()
 int check_directed()
 {
     if(pcnt!=m+1)return 0;
-    int visq[N]={0};
+    vector<int> visq(decnt+1);
     for(int i=1;i+1<=pcnt;i++)
     {
         int u=path_[i],v=path_[i+1],found=0;
-        for(int e=dhead[u];e;e=dnxt[e])
-            if(!visq[e]&&dto[e]==v){visq[e]=1,found=1;break;}
+        for(auto [to,id]:dadj[u])
+            if(!visq[id]&&to==v){visq[id]=1,found=1;break;}
         if(!found)return 0;
     }
     return 1;
@@ -73,6 +72,19 @@ int bdfs_directed(int u,int cnt)
 
 int main()
 {
+    // 自环、平行边、重复求解；边数超过点数时仍按边数分配路径。
+    int start=0;
+    m=3; init_undirected(2);
+    add_uedge(1,1); add_uedge(1,2); add_uedge(1,2);
+    assert(euler_undirected(start)==2&&check_undirected());
+    assert(euler_undirected(start)==2&&check_undirected());
+    m=2; init_directed(3); add_dedge(1,1); add_dedge(2,2);
+    assert(euler_directed(start)==0);
+    m=100010; init_directed(1);
+    for(int i=0;i<m;i++)add_dedge(1,1);
+    assert(euler_directed(start)==2&&pcnt==m+1);
+    m=0; init_undirected(1);
+    assert(euler_undirected(start)==2&&pcnt==0&&start==0);
     srand(20240517);
 
     // 自测 1：无向 1-2-3-1 三角形，欧拉回路
@@ -200,6 +212,6 @@ int main()
     return 0;
 }
 /* 坑点：
-   1) 无向边必须成对加，(e^1) 是反向边，used 数组要开 2*m+2。
+   1) 无向边的两个邻接项共用一个 id，used 按无向边数分配。
    2) 孤立点不影响判存在性，但连通性判断必须只统计有边的点。
    3) 字典序最小的欧拉路：把邻接表按终点排序，Hierholzer 仍然成立（会得到最小字典序）。 */

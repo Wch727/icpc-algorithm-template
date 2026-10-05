@@ -8,15 +8,15 @@ using namespace std;
 typedef long long ll;
 const int N=100005;
 int n;
-int head[N],to[N<<1],nxt[N<<1],num=0;
+vector<int> adj[N];
 int dis[N],que[N],order[N],fa[N],sz[N];// que 是 bfs 队列，order 是 bfs 序
 int da,db,dia;// 直径两端点与长度
 
-// 带权图把 to[] 换成 to[]+w[]，dis 累加边权即可
+// 带权图把 adj 的元素换成 {to,w}，dis 累加边权即可
 void add_edge(int u,int v)
 {
-    to[++num]=v,nxt[num]=head[u],head[u]=num;
-    to[++num]=u,nxt[num]=head[v],head[v]=num;
+    adj[u].push_back(v);
+    adj[v].push_back(u);
 }
 
 // 从 s 出发 bfs，返回最远点的编号；dis 顺手算好，O(n)，迭代不爆栈
@@ -29,9 +29,8 @@ int bfs(int s)
     {
         int u=que[hd++];
         if(dis[u]>dis[far])far=u;
-        for(int i=head[u];i;i=nxt[i])
+        for(int v:adj[u])
         {
-            int v=to[i];
             if(dis[v]==-1)dis[v]=dis[u]+1,que[tl++]=v;
         }
     }
@@ -57,9 +56,8 @@ int get_diameter_dp()
     {
         int u=que[hd++];
         order[hd]=u;// order[1..tl] 就是 bfs 序
-        for(int i=head[u];i;i=nxt[i])
+        for(int v:adj[u])
         {
-            int v=to[i];
             if(v==fa[u])continue;
             fa[v]=u,dis[v]=dis[u]+1,que[tl++]=v;
         }
@@ -69,9 +67,8 @@ int get_diameter_dp()
     {
         int u=order[i];
         dp1[u]=dp2[u]=0;
-        for(int j=head[u];j;j=nxt[j])
+        for(int v:adj[u])
         {
-            int v=to[j];
             if(v==fa[u])continue;
             int d=dp1[v]+1;
             if(d>dp1[u])dp2[u]=dp1[u],dp1[u]=d;
@@ -92,9 +89,8 @@ int get_centroid()
     {
         int u=que[hd++];
         order[hd]=u;
-        for(int i=head[u];i;i=nxt[i])
+        for(int v:adj[u])
         {
-            int v=to[i];
             if(v==fa[u])continue;
             fa[v]=u,que[tl++]=v;
         }
@@ -103,15 +99,15 @@ int get_centroid()
     {
         int u=order[i];
         sz[u]=1;
-        for(int j=head[u];j;j=nxt[j])
-            if(to[j]!=fa[u])sz[u]+=sz[to[j]];
+        for(int v:adj[u])
+            if(v!=fa[u])sz[u]+=sz[v];
     }
     int best=1,mx=n+1;
     for(int u=1;u<=n;u++)
     {
         int m=n-sz[u];// 父亲那一边的块
-        for(int j=head[u];j;j=nxt[j])
-            if(to[j]!=fa[u])m=max(m,sz[to[j]]);
+        for(int v:adj[u])
+            if(v!=fa[u])m=max(m,sz[v]);
         if(m<mx)mx=m,best=u;
     }
     return best;
@@ -144,9 +140,8 @@ int eccentricity(int x)
 int dfs_dia(int u,int f,int &res)
 {
     int a=0;// 往下的最长链，次长的不单独存
-    for(int i=head[u];i;i=nxt[i])
+    for(int v:adj[u])
     {
-        int v=to[i];
         if(v==f)continue;
         int d=dfs_dia(v,u,res)+1;
         res=max(res,a+d),a=max(a,d);

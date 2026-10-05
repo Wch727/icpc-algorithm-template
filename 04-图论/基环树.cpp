@@ -7,8 +7,10 @@ using namespace std;
 typedef long long ll;
 const int N=100005;
 int n,m,ecnt;
-int head[N],to[N<<1],nxt[N<<1],w[N],val[N];
-int par[N],pe[N],vis[N];        // par：父亲，pe：从父亲过来的边编号
+struct Edge{int to,id;};
+vector<Edge> adj[N];
+int val[N];
+int par[N],pe[N],vis[N];        // par：父亲，pe：从父亲过来的无向边编号（两向共用）
 int ring[N],rn;                 // 环上的点，按环顺序（按环边相邻，编号不必单调）
 int fstk[N],fit[N];             // 找环用的显式栈（放全局，避免递归/大数组爆栈）
 int mark[N],tmp[N];             // mark：祖先标记；tmp：暂存另一支路径
@@ -17,8 +19,9 @@ int f0[N],f1[N];                // 环上线性 DP
 
 void add_edge(int u,int v)
 {
-    to[++ecnt]=v,nxt[ecnt]=head[u],head[u]=ecnt;
-    to[++ecnt]=u,nxt[ecnt]=head[v],head[v]=ecnt;
+    ++ecnt;
+    adj[u].push_back({v,ecnt});
+    adj[v].push_back({u,ecnt});
 }
 
 // 迭代 dfs 找无向图（n 点 n 边）里的那个环，O(n)
@@ -28,19 +31,17 @@ void find_ring_undirected(int rt)
     for(int i=1;i<=n;i++)vis[i]=0,par[i]=0,pe[i]=0,mark[i]=0;
     rn=0;
     int tp=0,cu=0,cv=0;
-    vis[rt]=1,fstk[++tp]=rt,fit[tp]=head[rt];
+    vis[rt]=1,fstk[++tp]=rt,fit[tp]=0;
     while(tp)
     {
         int u=fstk[tp];
-        if(fit[tp])
+        if(fit[tp]<(int)adj[u].size())
         {
-            int e=fit[tp];
-            fit[tp]=nxt[e];
-            int v=to[e];
-            if(pe[u]&&e==(((pe[u]-1)^1)+1))continue;// 只跳父边反向，保留重边
+            auto [v,id]=adj[u][fit[tp]++];
+            if(id==pe[u])continue;// 只跳同一条父边，保留重边
             if(vis[v]){cu=u,cv=v;break;}// 碰到走过的点 → 找到环
-            vis[v]=1,par[v]=u,pe[v]=e;
-            fstk[++tp]=v,fit[tp]=head[v];
+            vis[v]=1,par[v]=u,pe[v]=id;
+            fstk[++tp]=v,fit[tp]=0;
         }
         else tp--;
     }
@@ -61,15 +62,16 @@ void find_ring_undirected(int rt)
     for(int i=tc;i>=1;i--)ring[++rn]=tmp[i];
 }
 
+// 有向图单独建 adj[u].push_back({v,++ecnt})，不能用双向 add_edge。
 // 有向图找环（每个点出度为 1 / 内向基环树都适用）：沿出边走，走过就说明有环
 void find_ring_directed(int rt)
 {
     for(int i=1;i<=n;i++)vis[i]=0;
     rn=0;
     int p=rt;
-    while(!vis[p])vis[p]=1,p=to[head[p]];
-    int q=to[head[p]];
-    while(q!=p)ring[++rn]=q,q=to[head[q]];
+    while(!vis[p])vis[p]=1,p=adj[p][0].to;
+    int q=adj[p][0].to;
+    while(q!=p)ring[++rn]=q,q=adj[q][0].to;
     ring[++rn]=p;
 }
 
@@ -85,9 +87,8 @@ void tree_dp(int rt)
     {
         int u=tq[hd++];
         torder[++tot]=u;
-        for(int i=head[u];i;i=nxt[i])
+        for(auto [v,id]:adj[u])
         {
-            int v=to[i];
             if(v==tfa[u]||on_ring[v])continue;// 环上别的点不走，只走 rt 挂的树
             tfa[v]=u,tq[tl++]=v;
         }
@@ -96,9 +97,8 @@ void tree_dp(int rt)
     {
         int u=torder[i];
         dp0[u]=0,dp1[u]=val[u];
-        for(int j=head[u];j;j=nxt[j])
+        for(auto [v,id]:adj[u])
         {
-            int v=to[j];
             if(v==tfa[u]||on_ring[v])continue;
             dp0[u]+=max(dp0[v],dp1[v]);
             dp1[u]+=dp0[v];

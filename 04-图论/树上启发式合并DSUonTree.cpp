@@ -7,15 +7,15 @@ using namespace std;
 typedef long long ll;
 const int N=100005;
 int n;
-int head[N],to[N<<1],nxt[N<<1],ecnt;
+vector<int> adj[N];
 int col[N],fa_[N],siz[N],heavy[N],in_[N],out_[N],rnk_[N],timer_;
 int cnt[N],color_cnt[N],color_mx[N];// cnt：颜色当前出现次数
 int cur_sum,cur_mx,touched,added[N];// touched/added：记录碰过的颜色，清空时只清这些
 
 void add_edge(int u,int v)
 {
-    to[++ecnt]=v,nxt[ecnt]=head[u],head[u]=ecnt;
-    to[++ecnt]=u,nxt[ecnt]=head[v],head[v]=ecnt;
+    adj[u].push_back(v);
+    adj[v].push_back(u);
 }
 
 // 迭代求 dfs 序 / 子树大小 / 重儿子，O(n)
@@ -29,9 +29,8 @@ void get_order(int rt)
     {
         int u=stk[tp--];
         in_[u]=++timer_,rnk_[timer_]=u,order[++tl]=u;
-        for(int i=head[u];i;i=nxt[i])
+        for(int v:adj[u])
         {
-            int v=to[i];
             if(v==fa_[u])continue;
             fa_[v]=u,stk[++tp]=v;
         }
@@ -40,9 +39,8 @@ void get_order(int rt)
     {
         int u=order[i];
         siz[u]=1,heavy[u]=0;
-        for(int j=head[u];j;j=nxt[j])
+        for(int v:adj[u])
         {
-            int v=to[j];
             if(v==fa_[u])continue;
             siz[u]+=siz[v];
             if(siz[v]>siz[heavy[u]])heavy[u]=v;
@@ -75,9 +73,8 @@ void get_cnt(int root,int keep)
         if(s==0)
         {
             state[tp]=1;
-            for(int i=head[u];i;i=nxt[i])
+            for(int v:adj[u])
             {
-                int v=to[i];
                 if(v==fa_[u]||v==heavy[u])continue;
                 st[++tp]=v,state[tp]=0,saved[tp]=0;// 轻儿子：算完丢掉
             }
@@ -90,9 +87,8 @@ void get_cnt(int root,int keep)
         else if(s==2)
         {
             state[tp]=3;
-            for(int i=head[u];i;i=nxt[i])
+            for(int v:adj[u])
             {
-                int v=to[i];
                 if(v==fa_[u]||v==heavy[u])continue;
                 for(int j=in_[v];j<=out_[v];j++)update(rnk_[j]);// 轻儿子暴力加
             }
@@ -114,12 +110,12 @@ void get_cnt(int root,int keep)
 /* 递归版（n 小时更好看懂，链状数据会爆栈，正式用上面的迭代版）
 void get_cnt_rec(int u,int keep)
 {
-    for(int i=head[u];i;i=nxt[i])
-        if(to[i]!=fa_[u]&&to[i]!=heavy[u])get_cnt_rec(to[i],0);
+    for(int v:adj[u])
+        if(v!=fa_[u]&&v!=heavy[u])get_cnt_rec(v,0);
     if(heavy[u])get_cnt_rec(heavy[u],1);
-    for(int i=head[u];i;i=nxt[i])
-        if(to[i]!=fa_[u]&&to[i]!=heavy[u])
-            for(int j=in_[to[i]];j<=out_[to[i]];j++)update(rnk_[j]);
+    for(int v:adj[u])
+        if(v!=fa_[u]&&v!=heavy[u])
+            for(int j=in_[v];j<=out_[v];j++)update(rnk_[j]);
     update(u);
     color_cnt[u]=cur_sum,color_mx[u]=cur_mx;
     if(!keep)

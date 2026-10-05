@@ -29,8 +29,8 @@ int main()
 
     // 原期望写错：子树 3 只有颜色 2；根最大频次 3，子树 3 最大频次 2
     // 自测 1：手造树 1-2,1-3,2-4,2-5,3-6；颜色 1,1,2,1,2,2
-    n=6,ecnt=0;
-    for(int i=1;i<=n;i++)head[i]=0,cnt[i]=0;
+    n=6;
+    for(int i=1;i<=n;i++)adj[i].clear(),cnt[i]=0;
     add_edge(1,2),add_edge(1,3),add_edge(2,4),add_edge(2,5),add_edge(3,6);
     col[1]=1,col[2]=1,col[3]=2,col[4]=1,col[5]=2,col[6]=2;
     get_order(1);
@@ -44,8 +44,8 @@ int main()
     printf("（期望 3 2 2 1 1 1）\n");
 
     // 自测 2：链 1-2-3-4 颜色 1,2,3,1，子树不同色数 3,3,2,1
-    n=4,ecnt=0;
-    for(int i=1;i<=n;i++)head[i]=0,cnt[i]=0;
+    n=4;
+    for(int i=1;i<=n;i++)adj[i].clear(),cnt[i]=0;
     for(int i=1;i<n;i++)add_edge(i,i+1);
     col[1]=1,col[2]=2,col[3]=3,col[4]=1;
     get_order(1);
@@ -59,9 +59,9 @@ int main()
     int round=0;
     for(int T=1;T<=300;T++)
     {
-        n=rand()%11+2,ecnt=0;
+        n=rand()%11+2;
         int C=rand()%4+1;
-        for(int i=1;i<=n;i++)head[i]=0,cnt[i]=0;
+        for(int i=1;i<=n;i++)adj[i].clear(),cnt[i]=0;
         for(int i=2;i<=n;i++)add_edge(rand()%(i-1)+1,i);
         for(int i=1;i<=n;i++)col[i]=rand()%C+1;
         get_order(1);
@@ -82,8 +82,8 @@ int main()
     printf("DSU on tree 对拍 %d 轮 %s\n",round,ok?"OK":"FAILED");
 
     // 自测 4：n=1e5 的链，只有 1 种颜色；不能爆栈
-    n=100000,ecnt=0;
-    for(int i=1;i<=n;i++)head[i]=0,cnt[i]=0,col[i]=1;
+    n=100000;
+    for(int i=1;i<=n;i++)adj[i].clear(),cnt[i]=0,col[i]=1;
     for(int i=1;i<n;i++)add_edge(i,i+1);
     get_order(1);
     get_cnt(1,1);

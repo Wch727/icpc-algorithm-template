@@ -3204,19 +3204,19 @@ struct BITValueTree
 % SOURCE: 02-数据结构/树链剖分.cpp
 \subsection{树链剖分}
 
-\note{a是原点权，val按dfn重排；fa/\allowbreak{}dep/\allowbreak{}sz/\allowbreak{}son是父亲、深度、大小、重儿子，top是链顶，rnk为dfn逆映射。rt为根，stk/\allowbreak{}order供迭代预处理，链上操作最终分解为dfn区间；重建树后重置编号和线段树。}
+\note{adj存无向树；val是原顶点编号下的点权，a为预留数组，建线段树时读取val[\allowbreak{}rnk[\allowbreak{}dfn]\allowbreak{}]\allowbreak{}。fa/\allowbreak{}dep/\allowbreak{}sz/\allowbreak{}son为父亲、深度、大小、重儿子，top是链顶，dfn/\allowbreak{}rnk互为映射；rt为根，stk/\allowbreak{}order供迭代预处理。换树清空adj，重新预处理并建线段树。}
 \note{树链剖分（重链剖分）+\allowbreak{} 线段树：路径加/\allowbreak{}路径和 +\allowbreak{} 子树加/\allowbreak{}子树和 建树 O(\allowbreak{}n)\allowbreak{}，路径操作 O(\allowbreak{}log\textasciicircum{}2 n)\allowbreak{}，子树操作 O(\allowbreak{}log n)\allowbreak{} 关键性质：子树在 dfs 序上是一段连续区间 [\allowbreak{}dfn[\allowbreak{}x]\allowbreak{},\allowbreak{} dfn[\allowbreak{}x]\allowbreak{}+\allowbreak{}sz[\allowbreak{}x]\allowbreak{}-\allowbreak{}1]\allowbreak{} 两遍 dfs 都写成迭代版（显式栈），链状数据也不会爆栈}
 \begin{lstlisting}
 const int N=100005;
 int n,m,rt,cnt,op;
 int a[N],val[N];
-int head[N],to[N<<1],nxt[N<<1],ecnt;
+vector<int> adj[N];
 int fa[N],dep[N],sz[N],son[N],top[N],dfn[N],rnk[N];
 int stk[N],stk2[N];                     // 迭代 dfs 用的栈
 void add_edge(int u,int v)
 {
-    to[++ecnt]=v,nxt[ecnt]=head[u],head[u]=ecnt;
-    to[++ecnt]=u,nxt[ecnt]=head[v],head[v]=ecnt;
+    adj[u].push_back(v);
+    adj[v].push_back(u);
 }
 \end{lstlisting}
 \note{第一遍（迭代）：求 fa /\allowbreak{} dep /\allowbreak{} sz /\allowbreak{} 重儿子}
@@ -3231,9 +3231,8 @@ void dfs1_iter(int root)
     {
         int u=stk[tp--];
         order[++ocnt]=u;
-        for(int i=head[u];i;i=nxt[i])
+        for(int v:adj[u])
         {
-            int v=to[i];
             if(v==fa[u])continue;
             fa[v]=u,dep[v]=dep[u]+1;
             stk[++tp]=v;
@@ -3243,9 +3242,8 @@ void dfs1_iter(int root)
     {
         int u=order[i];
         sz[u]=1,son[u]=0;
-        for(int j=head[u];j;j=nxt[j])
+        for(int v:adj[u])
         {
-            int v=to[j];
             if(v==fa[u])continue;
             sz[u]+=sz[v];
             if(sz[v]>sz[son[u]])son[u]=v;
@@ -3265,9 +3263,8 @@ void dfs2(int root,int tproot)
         tp--;
         int u=stk[tp],tpv=stk2[tp];
         top[u]=tpv,dfn[u]=++cnt,rnk[cnt]=u;
-        for(int i=head[u];i;i=nxt[i])   // 轻儿子各自开新链
+        for(int v:adj[u])   // 轻儿子各自开新链
         {
-            int v=to[i];
             if(v==fa[u]||v==son[u])continue;
             stk[tp]=v,stk2[tp]=v,tp++;
         }
@@ -3756,17 +3753,17 @@ struct SplitMergeSeg
 % SOURCE: 02-数据结构/线段树合并.cpp
 \subsection{线段树合并}
 
-\note{col[\allowbreak{}u]\allowbreak{}为颜色，root[\allowbreak{}u]\allowbreak{}为子树权值线段树根，ans[\allowbreak{}u]\allowbreak{}为不同颜色数；节点按颜色值域存出现信息。子树处理后合并进父根，旧根不可再当独立版本使用；换树重置节点池、根和答案。}
+\note{adj存树的邻点，add\_edge只加一个方向，无向树须调用两次。col[\allowbreak{}u]\allowbreak{}为颜色，root[\allowbreak{}u]\allowbreak{}为子树权值线段树根，ans[\allowbreak{}u]\allowbreak{}为不同颜色数；子树合并进父根后，旧根不可再当独立版本使用。换树清空adj，重置节点池、根和答案。}
 \note{线段树合并（权值线段树合并）：求每个子树内不同颜色数 /\allowbreak{} 每个权值出现次数 建树 O(\allowbreak{}n log n)\allowbreak{}；合并总复杂度 O(\allowbreak{}结点总数)\allowbreak{} =\allowbreak{} O(\allowbreak{}n log n)\allowbreak{} 关键性质：merge 里只要有一边是空就直接返回另一边， 否则两边都不空 -\allowbreak{}>\allowbreak{} 当前这个结点被丢弃，每个结点一生只会被丢一次， 所以所有 merge 加起来是 O(\allowbreak{}总结点数)\allowbreak{}，均摊到一次合并是 O(\allowbreak{}log n)\allowbreak{} 坑：合并是「破坏性」的，merge(\allowbreak{}a,\allowbreak{}b)\allowbreak{} 之后 b 的子结点已经被挂到 a 上，b 不能再单独用}
 \begin{lstlisting}
 const int N=100005;
 const int LOG=18;      // log2(N)+1
 const int MAXNODE=N*(LOG+1);//n 个叶子各建一条到根的链
 int n,col[N];
-int head[N],to[N<<1],nxt[N<<1],tot_edge;//链式前向星存树
+vector<int> adj[N];
 void add_edge(int u,int v)
 {
-    to[++tot_edge]=v,nxt[tot_edge]=head[u],head[u]=tot_edge;
+    adj[u].push_back(v);
 }
 struct MergeSeg{
     int ls[MAXNODE],rs[MAXNODE],sum[MAXNODE],cnt[MAXNODE],tot;//cnt 是这段里被占用的叶子数
@@ -3827,9 +3824,8 @@ int root[N];//每个点对应的权值线段树根
 void dfs(int u,int fa)
 {
     root[u]=seg.insert(0,1,n,col[u],1);
-    for(int e=head[u];e;e=nxt[e])
+    for(int v:adj[u])
     {
-        int v=to[e];
         if(v==fa)continue;
         dfs(v,u);
         root[u]=seg.merge(root[u],root[v]);
@@ -5403,16 +5399,16 @@ struct KruskalTree
 % SOURCE: 04-图论/LCA(倍增).cpp
 \subsection{LCA(倍增)}
 
-\note{dep为深度，fa[\allowbreak{}u]\allowbreak{}[\allowbreak{}k]\allowbreak{}为2\textasciicircum{}k祖先，root为根，0为父亲哨兵；diff用于边路径差分，汇总后diff[\allowbreak{}u]\allowbreak{}是父边覆盖次数。点1.\allowbreak{}.\allowbreak{}n，倍增层数按最大深度设置；换树重建父亲和深度，根没有父边。}
+\note{adj存邻点，多测清空后重建；dep为深度，fa[\allowbreak{}u]\allowbreak{}[\allowbreak{}k]\allowbreak{}为2\textasciicircum{}k祖先，root为根，0为父亲哨兵；diff用于边路径差分，汇总后diff[\allowbreak{}u]\allowbreak{}是父边覆盖次数。点1.\allowbreak{}.\allowbreak{}n，倍增层数按最大深度设置；换树重建父亲和深度，根没有父边。}
 \begin{lstlisting}
 const int N=100005;
 int n,m,root;
-int head[N],to[N<<1],nxt[N<<1],num=0;
+vector<int> adj[N];
 int dep[N],fa[N][20];// fa[u][k]：u 往上跳 2^k 步的祖先
 int diff[N];// 树上差分数组
 void add_edge(int u,int v)
 {
-    to[++num]=v,nxt[num]=head[u],head[u]=num;
+    adj[u].push_back(v);
 }
 void add_undirected(int u,int v)
 {
@@ -5424,8 +5420,8 @@ void dfs(int u,int f)// 预处理深度和倍增表，O(n log n)
     dep[u]=dep[f]+1;
     fa[u][0]=f;
     for(int k=1;k<20;k++)fa[u][k]=fa[fa[u][k-1]][k-1];
-    for(int i=head[u];i;i=nxt[i])
-        if(to[i]!=f)dfs(to[i],u);
+    for(int v:adj[u])
+        if(v!=f)dfs(v,u);
 }
 int lca(int x,int y)// 倍增求 LCA，O(log n)
 {
@@ -5449,11 +5445,11 @@ void add_path(int x,int y)// 路径 (x,y) 差分打标记
 }
 void collect(int u,int f)// 自底向上合并差分，得到每条边被覆盖的次数
 {
-    for(int i=head[u];i;i=nxt[i])
-        if(to[i]!=f)
+    for(int v:adj[u])
+        if(v!=f)
         {
-            collect(to[i],u);
-            diff[u]+=diff[to[i]];
+            collect(v,u);
+            diff[u]+=diff[v];
         }
 }
 \end{lstlisting}
@@ -5587,12 +5583,12 @@ void tarjan(int u,int fa)// 无向图求割点与桥，O(n+m)；fa 是边的入�
 % SOURCE: 04-图论/Tarjan强连通分量.cpp
 \subsection{Tarjan强连通分量}
 
-\note{dfn/\allowbreak{}low为访问序与可回溯序，stk/\allowbreak{}in\_stk维护未出栈点，belong[\allowbreak{}u]\allowbreak{}为分量号，sz为分量大小。dag/\allowbreak{}val/\allowbreak{}dp是后续缩点应用的预留状态，模板不会自动填好；换图重置计数、数组与邻接。}
-\note{适用：有向图缩点后做 DAG DP、判互相可达；单点也属于 SCC。 参数：u 为 1.\allowbreak{}.\allowbreak{}n 的顶点；图不连通时对每个未访问点调用 tarjan。 关键：low 是可追溯到的栈内最早时间；已出栈分量不能参与回退。 结论：belong[\allowbreak{}u]\allowbreak{} 是分量编号，sz[\allowbreak{}id]\allowbreak{} 是大小；跨分量边构成 DAG。 易错：多组清空 dfn/\allowbreak{}low/\allowbreak{}in\_stk/\allowbreak{}belong/\allowbreak{}sz、head/\allowbreak{}dag，timer/\allowbreak{}top/\allowbreak{}scc\_cnt/\allowbreak{}num 归零。 复杂度：全图 O(\allowbreak{}n+\allowbreak{}m)\allowbreak{}，空间 O(\allowbreak{}n+\allowbreak{}m)\allowbreak{}；递归长链可能爆栈，val/\allowbreak{}dp 的和注意 int 范围。}
+\note{adj存邻点，多测清空后重建；dfn/\allowbreak{}low为访问序与可回溯序，stk/\allowbreak{}in\_stk维护未出栈点，belong[\allowbreak{}u]\allowbreak{}为分量号，sz为分量大小。dag/\allowbreak{}val/\allowbreak{}dp是后续缩点应用的预留状态，模板不会自动填好；换图重置计数、数组与邻接。}
+\note{适用：有向图缩点后做 DAG DP、判互相可达；单点也属于 SCC。 参数：u 为 1.\allowbreak{}.\allowbreak{}n 的顶点；图不连通时对每个未访问点调用 tarjan。 关键：low 是可追溯到的栈内最早时间；已出栈分量不能参与回退。 结论：belong[\allowbreak{}u]\allowbreak{} 是分量编号，sz[\allowbreak{}id]\allowbreak{} 是大小；跨分量边构成 DAG。 易错：多组清空 dfn/\allowbreak{}low/\allowbreak{}in\_stk/\allowbreak{}belong/\allowbreak{}sz、adj/\allowbreak{}dag，timer/\allowbreak{}top/\allowbreak{}scc\_cnt 归零。 复杂度：全图 O(\allowbreak{}n+\allowbreak{}m)\allowbreak{}，空间 O(\allowbreak{}n+\allowbreak{}m)\allowbreak{}；递归长链可能爆栈，val/\allowbreak{}dp 的和注意 int 范围。}
 \begin{lstlisting}
 const int N=100005;
 int n,m;
-int head[N],to[N<<1],nxt[N<<1],num=0;
+vector<int> adj[N];
 int dfn[N],low[N],stk[N],in_stk[N],belong[N];
 int timer=0,top=0,scc_cnt=0;
 vector<int> dag[N];// 缩点后的 DAG
@@ -5600,11 +5596,11 @@ int sz[N];// 每个 SCC 的点数
 int val[N];// 每个 SCC 的点权和（DP 用）
 int dp[N];// 缩点 DAG 上 DP 的值
 \end{lstlisting}
-\note{O(\allowbreak{}1)\allowbreak{}，加有向 u-\allowbreak{}>\allowbreak{}v 边，边下标从 1 开始。}
+\note{O(\allowbreak{}1)\allowbreak{}，加有向 u-\allowbreak{}>\allowbreak{}v 边。}
 \begin{lstlisting}
 void add_edge(int u,int v)
 {
-    to[++num]=v,nxt[num]=head[u],head[u]=num;
+    adj[u].push_back(v);
 }
 \end{lstlisting}
 \note{O(\allowbreak{}1)\allowbreak{}，连加双向边；SCC 问题通常只需 add\_edge，勿误用双向图。}
@@ -5621,9 +5617,8 @@ void tarjan(int u)// Tarjan 求 SCC，O(n+m)
 {
     dfn[u]=low[u]=++timer;
     stk[++top]=u,in_stk[u]=1;
-    for(int i=head[u];i;i=nxt[i])
+    for(int v:adj[u])
     {
-        int v=to[i];
         if(!dfn[v])
         {
             tarjan(v);
@@ -6002,14 +5997,15 @@ vector<int> edgeColoring(int N, vector<pair<int,int>> eds) {
 % SOURCE: 04-图论/上下界网络流.cpp
 \subsection{上下界网络流}
 
-\note{elow/\allowbreak{}eup为原边上下界，eidx定位对应残余正向边，d为下界产生的净流入需求；S/\allowbreak{}T为超级源汇，与原s/\allowbreak{}t区分。先满足所有需求，再移除辅助边求原问题；读取原边流量时补回elow，换实例重建全部容量和需求。}
-\note{适用：每条边必须达到最低流量的可行流、最大流、最小流。 编号：原点 1.\allowbreak{}.\allowbreak{}n，边 1.\allowbreak{}.\allowbreak{}m；超级源汇 n+\allowbreak{}1,\allowbreak{}n+\allowbreak{}2，必须均小于 N。 参数：eu/\allowbreak{}ev 是端点，0<\allowbreak{}=\allowbreak{}elow<\allowbreak{}=\allowbreak{}eup；有源汇时 s!=\allowbreak{}t。 关键：先固定下界，再用 eup-\allowbreak{}elow 建残量边；d 记录下界造成的收支差。 结论：超级源总流量等于 need 才可行；原边实际流量为 elow[\allowbreak{}i]\allowbreak{}+\allowbreak{}cap[\allowbreak{}eidx[\allowbreak{}i]\allowbreak{}\textasciicircum{}1]\allowbreak{}。 易错：数组需容纳原边、平衡边和 t-\allowbreak{}>\allowbreak{}s 边及反边；INF 须大于所需总流量。 边界：最小流写法允许 base-\allowbreak{}dinic(\allowbreak{}t,\allowbreak{}s)\allowbreak{} 为负；题目若只接受非负流需另核对约定。}
+\note{eu/\allowbreak{}ev与elow/\allowbreak{}eup为原边端点和上下界；adj存vector<\allowbreak{}Edge>\allowbreak{} e的下标，编号从0起，id\textasciicircum{}1是反向边，cur是邻接表中的位置。eidx定位原边的残量正向边，实际流量为elow[\allowbreak{}i]\allowbreak{}+\allowbreak{}e[\allowbreak{}eidx[\allowbreak{}i]\allowbreak{}\textasciicircum{}1]\allowbreak{}.\allowbreak{}cap；d为下界产生的净流入需求，S/\allowbreak{}T是超级源汇。build清空adj、e并重建容量和需求，solve\_lr先满足需求再移除辅助边。}
+\note{适用：每条边必须达到最低流量的可行流、最大流、最小流。 编号：原点 1.\allowbreak{}.\allowbreak{}n，边 1.\allowbreak{}.\allowbreak{}m；超级源汇 n+\allowbreak{}1,\allowbreak{}n+\allowbreak{}2，必须均小于 N。 参数：eu/\allowbreak{}ev 是端点，0<\allowbreak{}=\allowbreak{}elow<\allowbreak{}=\allowbreak{}eup；有源汇时 s!=\allowbreak{}t。 关键：先固定下界，再用 eup-\allowbreak{}elow 建残量边；d 记录下界造成的收支差。 结论：超级源总流量等于 need 才可行；原边实际流量为 elow[\allowbreak{}i]\allowbreak{}+\allowbreak{}e[\allowbreak{}eidx[\allowbreak{}i]\allowbreak{}\textasciicircum{}1]\allowbreak{}.\allowbreak{}cap。 易错：e 动态容纳原边、平衡边和 t-\allowbreak{}>\allowbreak{}s 边及反边；INF 须大于所需总流量。 边界：最小流写法允许 base-\allowbreak{}dinic(\allowbreak{}t,\allowbreak{}s)\allowbreak{} 为负；题目若只接受非负流需另核对约定。}
 \begin{lstlisting}
 const int N=1005;
 const ll INF=1e18;
 int n,m,s,t,S,T;// S,T 是超级源汇
-int head[N],to[N<<1],nxt[N<<1],num=1;
-ll cap[N<<1];
+struct Edge{int to;ll cap;};
+vector<Edge> e;
+vector<int> adj[N];// 存 e 的下标，从 0 起；id^1 是反向边
 int dep[N],cur[N];
 ll d[N];// d[i]>0：i 还需要流入这么多；d[i]<0：i 需要流出这么多
 int eu[N],ev[N],eidx[N];// eidx[i]：第 i 条上下界边对应的正向边编号
@@ -6019,8 +6015,11 @@ ll elow[N],eup[N];
 \begin{lstlisting}
 void add_edge(int u,int v,ll c)
 {
-    to[++num]=v,cap[num]=c,nxt[num]=head[u],head[u]=num;
-    to[++num]=u,cap[num]=0,nxt[num]=head[v],head[v]=num;// 反向边容量 0
+    int id=e.size();
+    e.push_back({v,c});
+    e.push_back({u,0});
+    adj[u].push_back(id);
+    adj[v].push_back(id^1);
 }
 \end{lstlisting}
 \note{O(\allowbreak{}n+\allowbreak{}m)\allowbreak{}，ss/\allowbreak{}tt 是本轮源汇；只给正残量边分层。}
@@ -6035,11 +6034,11 @@ int bfs(int ss,int tt)// 分层，O(m)
     {
         int u=q.front();
         q.pop();
-        for(int i=head[u];i;i=nxt[i])
-            if(cap[i]>0&&dep[to[i]]<0)
+        for(int i:adj[u])
+            if(e[i].cap>0&&dep[e[i].to]<0)
             {
-                dep[to[i]]=dep[u]+1;
-                q.push(to[i]);
+                dep[e[i].to]=dep[u]+1;
+                q.push(e[i].to);
             }
     }
     return dep[tt]>=0;
@@ -6050,16 +6049,16 @@ int bfs(int ss,int tt)// 分层，O(m)
 ll dfs(int u,int tt,ll flow)// 沿分层图推流，当前弧优化
 {
     if(u==tt)return flow;
-    for(int &i=cur[u];i;i=nxt[i])
+    for(int &p=cur[u];p<(int)adj[u].size();p++)
     {
-        int v=to[i];
-        if(cap[i]>0&&dep[v]==dep[u]+1)
+        int i=adj[u][p],v=e[i].to;
+        if(e[i].cap>0&&dep[v]==dep[u]+1)
         {
-            ll f=dfs(v,tt,min(flow,cap[i]));
+            ll f=dfs(v,tt,min(flow,e[i].cap));
             if(f>0)
             {
-                cap[i]-=f;
-                cap[i^1]+=f;
+                e[i].cap-=f;
+                e[i^1].cap+=f;
                 return f;
             }
         }
@@ -6074,7 +6073,7 @@ ll dinic(int ss,int tt)// 最大流，O(n^2 m)
     ll ans=0;
     while(bfs(ss,tt))
     {
-        for(int i=1;i<=n+2;i++)cur[i]=head[i];
+        for(int i=1;i<=n+2;i++)cur[i]=0;
         ll f;
         while((f=dfs(ss,tt,INF))>0)ans+=f;
     }
@@ -6085,12 +6084,12 @@ ll dinic(int ss,int tt)// 最大流，O(n^2 m)
 \begin{lstlisting}
 void build()// 按 eu/ev/elow/eup 重新建图：上下界边先默认流下界，剩下的容量建成普通边
 {
-    for(int i=1;i<=n+2;i++)head[i]=0,d[i]=0;
-    num=1;
+    for(int i=1;i<=n+2;i++)adj[i].clear(),d[i]=0;
+    e.clear();
     for(int i=1;i<=m;i++)
     {
         add_edge(eu[i],ev[i],eup[i]-elow[i]);
-        eidx[i]=num-1;
+        eidx[i]=(int)e.size()-2;
         d[eu[i]]-=elow[i],d[ev[i]]+=elow[i];// 下界先当满流记账
     }
 }
@@ -6101,7 +6100,7 @@ ll solve_lr(int type)
 {
     build();
     int e_ts=0;
-    if(type)add_edge(t,s,INF),e_ts=num-1;// 人为加 t->s 的无穷边，把有源汇变成无源汇
+    if(type)add_edge(t,s,INF),e_ts=(int)e.size()-2;// 人为加 t->s 的无穷边，把有源汇变成无源汇
     S=n+1,T=n+2;
     ll need=0;
     for(int i=1;i<=n;i++)
@@ -6111,10 +6110,10 @@ ll solve_lr(int type)
     }
     if(dinic(S,T)!=need)return -1;// 超级源没流满 -> 下界无法同时满足
     if(type==0)return 0;
-    ll base=cap[e_ts^1];// t->s 边上流过的量，就是当前 s->t 的流量
-    for(int i=2;i<=num;i++)
-        if(to[i]==S||to[i]==T)cap[i]=0,cap[i^1]=0;// 拆掉超级源汇的边
-    cap[e_ts]=0,cap[e_ts^1]=0;// 拆掉人为边
+    ll base=e[e_ts^1].cap;// t->s 边上流过的量，就是当前 s->t 的流量
+    for(int i=0;i<(int)e.size();i++)
+        if(e[i].to==S||e[i].to==T)e[i].cap=0,e[i^1].cap=0;// 拆掉超级源汇的边
+    e[e_ts].cap=0,e[e_ts^1].cap=0;// 拆掉人为边
     if(type==1)return base+dinic(s,t);// 还能继续增广就是最大流
     return base-dinic(t,s);// 能退掉的流量越多，剩下的就是最小流
 }
@@ -6427,13 +6426,15 @@ struct BlockTree
 % SOURCE: 04-图论/基环树.cpp
 \subsection{基环树}
 
-\note{val为点权，ring[\allowbreak{}1.\allowbreak{}.\allowbreak{}rn]\allowbreak{}按环顺序存点，on\_ring标环点；par/\allowbreak{}pe/\allowbreak{}vis及fstk/\allowbreak{}fit用于找环，dp0/\allowbreak{}dp1表示树枝不选/\allowbreak{}选点的最优值。f0/\allowbreak{}f1处理环上相邻约束，先分开固定环首状态；换图清环标记和计数。}
+\note{adj[\allowbreak{}u]\allowbreak{}存\{邻点,\allowbreak{}id\}，一条无向边两端共用从1起的id，ecnt为无向边数；pe只跳过同一父边，支持重边和自环。val为点权，ring[\allowbreak{}1.\allowbreak{}.\allowbreak{}rn]\allowbreak{}按环顺序存点，on\_ring标环点；par/\allowbreak{}vis与fstk/\allowbreak{}fit找环，fit为邻接表位置，从0起。dp0/\allowbreak{}dp1为树枝不选/\allowbreak{}选点最优值；环上固定首点状态做两遍DP。换图清空adj、ecnt；有向找环须单独建每点一条出边。}
 \note{基环树：n 个点 n 条边的连通图，有且只有一个环 内容：找环（无向/\allowbreak{}有向两种） +\allowbreak{} 环上 DP（例题：基环树最大独立集，即「没有上司的舞会」带环版） 最大独立集做法：先对每个环点挂的树做树形 DP，再把环拆成链做两遍线性 DP 找环与 DP 全部迭代实现，n=\allowbreak{}1e5 的链+\allowbreak{}环不会爆栈}
 \begin{lstlisting}
 const int N=100005;
 int n,m,ecnt;
-int head[N],to[N<<1],nxt[N<<1],w[N],val[N];
-int par[N],pe[N],vis[N];        // par：父亲，pe：从父亲过来的边编号
+struct Edge{int to,id;};
+vector<Edge> adj[N];
+int val[N];
+int par[N],pe[N],vis[N];        // par：父亲，pe：从父亲过来的无向边编号（两向共用）
 int ring[N],rn;                 // 环上的点，按环顺序（按环边相邻，编号不必单调）
 int fstk[N],fit[N];             // 找环用的显式栈（放全局，避免递归/大数组爆栈）
 int mark[N],tmp[N];             // mark：祖先标记；tmp：暂存另一支路径
@@ -6441,8 +6442,9 @@ ll dp0[N],dp1[N];              // dp0：不选 u，dp1：选 u（子树部分）
 int f0[N],f1[N];                // 环上线性 DP
 void add_edge(int u,int v)
 {
-    to[++ecnt]=v,nxt[ecnt]=head[u],head[u]=ecnt;
-    to[++ecnt]=u,nxt[ecnt]=head[v],head[v]=ecnt;
+    ++ecnt;
+    adj[u].push_back({v,ecnt});
+    adj[v].push_back({u,ecnt});
 }
 \end{lstlisting}
 \note{迭代 dfs 找无向图（n 点 n 边）里的那个环，O(\allowbreak{}n)\allowbreak{} 做法：dfs 时碰到已访问的点 (\allowbreak{}u,\allowbreak{}v)\allowbreak{}，就说明树边链 u→根 和 v→根 在某个点汇合，环 =\allowbreak{} 两支接起来}
@@ -6452,19 +6454,17 @@ void find_ring_undirected(int rt)
     for(int i=1;i<=n;i++)vis[i]=0,par[i]=0,pe[i]=0,mark[i]=0;
     rn=0;
     int tp=0,cu=0,cv=0;
-    vis[rt]=1,fstk[++tp]=rt,fit[tp]=head[rt];
+    vis[rt]=1,fstk[++tp]=rt,fit[tp]=0;
     while(tp)
     {
         int u=fstk[tp];
-        if(fit[tp])
+        if(fit[tp]<(int)adj[u].size())
         {
-            int e=fit[tp];
-            fit[tp]=nxt[e];
-            int v=to[e];
-            if(pe[u]&&e==(((pe[u]-1)^1)+1))continue;// 只跳父边反向，保留重边
+            auto [v,id]=adj[u][fit[tp]++];
+            if(id==pe[u])continue;// 只跳同一条父边，保留重边
             if(vis[v]){cu=u,cv=v;break;}// 碰到走过的点 → 找到环
-            vis[v]=1,par[v]=u,pe[v]=e;
-            fstk[++tp]=v,fit[tp]=head[v];
+            vis[v]=1,par[v]=u,pe[v]=id;
+            fstk[++tp]=v,fit[tp]=0;
         }
         else tp--;
     }
@@ -6485,16 +6485,16 @@ void find_ring_undirected(int rt)
     for(int i=tc;i>=1;i--)ring[++rn]=tmp[i];
 }
 \end{lstlisting}
-\note{有向图找环（每个点出度为 1 /\allowbreak{} 内向基环树都适用）：沿出边走，走过就说明有环}
+\note{有向图单独建 adj[\allowbreak{}u]\allowbreak{}.\allowbreak{}push\_back(\allowbreak{}\{v,\allowbreak{}+\allowbreak{}+\allowbreak{}ecnt\})\allowbreak{}，不能用双向 add\_edge。 有向图找环（每个点出度为 1 /\allowbreak{} 内向基环树都适用）：沿出边走，走过就说明有环}
 \begin{lstlisting}
 void find_ring_directed(int rt)
 {
     for(int i=1;i<=n;i++)vis[i]=0;
     rn=0;
     int p=rt;
-    while(!vis[p])vis[p]=1,p=to[head[p]];
-    int q=to[head[p]];
-    while(q!=p)ring[++rn]=q,q=to[head[q]];
+    while(!vis[p])vis[p]=1,p=adj[p][0].to;
+    int q=adj[p][0].to;
+    while(q!=p)ring[++rn]=q,q=adj[q][0].to;
     ring[++rn]=p;
 }
 \end{lstlisting}
@@ -6510,9 +6510,8 @@ void tree_dp(int rt)
     {
         int u=tq[hd++];
         torder[++tot]=u;
-        for(int i=head[u];i;i=nxt[i])
+        for(auto [v,id]:adj[u])
         {
-            int v=to[i];
             if(v==tfa[u]||on_ring[v])continue;// 环上别的点不走，只走 rt 挂的树
             tfa[v]=u,tq[tl++]=v;
         }
@@ -6521,9 +6520,8 @@ void tree_dp(int rt)
     {
         int u=torder[i];
         dp0[u]=0,dp1[u]=val[u];
-        for(int j=head[u];j;j=nxt[j])
+        for(auto [v,id]:adj[u])
         {
-            int v=to[j];
             if(v==tfa[u]||on_ring[v])continue;
             dp0[u]+=max(dp0[v],dp1[v]);
             dp1[u]+=dp0[v];
@@ -6572,18 +6570,18 @@ void add_undirected(int u,int v,int w){add_edge(u,v,w);add_edge(v,u,w);}
 % SOURCE: 04-图论/差分约束.cpp
 \subsection{差分约束}
 
-\note{dis[\allowbreak{}i]\allowbreak{}对应变量x\_i，边u到v权c表示x\_v<\allowbreak{}=\allowbreak{}x\_u+\allowbreak{}c；0为超级源，cnt/\allowbreak{}inq为负环检测和队列状态。solve会追加超级源边，多次调用前重建图，结果为一组可行势能，未必满足题目额外的最优目标。}
+\note{adj存\{邻点,\allowbreak{}权值\}，清空范围含超级源0；dis[\allowbreak{}i]\allowbreak{}对应变量x\_i，边u到v权c表示x\_v<\allowbreak{}=\allowbreak{}x\_u+\allowbreak{}c；0为超级源，cnt/\allowbreak{}inq为负环检测和队列状态。solve会追加超级源边，多次调用前重建图，结果为一组可行势能，未必满足题目额外的最优目标。}
 \begin{lstlisting}
 const int N=100005;
 const ll INF=1e18;
 int n,m;
-int head[N],to[N<<1],nxt[N<<1],num;
-ll w[N<<1];
+struct Edge{int to;ll w;};
+vector<Edge> adj[N];
 ll dis[N];// dis[i] 就是变量 x_i 的一组可行解
 int cnt[N],inq[N];
 void add_edge(int u,int v,ll c)// 有向边 u->v 权 c，表示 x_v <= x_u + c
 {
-    to[++num]=v,w[num]=c,nxt[num]=head[u],head[u]=num;
+    adj[u].push_back({v,c});
 }
 void add_leq(int u,int v,ll c)// 条件 x_v - x_u <= c，直接就是一条 u->v 边权 c
 {
@@ -6603,12 +6601,11 @@ int spfa(int s)// 从超级源点 0 跑最短路，返回 1 表示有负环（�
         int u=q.front();
         q.pop();
         inq[u]=0;
-        for(int i=head[u];i;i=nxt[i])
+        for(auto [v,w]:adj[u])
         {
-            int v=to[i];
-            if(dis[u]+w[i]<dis[v])
+            if(dis[u]+w<dis[v])
             {
-                dis[v]=dis[u]+w[i];
+                dis[v]=dis[u]+w;
                 cnt[v]=cnt[u]+1;
                 if(cnt[v]>n)return 1;// 最短路用到的边数超过 n，必有负环
                 if(!inq[v])inq[v]=1,q.push(v);
@@ -6624,8 +6621,7 @@ int solve()// 建超级源点 0 连向所有变量，返回是否有解
 }
 void clear_all()
 {
-    for(int i=0;i<=n;i++)head[i]=0;
-    num=0;
+    for(int i=0;i<=n;i++)adj[i].clear();
 }
 \end{lstlisting}
 % SOURCE: 04-图论/带权二分图匹配Hungarian.cpp
@@ -6987,19 +6983,19 @@ ll prim(int s)// 从 s 出发，返回 MST 权值和；不连通返回 -1
 % SOURCE: 04-图论/树上启发式合并DSUonTree.cpp
 \subsection{树上启发式合并DSUonTree}
 
-\note{col为颜色，siz/\allowbreak{}heavy为大小与重儿子，in\_/\allowbreak{}out\_/\allowbreak{}rnk\_定位子树；cnt为颜色频数，color\_cnt/\allowbreak{}color\_mx及cur\_sum/\allowbreak{}cur\_mx为当前统计。added记录碰过的颜色以便清理；保留重子树再加入轻子树，换树清除残留计数。}
+\note{adj存邻点，多测清空后重建；col为颜色，siz/\allowbreak{}heavy为大小与重儿子，in\_/\allowbreak{}out\_/\allowbreak{}rnk\_定位子树；cnt为颜色频数，color\_cnt/\allowbreak{}color\_mx及cur\_sum/\allowbreak{}cur\_mx为当前统计。added记录碰过的颜色以便清理；保留重子树再加入轻子树，换树清除残留计数。}
 \note{树上启发式合并（DSU on tree /\allowbreak{} 小并大） 例题：每棵子树内不同颜色数 color\_cnt[\allowbreak{}u]\allowbreak{}、出现次数最多的颜色的出现次数 color\_mx[\allowbreak{}u]\allowbreak{} 复杂度 O(\allowbreak{}n log n)\allowbreak{}（重儿子保留贡献，轻儿子暴力重算） 预处理 dfs 序、子树大小、重儿子都是迭代的；get\_cnt 也用显式栈写，链状数据不爆栈}
 \begin{lstlisting}
 const int N=100005;
 int n;
-int head[N],to[N<<1],nxt[N<<1],ecnt;
+vector<int> adj[N];
 int col[N],fa_[N],siz[N],heavy[N],in_[N],out_[N],rnk_[N],timer_;
 int cnt[N],color_cnt[N],color_mx[N];// cnt：颜色当前出现次数
 int cur_sum,cur_mx,touched,added[N];// touched/added：记录碰过的颜色，清空时只清这些
 void add_edge(int u,int v)
 {
-    to[++ecnt]=v,nxt[ecnt]=head[u],head[u]=ecnt;
-    to[++ecnt]=u,nxt[ecnt]=head[v],head[v]=ecnt;
+    adj[u].push_back(v);
+    adj[v].push_back(u);
 }
 \end{lstlisting}
 \note{迭代求 dfs 序 /\allowbreak{} 子树大小 /\allowbreak{} 重儿子，O(\allowbreak{}n)\allowbreak{}}
@@ -7014,9 +7010,8 @@ void get_order(int rt)
     {
         int u=stk[tp--];
         in_[u]=++timer_,rnk_[timer_]=u,order[++tl]=u;
-        for(int i=head[u];i;i=nxt[i])
+        for(int v:adj[u])
         {
-            int v=to[i];
             if(v==fa_[u])continue;
             fa_[v]=u,stk[++tp]=v;
         }
@@ -7025,9 +7020,8 @@ void get_order(int rt)
     {
         int u=order[i];
         siz[u]=1,heavy[u]=0;
-        for(int j=head[u];j;j=nxt[j])
+        for(int v:adj[u])
         {
-            int v=to[j];
             if(v==fa_[u])continue;
             siz[u]+=siz[v];
             if(siz[v]>siz[heavy[u]])heavy[u]=v;
@@ -7058,9 +7052,8 @@ void get_cnt(int root,int keep)
         if(s==0)
         {
             state[tp]=1;
-            for(int i=head[u];i;i=nxt[i])
+            for(int v:adj[u])
             {
-                int v=to[i];
                 if(v==fa_[u]||v==heavy[u])continue;
                 st[++tp]=v,state[tp]=0,saved[tp]=0;// 轻儿子：算完丢掉
             }
@@ -7073,9 +7066,8 @@ void get_cnt(int root,int keep)
         else if(s==2)
         {
             state[tp]=3;
-            for(int i=head[u];i;i=nxt[i])
+            for(int v:adj[u])
             {
-                int v=to[i];
                 if(v==fa_[u]||v==heavy[u])continue;
                 for(int j=in_[v];j<=out_[v];j++)update(rnk_[j]);// 轻儿子暴力加
             }
@@ -7096,12 +7088,12 @@ void get_cnt(int root,int keep)
 /* 递归版（n 小时更好看懂，链状数据会爆栈，正式用上面的迭代版）
 void get_cnt_rec(int u,int keep)
 {
-    for(int i=head[u];i;i=nxt[i])
-        if(to[i]!=fa_[u]&&to[i]!=heavy[u])get_cnt_rec(to[i],0);
+    for(int v:adj[u])
+        if(v!=fa_[u]&&v!=heavy[u])get_cnt_rec(v,0);
     if(heavy[u])get_cnt_rec(heavy[u],1);
-    for(int i=head[u];i;i=nxt[i])
-        if(to[i]!=fa_[u]&&to[i]!=heavy[u])
-            for(int j=in_[to[i]];j<=out_[to[i]];j++)update(rnk_[j]);
+    for(int v:adj[u])
+        if(v!=fa_[u]&&v!=heavy[u])
+            for(int j=in_[v];j<=out_[v];j++)update(rnk_[j]);
     update(u);
     color_cnt[u]=cur_sum,color_mx[u]=cur_mx;
     if(!keep)
@@ -7172,19 +7164,20 @@ bool same_tree(const vector<vector<int>> &a,const vector<vector<int>> &b)
 % SOURCE: 04-图论/树的遍历与dfs序.cpp
 \subsection{树的遍历与dfs序}
 
-\note{in/\allowbreak{}out为子树DFS区间，rnk为DFS序到点的逆映射，par/\allowbreak{}sz为父亲和大小；euler/\allowbreak{}first/\allowbreak{}edep供欧拉序LCA，st/\allowbreak{}elog为RMQ。stk/\allowbreak{}it模拟递归；不同序列不能混用下标，换树重置timer及首次位置。}
+\note{adj存邻点，多测清空后重建；in/\allowbreak{}out为子树DFS区间，rnk为DFS序到点的逆映射，par/\allowbreak{}sz为父亲和大小；euler/\allowbreak{}first/\allowbreak{}edep供欧拉序LCA，st/\allowbreak{}elog为RMQ。stk/\allowbreak{}it模拟递归，it是邻接表位置，从0起；不同序列不能混用下标，换树重置timer及首次位置。}
 \note{树的遍历与 dfs 序：dfs 序 /\allowbreak{} 欧拉序 /\allowbreak{} 时间戳 三个数组：in[\allowbreak{}u]\allowbreak{},\allowbreak{}out[\allowbreak{}u]\allowbreak{} 是子树对应的时间戳区间；rnk[\allowbreak{}i]\allowbreak{} 是第 i 个时间戳上的点 子树 → 区间：子树 u 恰好是 [\allowbreak{}in[\allowbreak{}u]\allowbreak{},\allowbreak{} out[\allowbreak{}u]\allowbreak{}]\allowbreak{}（in 就是 dfn） euler 数组是长度 2n-\allowbreak{}1 的欧拉序（每步都记，配合 ST 表可 O(\allowbreak{}1)\allowbreak{} 求 LCA） dfs 全部写成迭代版（显式栈），n=\allowbreak{}1e5 的链也不会爆栈}
 \begin{lstlisting}
 const int N=100005;
-int n,root,ecnt;
-int head[N],to[N<<1],nxt[N<<1],val[N];
+int n,root;
+vector<int> adj[N];
+int val[N];
 int in[N],out[N],rnk[N],par[N],sz[N],timer_;
 int euler[N<<1],first[N],edep[N<<1],elog[N<<1],st[20][N<<1];// 欧拉序 + ST 表
-int stk[N],it[N];// 显式栈：stk 存点，it 存下一条要走的边（模拟递归）
+int stk[N],it[N];// 显式栈：stk 存点，it 存下一邻点的位置，从 0 起（模拟递归）
 void add_edge(int u,int v)
 {
-    to[++ecnt]=v,nxt[ecnt]=head[u],head[u]=ecnt;
-    to[++ecnt]=u,nxt[ecnt]=head[v],head[v]=ecnt;
+    adj[u].push_back(v);
+    adj[v].push_back(u);
 }
 \end{lstlisting}
 \note{迭代 dfs 求 dfs 序 +\allowbreak{} 时间戳 +\allowbreak{} 子树大小 +\allowbreak{} 欧拉序，O(\allowbreak{}n)\allowbreak{}}
@@ -7193,22 +7186,20 @@ void get_dfn(int rt)
 {
     timer_=0;
     int tp=0,cnt=0;
-    stk[++tp]=rt,it[tp]=head[rt],par[rt]=0,sz[rt]=1;
+    stk[++tp]=rt,it[tp]=0,par[rt]=0,sz[rt]=1;
     in[rt]=++timer_,rnk[timer_]=rt;
     euler[++cnt]=rt,first[rt]=cnt,edep[cnt]=0;
     while(tp)
     {
         int u=stk[tp];
-        if(it[tp])
+        if(it[tp]<(int)adj[u].size())
         {
-            int e=it[tp];
-            it[tp]=nxt[e];// 回溯到这里时接着走下一条边
-            int v=to[e];
+            int v=adj[u][it[tp]++];// 回溯时接着走下一个邻点
             if(v==par[u])continue;
             par[v]=u,sz[v]=1;
             in[v]=++timer_,rnk[timer_]=v;
             euler[++cnt]=v,first[v]=cnt,edep[cnt]=edep[first[u]]+1;
-            stk[++tp]=v,it[tp]=head[v];
+            stk[++tp]=v,it[tp]=0;
         }
         else
         {
@@ -7261,21 +7252,21 @@ struct BIT{
 % SOURCE: 04-图论/树的重心与直径.cpp
 \subsection{树的重心与直径}
 
-\note{que/\allowbreak{}order为BFS队列与顺序，fa/\allowbreak{}sz求子树大小，dis为当前BFS距离；da/\allowbreak{}db为直径端点，dia为边数长度，dist\_db保留从db的距离。无权树可用两次BFS，带权或负权版本不能直接套这份距离递推。}
+\note{adj存邻点，多测清空后重建；que/\allowbreak{}order为BFS队列与顺序，fa/\allowbreak{}sz求子树大小，dis为当前BFS距离；da/\allowbreak{}db为直径端点，dia为边数长度，dist\_db保留从db的距离。无权树可用两次BFS，带权或负权版本不能直接套这份距离递推。}
 \note{树的重心、直径、树上最远点 直径两种写法：两遍 bfs /\allowbreak{} 树形 DP；求法都是 O(\allowbreak{}n)\allowbreak{} 重心：删掉它之后最大连通块最小（重心最多两个，这里求编号最小的那个） 最远点：任意点 x 的某个最远点可取直径端点，O(\allowbreak{}1)\allowbreak{}（见 build\_far/\allowbreak{}far\_node/\allowbreak{}eccentricity） 递归写法给 n<\allowbreak{}=\allowbreak{}3e4 用；n=\allowbreak{}1e5 的链请用下面的迭代版（显式栈），否则可能爆栈}
 \begin{lstlisting}
 const int N=100005;
 int n;
-int head[N],to[N<<1],nxt[N<<1],num=0;
+vector<int> adj[N];
 int dis[N],que[N],order[N],fa[N],sz[N];// que 是 bfs 队列，order 是 bfs 序
 int da,db,dia;// 直径两端点与长度
 \end{lstlisting}
-\note{带权图把 to[\allowbreak{}]\allowbreak{} 换成 to[\allowbreak{}]\allowbreak{}+\allowbreak{}w[\allowbreak{}]\allowbreak{}，dis 累加边权即可}
+\note{带权图把 adj 的元素换成 \{to,\allowbreak{}w\}，dis 累加边权即可}
 \begin{lstlisting}
 void add_edge(int u,int v)
 {
-    to[++num]=v,nxt[num]=head[u],head[u]=num;
-    to[++num]=u,nxt[num]=head[v],head[v]=num;
+    adj[u].push_back(v);
+    adj[v].push_back(u);
 }
 \end{lstlisting}
 \note{从 s 出发 bfs，返回最远点的编号；dis 顺手算好，O(\allowbreak{}n)\allowbreak{}，迭代不爆栈}
@@ -7289,9 +7280,8 @@ int bfs(int s)
     {
         int u=que[hd++];
         if(dis[u]>dis[far])far=u;
-        for(int i=head[u];i;i=nxt[i])
+        for(int v:adj[u])
         {
-            int v=to[i];
             if(dis[v]==-1)dis[v]=dis[u]+1,que[tl++]=v;
         }
     }
@@ -7319,9 +7309,8 @@ int get_diameter_dp()
     {
         int u=que[hd++];
         order[hd]=u;// order[1..tl] 就是 bfs 序
-        for(int i=head[u];i;i=nxt[i])
+        for(int v:adj[u])
         {
-            int v=to[i];
             if(v==fa[u])continue;
             fa[v]=u,dis[v]=dis[u]+1,que[tl++]=v;
         }
@@ -7331,9 +7320,8 @@ int get_diameter_dp()
     {
         int u=order[i];
         dp1[u]=dp2[u]=0;
-        for(int j=head[u];j;j=nxt[j])
+        for(int v:adj[u])
         {
-            int v=to[j];
             if(v==fa[u])continue;
             int d=dp1[v]+1;
             if(d>dp1[u])dp2[u]=dp1[u],dp1[u]=d;
@@ -7355,9 +7343,8 @@ int get_centroid()
     {
         int u=que[hd++];
         order[hd]=u;
-        for(int i=head[u];i;i=nxt[i])
+        for(int v:adj[u])
         {
-            int v=to[i];
             if(v==fa[u])continue;
             fa[v]=u,que[tl++]=v;
         }
@@ -7366,15 +7353,15 @@ int get_centroid()
     {
         int u=order[i];
         sz[u]=1;
-        for(int j=head[u];j;j=nxt[j])
-            if(to[j]!=fa[u])sz[u]+=sz[to[j]];
+        for(int v:adj[u])
+            if(v!=fa[u])sz[u]+=sz[v];
     }
     int best=1,mx=n+1;
     for(int u=1;u<=n;u++)
     {
         int m=n-sz[u];// 父亲那一边的块
-        for(int j=head[u];j;j=nxt[j])
-            if(to[j]!=fa[u])m=max(m,sz[to[j]]);
+        for(int v:adj[u])
+            if(v!=fa[u])m=max(m,sz[v]);
         if(m<mx)mx=m,best=u;
     }
     return best;
@@ -7403,9 +7390,8 @@ int eccentricity(int x)
 int dfs_dia(int u,int f,int &res)
 {
     int a=0;// 往下的最长链，次长的不单独存
-    for(int i=head[u];i;i=nxt[i])
+    for(int v:adj[u])
     {
-        int v=to[i];
         if(v==f)continue;
         int d=dfs_dia(v,u,res)+1;
         res=max(res,a+d),a=max(a,d);
@@ -7416,42 +7402,39 @@ int dfs_dia(int u,int f,int &res)
 % SOURCE: 04-图论/欧拉路径与欧拉回路.cpp
 \subsection{欧拉路径与欧拉回路}
 
-\note{deg是无向度数，used记边是否取过，it为当前弧，stk与path\_为遍历栈和逆序输出；din/\allowbreak{}dout/\allowbreak{}dvis是有向版度与边访问，ufa供连通性检查。先验证度条件及有边点连通，0度孤点不影响；重边按边编号区分。}
+\note{adj/\allowbreak{}dadj分别存无向/\allowbreak{}有向\{邻点,\allowbreak{}id\}，两种id各从1起，ecnt/\allowbreak{}decnt为边数；无向边两端共用id。deg与din/\allowbreak{}dout为度数，used/\allowbreak{}dvis按边编号标记；it为邻接表位置，从0起，stk/\allowbreak{}path\_按边数分配，path\_[\allowbreak{}1.\allowbreak{}.\allowbreak{}pcnt]\allowbreak{}为结果。init清空对应邻接表，m须等于边数；求解时重置访问标记，可重复求解。先检查度与有边点连通，孤点不影响。}
 \note{欧拉路径 /\allowbreak{} 欧拉回路（Hierholzer 算法，用显式栈写，n=\allowbreak{}1e5 不爆栈） 无向图：所有点度数为偶 → 欧拉回路；恰有 0/\allowbreak{}2 个奇度点 → 有欧拉路径 有向图：所有点入度=\allowbreak{}出度 → 欧拉回路；恰有 1 个出度比入度大 1（起点）、 1 个入度比出度大 1（终点）、其余相等 → 有欧拉路径 前置条件：忽略孤立点后图连通}
 \begin{lstlisting}
 const int N=100005;
 int n,m;
-\end{lstlisting}
-\note{无向图：链式前向星，边成对存，(\allowbreak{}e\textasciicircum{}1)\allowbreak{} 是反向边}
-\begin{lstlisting}
-int head[N],to[N<<1],nxt[N<<1],ecnt;
-int deg[N],used[N<<1],it[N],stk[N+5];
-\end{lstlisting}
-\note{有向图：出边的链式前向星 +\allowbreak{} 入度}
-\begin{lstlisting}
-int dhead[N],dto[N],dnxt[N],decnt,din[N],dout[N],dvis[N];
-int path_[N+5],pcnt;
+struct Edge{int to,id;};
+vector<Edge> adj[N],dadj[N];// 无向边两端共用 id；有向边各有一个 id
+int ecnt,decnt,deg[N],din[N],dout[N],it[N],pcnt;
+vector<int> used,dvis,stk,path_;// 路径和栈按边数扩展，path_[1..pcnt] 为结果
 void init_undirected(int n_)
 {
-    n=n_,ecnt=1,pcnt=0;
-    for(int i=1;i<=n;i++)head[i]=0,deg[i]=0;
-    memset(used,0,sizeof(used));
+    n=n_,ecnt=0,pcnt=0;
+    for(int i=1;i<=n;i++)adj[i].clear(),deg[i]=0;
+    used.assign(1,0);
 }
 void add_uedge(int u,int v)// 无向边，一次加一对
 {
-    to[++ecnt]=v,nxt[ecnt]=head[u],head[u]=ecnt;
-    to[++ecnt]=u,nxt[ecnt]=head[v],head[v]=ecnt;
+    ++ecnt;
+    adj[u].push_back({v,ecnt});
+    adj[v].push_back({u,ecnt});
+    used.push_back(0);
     deg[u]++,deg[v]++;
 }
 void init_directed(int n_)
 {
     n=n_,decnt=0,pcnt=0;
-    for(int i=1;i<=n;i++)dhead[i]=0,din[i]=0,dout[i]=0;
+    for(int i=1;i<=n;i++)dadj[i].clear(),din[i]=0,dout[i]=0;
+    dvis.assign(1,0);
 }
 void add_dedge(int u,int v)// 有向边
 {
-    dto[++decnt]=v,dnxt[decnt]=dhead[u],dhead[u]=decnt;
-    dvis[decnt]=0;
+    dadj[u].push_back({v,++decnt});
+    dvis.push_back(0);
     dout[u]++,din[v]++;
 }
 \end{lstlisting}
@@ -7469,8 +7452,8 @@ int connected_undirected()
     {
         int u=q[hd++];
         cnt++;
-        for(int i=head[u];i;i=nxt[i])
-            if(!vis2[to[i]])vis2[to[i]]=1,q[tl++]=to[i];
+        for(auto [v,id]:adj[u])
+            if(!vis2[v])vis2[v]=1,q[tl++]=v;
     }
     return cnt==all;
 }
@@ -7485,8 +7468,8 @@ int connected_directed()
     int all=0;
     for(int i=1;i<=n;i++)if(din[i]||dout[i])all++;
     for(int u=1;u<=n;u++)
-        for(int e=dhead[u];e;e=dnxt[e])
-            ufa[findd(u)]=findd(dto[e]);
+        for(auto [v,id]:dadj[u])
+            ufa[findd(u)]=findd(v);
     if(!all)return 1;
     int r=-1;
     for(int i=1;i<=n;i++)if(din[i]||dout[i]){r=findd(i);break;}
@@ -7515,19 +7498,21 @@ int euler_undirected(int &s)
     }
     if(!s)return 2;
     if(!connected_undirected())return 0;
-    for(int i=1;i<=n;i++)it[i]=head[i];
+    for(int i=1;i<=n;i++)it[i]=0;
+    used.assign(ecnt+1,0);
+    stk.resize(ecnt+2),path_.resize(ecnt+2);
     int tp=0;
     stk[++tp]=s,pcnt=0;
     while(tp)
     {
         int u=stk[tp];
-        int e=it[u];
-        while(e&&used[e])e=nxt[e];// 跳过已经走过的边
-        it[u]=e;
-        if(e)
+        int &p=it[u];
+        while(p<(int)adj[u].size()&&used[adj[u][p].id])p++;
+        if(p<(int)adj[u].size())
         {
-            used[e]=used[e^1]=1;
-            stk[++tp]=to[e];
+            auto [v,id]=adj[u][p++];
+            used[id]=1;
+            stk[++tp]=v;
         }
         else
         {
@@ -7535,7 +7520,7 @@ int euler_undirected(int &s)
             tp--;
         }
     }
-    reverse(path_+1,path_+pcnt+1);
+    reverse(path_.begin()+1,path_.begin()+pcnt+1);
     if(pcnt!=m+1)return 0;// 边没走完说明图不连通
     return odd==2?1:2;
 }
@@ -7560,19 +7545,21 @@ int euler_directed(int &s)
     }
     if(!s)return 2;
     if(!connected_directed())return 0;
-    for(int i=1;i<=n;i++)it[i]=dhead[i];
+    for(int i=1;i<=n;i++)it[i]=0;
+    dvis.assign(decnt+1,0);
+    stk.resize(decnt+2),path_.resize(decnt+2);
     int tp=0;
     stk[++tp]=s,pcnt=0;
     while(tp)
     {
         int u=stk[tp];
-        int e=it[u];
-        while(e&&dvis[e])e=dnxt[e];
-        it[u]=e;
-        if(e)
+        int &p=it[u];
+        while(p<(int)dadj[u].size()&&dvis[dadj[u][p].id])p++;
+        if(p<(int)dadj[u].size())
         {
-            dvis[e]=1;
-            stk[++tp]=dto[e];
+            auto [v,id]=dadj[u][p++];
+            dvis[id]=1;
+            stk[++tp]=v;
         }
         else
         {
@@ -7580,7 +7567,7 @@ int euler_directed(int &s)
             tp--;
         }
     }
-    reverse(path_+1,path_+pcnt+1);
+    reverse(path_.begin()+1,path_.begin()+pcnt+1);
     if(pcnt!=m+1)return 0;
     return c1==1?1:2;
 }
@@ -7735,22 +7722,26 @@ struct RangeGraph
 % SOURCE: 04-图论/网络流Dinic.cpp
 \subsection{网络流Dinic}
 
-\note{s/\allowbreak{}t为源汇，cap为残余容量，dep为层次，cur为当前弧；num从1起，成对边i与i\textasciicircum{}1互为反向。maxflow消耗残余网络，再次调用只求新增流；要重新求原网络须恢复容量或重建，边池容量按双向残余边数设置。}
-\note{适用：容量限制、二分图匹配、最小割；最大流等于最小割容量。 编号：顶点 1.\allowbreak{}.\allowbreak{}n；s,\allowbreak{}t 必须不同，容量 c>\allowbreak{}=\allowbreak{}0。 容量：两条残量边占两个槽，实际边数须保证 2*m+\allowbreak{}1<\allowbreak{}N*2。 关键：只走层数加一的边；当前弧按引用推进，失败边不反复扫描。 易错：调用会修改 cap；重新求原图最大流须重建，head 清零且 num=\allowbreak{}1。 复杂度：一般图 O(\allowbreak{}n\textasciicircum{}2*m)\allowbreak{}，空间 O(\allowbreak{}n+\allowbreak{}m)\allowbreak{}；递归深度最坏 O(\allowbreak{}n)\allowbreak{}。 最大权闭合图：选 u 必须选 v 就连 u-\allowbreak{}>\allowbreak{}v(\allowbreak{}INF)\allowbreak{}；正权连 S-\allowbreak{}>\allowbreak{}u(\allowbreak{}w)\allowbreak{}，负权连 u-\allowbreak{}>\allowbreak{}T(\allowbreak{}-\allowbreak{}w)\allowbreak{}。 最优值=\allowbreak{}正权总和-\allowbreak{}最小割；最后残量图中 S 可达点即选集。INF 大于所有有限容量总和且不溢出。}
+\note{adj[\allowbreak{}u]\allowbreak{}存残量边在vector<\allowbreak{}Edge>\allowbreak{} e中的下标；e[\allowbreak{}id]\allowbreak{}.\allowbreak{}to/\allowbreak{}cap为终点和剩余容量，编号从0起，id\textasciicircum{}1是反向边。s/\allowbreak{}t为源汇，dep为层次，cur[\allowbreak{}u]\allowbreak{}是adj[\allowbreak{}u]\allowbreak{}中的位置，从0起；dinic修改容量，再调用只求新增流。重新求原网络须清空adj、e后建图，或恢复初始容量。}
+\note{适用：容量限制、二分图匹配、最小割；最大流等于最小割容量。 编号：顶点 1.\allowbreak{}.\allowbreak{}n；s,\allowbreak{}t 必须不同，容量 c>\allowbreak{}=\allowbreak{}0。 存图：adj 存边编号，e 动态保存成对残量边；两条边占两个元素。 关键：只走层数加一的边；当前弧按邻接表位置推进，失败边不反复扫描。 易错：调用会修改 e[\allowbreak{}id]\allowbreak{}.\allowbreak{}cap；重新求原图最大流须重建，清空 adj 与 e。 复杂度：一般图 O(\allowbreak{}n\textasciicircum{}2*m)\allowbreak{}，空间 O(\allowbreak{}n+\allowbreak{}m)\allowbreak{}；递归深度最坏 O(\allowbreak{}n)\allowbreak{}。 最大权闭合图：选 u 必须选 v 就连 u-\allowbreak{}>\allowbreak{}v(\allowbreak{}INF)\allowbreak{}；正权连 S-\allowbreak{}>\allowbreak{}u(\allowbreak{}w)\allowbreak{}，负权连 u-\allowbreak{}>\allowbreak{}T(\allowbreak{}-\allowbreak{}w)\allowbreak{}。 最优值=\allowbreak{}正权总和-\allowbreak{}最小割；最后残量图中 S 可达点即选集。INF 大于所有有限容量总和且不溢出。}
 \begin{lstlisting}
 const int N=100005;
 const ll INF=1e18;
 int n,m,s,t;
-int head[N],to[N<<1],nxt[N<<1],num=1;// 边从 2 开始编号，i^1 是反向边
-ll cap[N<<1];// 剩余容量
+struct Edge{int to;ll cap;};
+vector<Edge> e;
+vector<int> adj[N];// 存 e 的下标，从 0 起；id^1 是反向边
 int dep[N],cur[N];
 \end{lstlisting}
 \note{O(\allowbreak{}1)\allowbreak{}，加容量为 c 的 u-\allowbreak{}>\allowbreak{}v 边；反向边初始为 0，后续用于撤销旧流。}
 \begin{lstlisting}
 void add_edge(int u,int v,ll c)
 {
-    to[++num]=v,cap[num]=c,nxt[num]=head[u],head[u]=num;
-    to[++num]=u,cap[num]=0,nxt[num]=head[v],head[v]=num;// 反向边容量 0
+    int id=e.size();
+    e.push_back({v,c});
+    e.push_back({u,0});
+    adj[u].push_back(id);
+    adj[v].push_back(id^1);
 }
 \end{lstlisting}
 \note{O(\allowbreak{}n+\allowbreak{}m)\allowbreak{}，按正残量边分层；每轮重置 dep，不能沿已满的边走。}
@@ -7765,11 +7756,11 @@ int bfs()// 分层，O(m)；返回能否到达汇点
     {
         int u=q.front();
         q.pop();
-        for(int i=head[u];i;i=nxt[i])
-            if(cap[i]>0&&dep[to[i]]<0)
+        for(int i:adj[u])
+            if(e[i].cap>0&&dep[e[i].to]<0)
             {
-                dep[to[i]]=dep[u]+1;
-                q.push(to[i]);
+                dep[e[i].to]=dep[u]+1;
+                q.push(e[i].to);
             }
     }
     return dep[t]>=0;
@@ -7780,16 +7771,16 @@ int bfs()// 分层，O(m)；返回能否到达汇点
 ll dfs(int u,ll flow)// 沿分层图推流，当前弧优化保证每条边只扫一次
 {
     if(u==t)return flow;
-    for(int &i=cur[u];i;i=nxt[i])
+    for(int &p=cur[u];p<(int)adj[u].size();p++)
     {
-        int v=to[i];
-        if(cap[i]>0&&dep[v]==dep[u]+1)
+        int i=adj[u][p],v=e[i].to;
+        if(e[i].cap>0&&dep[v]==dep[u]+1)
         {
-            ll f=dfs(v,min(flow,cap[i]));
+            ll f=dfs(v,min(flow,e[i].cap));
             if(f>0)
             {
-                cap[i]-=f;
-                cap[i^1]+=f;// 反向边加回去，支持退流
+                e[i].cap-=f;
+                e[i^1].cap+=f;// 反向边加回去，支持退流
                 return f;
             }
         }
@@ -7804,7 +7795,7 @@ ll dinic()// 最大流，O(n^2 m)，随机图/二分图很快
     ll ans=0;
     while(bfs())
     {
-        for(int i=1;i<=n;i++)cur[i]=head[i];
+        for(int i=1;i<=n;i++)cur[i]=0;
         ll f;
         while((f=dfs(s,INF))>0)ans+=f;
     }
@@ -7954,14 +7945,15 @@ struct VirtualTree
 % SOURCE: 04-图论/费用流MCMF.cpp
 \subsection{费用流MCMF}
 
-\note{cap/\allowbreak{}fee是残余容量和单位费用，反向边费用取负；h为势能，dis为约化费用距离，pre为入边编号。ans\_flow/\allowbreak{}ans\_cost为累计结果，算法会改残余容量；多测重建网络和势能，费用乘流量须装入ll。}
-\note{适用：运输、分配、带费用匹配；先最大化流量，再最小化总费用。 参数：顶点 1.\allowbreak{}.\allowbreak{}n，s!=\allowbreak{}t；c 是非负容量，f 是单位费用，可为负。 前提：源点可达残量图不能有负费用环；初始化 SPFA 没有负环检测。 关键：fee+\allowbreak{}h[\allowbreak{}u]\allowbreak{}-\allowbreak{}h[\allowbreak{}v]\allowbreak{} 为约化费用；势能保持最短路选择与真实费用一致。 易错：cap 会被原地修改；重建时 head 清零、num=\allowbreak{}1；边槽需含反向边。 复杂度：初始化最坏 O(\allowbreak{}n*m)\allowbreak{}，A 次增广 O(\allowbreak{}A*(\allowbreak{}n+\allowbreak{}m)\allowbreak{}*log(\allowbreak{}n+\allowbreak{}m)\allowbreak{})\allowbreak{}；f*fee 和总费用须能放入 ll。 有限容量负费用边可先预置到上界，计入费用与点供需，再用其反向边撤销多余预流。 预置后必须平衡每个点的流量；这不是“直接灌满负边然后跑普通 s-\allowbreak{}t 流”，更不能用于无界负环。}
+\note{adj[\allowbreak{}u]\allowbreak{}存vector<\allowbreak{}Edge>\allowbreak{} e的下标；e[\allowbreak{}id]\allowbreak{}.\allowbreak{}to/\allowbreak{}cap/\allowbreak{}fee为终点、剩余容量和单位费用，编号从0起，id\textasciicircum{}1是反向边，反向费用取负。h为势能，dis为约化费用距离，pre为入边编号；ans\_flow/\allowbreak{}ans\_cost是本次调用的结果。多测清空adj、e后重建，费用乘流量须装入ll。}
+\note{适用：运输、分配、带费用匹配；先最大化流量，再最小化总费用。 参数：顶点 1.\allowbreak{}.\allowbreak{}n，s!=\allowbreak{}t；c 是非负容量，f 是单位费用，可为负。 前提：源点可达残量图不能有负费用环；初始化 SPFA 没有负环检测。 关键：fee+\allowbreak{}h[\allowbreak{}u]\allowbreak{}-\allowbreak{}h[\allowbreak{}v]\allowbreak{} 为约化费用；势能保持最短路选择与真实费用一致。 易错：e[\allowbreak{}id]\allowbreak{}.\allowbreak{}cap 会被原地修改；重建时 清空 adj 与 e；反向边也占一个元素。 复杂度：初始化最坏 O(\allowbreak{}n*m)\allowbreak{}，A 次增广 O(\allowbreak{}A*(\allowbreak{}n+\allowbreak{}m)\allowbreak{}*log(\allowbreak{}n+\allowbreak{}m)\allowbreak{})\allowbreak{}；f*fee 和总费用须能放入 ll。 有限容量负费用边可先预置到上界，计入费用与点供需，再用其反向边撤销多余预流。 预置后必须平衡每个点的流量；这不是“直接灌满负边然后跑普通 s-\allowbreak{}t 流”，更不能用于无界负环。}
 \begin{lstlisting}
 const int N=100005;
 const ll INF=1e18;
 int n,m,s,t;
-int head[N],to[N<<1],nxt[N<<1],num=1;// 边从 2 开始编号，i^1 是反向边
-ll cap[N<<1],fee[N<<1];// 剩余容量、单位费用
+struct Edge{int to;ll cap,fee;};
+vector<Edge> e;
+vector<int> adj[N];// 存 e 的下标，从 0 起；id^1 是反向边
 ll dis[N],h[N];// dis：本次的约化费用最短路；h：势能，保证约化费用非负
 int vis[N],pre[N];// pre[v]：最短路上到 v 的那条入边编号
 ll ans_flow,ans_cost;
@@ -7970,8 +7962,11 @@ ll ans_flow,ans_cost;
 \begin{lstlisting}
 void add_edge(int u,int v,ll c,ll f)
 {
-    to[++num]=v,cap[num]=c,fee[num]=f,nxt[num]=head[u],head[u]=num;
-    to[++num]=u,cap[num]=0,fee[num]=-f,nxt[num]=head[v],head[v]=num;// 反向边容量 0、费用取负
+    int id=e.size();
+    e.push_back({v,c,f});
+    e.push_back({u,0,-f});
+    adj[u].push_back(id);
+    adj[v].push_back(id^1);
 }
 \end{lstlisting}
 \note{最坏 O(\allowbreak{}n*m)\allowbreak{}，从全局 s 求初始势能；先处理负边才能使用 Dijkstra。}
@@ -7986,12 +7981,12 @@ void spfa_init()// 先用 SPFA 求一遍初始势能，这样有负费用边也�
         int u=q.front();
         q.pop();
         vis[u]=0;
-        for(int i=head[u];i;i=nxt[i])
+        for(int i:adj[u])
         {
-            int v=to[i];
-            if(cap[i]>0&&h[u]+fee[i]<h[v])
+            int v=e[i].to;
+            if(e[i].cap>0&&h[u]+e[i].fee<h[v])
             {
-                h[v]=h[u]+fee[i];
+                h[v]=h[u]+e[i].fee;
                 if(!vis[v])vis[v]=1,q.push(v);
             }
         }
@@ -8013,12 +8008,12 @@ int dijkstra()// 沿约化费用最短路增广，O(m log n)；返回能否找�
         int u=p.second;
         if(vis[u])continue;// 过期的旧距离，跳过
         vis[u]=1;
-        for(int i=head[u];i;i=nxt[i])
+        for(int i:adj[u])
         {
-            int v=to[i];
-            if(cap[i]>0&&dis[u]+fee[i]+h[u]-h[v]<dis[v])
+            int v=e[i].to;
+            if(e[i].cap>0&&dis[u]+e[i].fee+h[u]-h[v]<dis[v])
             {
-                dis[v]=dis[u]+fee[i]+h[u]-h[v];
+                dis[v]=dis[u]+e[i].fee+h[u]-h[v];
                 pre[v]=i;
                 q.push(make_pair(dis[v],v));
             }
@@ -8038,12 +8033,12 @@ void mcmf()// 最小费用最大流，结果放 ans_flow / ans_cost
     {
         for(int i=1;i<=n;i++)if(dis[i]<INF)h[i]+=dis[i];// 累加势能
         ll f=INF;
-        for(int v=t;v!=s;v=to[pre[v]^1])f=min(f,cap[pre[v]]);// 沿路径找瓶颈
-        for(int v=t;v!=s;v=to[pre[v]^1])
+        for(int v=t;v!=s;v=e[pre[v]^1].to)f=min(f,e[pre[v]].cap);// 沿路径找瓶颈
+        for(int v=t;v!=s;v=e[pre[v]^1].to)
         {
-            cap[pre[v]]-=f;
-            cap[pre[v]^1]+=f;
-            ans_cost+=f*fee[pre[v]];// 按真实费用累加
+            e[pre[v]].cap-=f;
+            e[pre[v]^1].cap+=f;
+            ans_cost+=f*e[pre[v]].fee;// 按真实费用累加
         }
         ans_flow+=f;
     }
