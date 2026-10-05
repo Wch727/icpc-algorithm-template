@@ -4922,15 +4922,17 @@ mt19937 rnd(19260817);
 
 \begin{lstlisting}
 const int INF=INT_MAX/4;
+vector<vector<pair<int,int>>> adj;
+vector<int> d;
+deque<pair<int,int>> q;
 // adj[u] 存 {v,w}，只允许 w=0/1；点编号取 adj 的合法下标，支持 0 起。
 // 松弛成功时：0 边入队首，1 边入队尾；不能用普通 BFS 首次访问就锁定。
 // O(n+m)，不可达为 INF；队列带入队距离，跳过过期项。
-vector<int> bfs01(const vector<vector<pair<int,int>>> &adj,int s)
+void bfs01(int s)
 {
     int n=adj.size();
     assert(0<=s&&s<n);
-    vector<int> d(n,INF);
-    deque<pair<int,int>> q;
+    d.assign(n,INF);q.clear();
     d[s]=0,q.push_front({0,s});
     while(!q.empty())
     {
@@ -4945,7 +4947,6 @@ vector<int> bfs01(const vector<vector<pair<int,int>>> &adj,int s)
             else q.push_back({d[v],v});
         }
     }
-    return d;
 }
 \end{lstlisting}
 % SOURCE: 04-图论/2-SAT.cpp
@@ -6536,7 +6537,7 @@ vector<int> adj[N];
 int in[N],out[N];
 int dp[N];// dp[u]：从所有入度为 0 的点走到 u 的方案数 / 最长路长度
 int q[N];// 手写队列，避免 STL queue 在拓扑里反复 push
-int topo(int f[],int mode)// mode=0 统计方案数(取模)，mode=1 最长路；返回拓扑点数
+int topo(int mode)// mode=0 统计方案数(取模)，mode=1 最长路；返回拓扑点数
 {
     int head=0,tail=0;
     for(int i=1;i<=n;i++)if(in[i]==0)q[tail++]=i;
@@ -6548,8 +6549,8 @@ int topo(int f[],int mode)// mode=0 统计方案数(取模)，mode=1 最长路�
         for(int i=0;i<(int)adj[u].size();i++)
         {
             int v=adj[u][i];
-            if(mode==0)f[v]=(f[v]+f[u])%80112002;
-            else f[v]=max(f[v],f[u]+1);
+            if(mode==0)dp[v]=(dp[v]+dp[u])%80112002;
+            else dp[v]=max(dp[v],dp[u]+1);
             if(--in[v]==0)q[tail++]=v;// 入度减到 0 立刻能入队
         }
     }
@@ -10805,10 +10806,9 @@ const int INF=0x3f3f3f3f;
 int n,k,L,R;
 int a[N],f[N],res[N];
 int q[N];// 单调队列，存下标（也可以用 deque<int>，见 P1886 写法）
-int mx[N],mn[N],bmx[N],bmn[N];// 对拍用的窗口结果
 // O(n)，滑动窗口最大值
 // 三步：入队前把队尾比它差的弹掉 -> 入队 -> 把越界的队首弹掉
-void window_max(int n,int k,int a[],int res[])
+void window_max()
 {
     int head=0,tail=0;
     for(int i=1;i<=n;i++)
@@ -10820,7 +10820,7 @@ void window_max(int n,int k,int a[],int res[])
     }
 }
 // O(n)，滑动窗口最小值，队列改成单调递增
-void window_min(int n,int k,int a[],int res[])
+void window_min()
 {
     int head=0,tail=0;
     for(int i=1;i<=n;i++)
@@ -10834,7 +10834,7 @@ void window_min(int n,int k,int a[],int res[])
 // O(n)，单调队列优化转移：f[i]=a[i]+max(f[j])，i-R<=j<=i-L
 // f[i] 表示以 i 结尾的最大得分；j 也可以不选(原地起步)
 // 处理 i 时先把下标 i-L 入队，再把 < i-R 的弹掉，窗口正好是 [i-R,i-L]
-int jump_max_score(int n,int L,int R,int a[])
+int jump_max_score()
 {
     int head=0,tail=0,ans=-INF;
     for(int i=1;i<=n;i++)
@@ -10863,33 +10863,33 @@ int n,K;
 ll a[N],s[N],w[N][N],fd[N][N];
 int opt[N][N],dq[N],beg[N],hd,tl;
 // 非负 a，w[l][r]=(s[r]-s[l-1])²；分成 k 个非空连续段。
-// f[k][i]=min_{k-1<=j<i} f[k-1][j]+w[j+1][i]。
+// fd[k][i]=min_{k-1<=j<i} fd[k-1][j]+w[j+1][i]。
 // 要先证明决策单调性；不能仅凭样例或“区间代价”就套。
 // 数值及加法须小于 INF；O(K n log n)。
-void solve_layer(int k,int l,int r,int optl,int optr,ll cost[][N],ll f[][N],int decision[][N])
+void solve_layer(int k,int l,int r,int optl,int optr)
 {
     if(l>r)return;
     int mid=(l+r)/2,best=optl;
     ll val=INF;
     for(int j=optl;j<=min(mid-1,optr);j++)
-        if(f[k-1][j]+cost[j+1][mid]<val)
-            val=f[k-1][j]+cost[j+1][mid],best=j;
-    f[k][mid]=val,decision[k][mid]=best;
-    solve_layer(k,l,mid-1,optl,best,cost,f,decision);
-    solve_layer(k,mid+1,r,best,optr,cost,f,decision);
+        if(fd[k-1][j]+w[j+1][mid]<val)
+            val=fd[k-1][j]+w[j+1][mid],best=j;
+    fd[k][mid]=val,opt[k][mid]=best;
+    solve_layer(k,l,mid-1,optl,best);
+    solve_layer(k,mid+1,r,best,optr);
 }
-void dnc_partition(int n,int K,ll cost[][N],ll f[][N],int decision[][N])
+void dnc_partition()
 {
-    for(int i=1;i<=n;i++)f[1][i]=cost[1][i],decision[1][i]=0;
-    for(int k=2;k<=min(K,n);k++)solve_layer(k,k,n,k-1,n-1,cost,f,decision);
+    for(int i=1;i<=n;i++)fd[1][i]=w[1][i],opt[1][i]=0;
+    for(int k=2;k<=min(K,n);k++)solve_layer(k,k,n,k-1,n-1);
 }
-// 单层：fd[2][i]=min_{1<=j<i} fd[1][j]+cost[j+1][i]。
+// 单层：fd[2][i]=min_{1<=j<i} fd[1][j]+w[j+1][i]。
 // 前提：新决策胜过旧决策的位置形成后缀，最优决策单调不减。
 // dq 存决策，beg 存它开始胜出的下标；每个决策进出一次，O(n log n)。
-void mq_layer(int n,ll cost[][N])
+void mq_layer()
 {
     if(n<2)return;
-    auto value=[&](int j,int i){return fd[1][j]+cost[j+1][i];};
+    auto value=[&](int j,int i){return fd[1][j]+w[j+1][i];};
     hd=0,tl=1,dq[0]=1,beg[0]=2;
     for(int i=2;i<=n;i++)
     {
@@ -11875,10 +11875,11 @@ int a[N];
 char s[N],t[N];
 int f[N],g[N],dp[N][N],best[N];// f/g 是滚动的线性 dp 数组
 int tri[15][15];// 数字三角形
+ll dp2[15][15];
 int grid[15][15];// 网格路径（1 表示障碍）
 // O(n^2)，最长上升子序列（严格递增），f[i] 表示以 i 结尾的 LIS 长度
 // 转移：f[i]=max(f[j])+1，其中 j<i 且 a[j]<a[i]
-int lis_n2(int n,int a[])
+int lis_n2()
 {
     int ans=0;
     for(int i=1;i<=n;i++)
@@ -11891,7 +11892,7 @@ int lis_n2(int n,int a[])
     return ans;
 }
 // O(n log n)，LIS 贪心+二分：g[len] 存长度为 len 的上升子序列的最小结尾
-int lis_nlogn(int n,int a[])
+int lis_nlogn()
 {
     int len=0;
     for(int i=1;i<=n;i++)
@@ -11903,7 +11904,7 @@ int lis_nlogn(int n,int a[])
     return len;
 }
 // O(n)，最大子段和：f[i] 表示以 i 结尾的最大子段和，f[i]=max(f[i-1],0)+a[i]
-int max_subarray(int n,int a[])
+int max_subarray()
 {
     f[0]=0;
     int ans=INT_MIN;
@@ -11917,7 +11918,7 @@ int max_subarray(int n,int a[])
 // O(n^2)，数字三角形：从顶走到底的最大路径和，顺推
 // 转移：dp[i][j]=max(dp[i-1][j-1],dp[i-1][j])+tri[i][j]
 // 边界必须判掉：j=1 没有左上方，j=i 没有正上方（否则会把没算过的 0 当答案）
-int triangle_max(int n,int tri[][15])
+int triangle_max()
 {
     dp[0][1]=0;
     for(int i=1;i<=n;i++)
@@ -11932,9 +11933,8 @@ int triangle_max(int n,int tri[][15])
     return ans;
 }
 // O(n^2)，网格路径数：只能往右/往下走，grid=1 是障碍
-ll grid_paths(int n,int m,int grid[][15])
+ll grid_paths()
 {
-    ll dp2[15][15];
     for(int i=0;i<=n;i++)
         for(int j=0;j<=m;j++)dp2[i][j]=0;
     dp2[1][1]=(grid[1][1]==1)?0:1;
@@ -11948,7 +11948,7 @@ ll grid_paths(int n,int m,int grid[][15])
     return dp2[n][m];
 }
 // O(n^2)，最长公共子序列长度
-int lcs(char s[],char t[],int n,int m)
+int lcs()
 {
     for(int i=0;i<=n;i++)
         for(int j=0;j<=m;j++)
@@ -11971,7 +11971,7 @@ ll climb(int n)
     return y;
 }
 // O(n)，数字解码方案数：'1'~'9' 单独成一位，'10'~'26' 两位成一位
-ll decode_ways(char s[],int n)
+ll decode_ways()
 {
     ll f0=1,f1=(n>=1&&s[1]!='0')?1:0;// f[i-2],f[i-1]
     if(n==0)return 0;
@@ -11987,7 +11987,6 @@ ll decode_ways(char s[],int n)
     return f1;
 }
 \end{lstlisting}
-\section{搜索}
 % SOURCE: 07-搜索/A星与K短路.cpp
 \subsection{A星与K短路}
 
@@ -12652,21 +12651,22 @@ int bibfs_num(ull s,ull t)
 \subsection{折半搜索}
 
 \begin{lstlisting}
+vector<ll> a,sums[2];
 // O(2^(n/2) n)，含负数；统计和等于目标的子集个数，n<=40
-vector<ll> enum_sum(const vector<ll> &a,int l,int r)
+void enum_sum(int l,int r,int id)
 {
-    vector<ll> s(1,0);
+    auto &s=sums[id];s.assign(1,0);
     for(int i=l;i<r;i++)
     {
         int m=s.size();
         for(int j=0;j<m;j++)s.push_back(s[j]+a[i]);
     }
-    return s;
 }
-ll solve(const vector<ll> &a,ll target)
+ll solve(ll target)
 {
     int n=a.size();
-    vector<ll> l=enum_sum(a,0,n/2),r=enum_sum(a,n/2,n);
+    enum_sum(0,n/2,0);enum_sum(n/2,n,1);
+    auto &l=sums[0],&r=sums[1];
     sort(r.begin(),r.end());
     ll ans=0;
     for(ll x:l)

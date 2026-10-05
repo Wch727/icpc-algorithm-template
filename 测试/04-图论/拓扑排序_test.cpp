@@ -9,7 +9,7 @@ int main()
     int a[8]={0,1,1,2,3,2},b[8]={0,2,3,3,4,4};
     for(int i=1;i<=m;i++)adj[a[i]].push_back(b[i]),in[b[i]]++,out[a[i]]++;
     for(int i=1;i<=n;i++)if(in[i]==0)dp[i]=1;
-    int cnt=topo(dp,0);
+    int cnt=topo(0);
     printf("拓扑点数=%d 方案数=",cnt);
     for(int i=1;i<=n;i++)printf("%d ",dp[i]);
     printf("\n期望 点数=4 方案数= 1 1 2 3\n");
@@ -17,7 +17,7 @@ int main()
     for(int i=1;i<=n;i++)in[i]=0,dp[i]=0;
     for(int i=1;i<=n;i++)
         for(int j=0;j<(int)adj[i].size();j++)in[adj[i][j]]++;
-    topo(dp,1);
+    topo(1);
     int best=0;
     for(int i=1;i<=n;i++)best=max(best,dp[i]);
     printf("最长链边数=%d（期望 3）\n",best);
@@ -26,7 +26,7 @@ int main()
     for(int i=1;i<=n;i++)adj[i].clear(),in[i]=0,dp[i]=0;
     adj[1].push_back(2),adj[2].push_back(3),adj[3].push_back(1);
     in[2]++,in[3]++,in[1]++;
-    printf("有环图 拓扑点数=%d（期望 -1）\n",topo(dp,0));
+    printf("有环图 拓扑点数=%d（期望 -1）\n",topo(0));
     // 自测 4：随机 DAG，与指数级暴力枚举所有路径数对拍
     n=6;
     for(int t=1;t<=100;t++)
@@ -36,7 +36,7 @@ int main()
             for(int j=i+1;j<=n;j++)
                 if(rand()%2)adj[i].push_back(j),in[j]++;
         for(int i=1;i<=n;i++)if(in[i]==0)dp[i]=1;
-        topo(dp,0);
+        topo(0);
         // 暴力：另开一份入度数组，按拓扑序推路径数（topo 会把 in[] 清零，所以要先拷一份）
         int din[10];
         for(int i=1;i<=n;i++)din[i]=0;

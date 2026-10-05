@@ -1,23 +1,24 @@
 #include<bits/stdc++.h>
 using namespace std;
 typedef long long ll;
+vector<ll> a,sums[2];
 
 // O(2^(n/2) n)，含负数；统计和等于目标的子集个数，n<=40
-vector<ll> enum_sum(const vector<ll> &a,int l,int r)
+void enum_sum(int l,int r,int id)
 {
-    vector<ll> s(1,0);
+    auto &s=sums[id];s.assign(1,0);
     for(int i=l;i<r;i++)
     {
         int m=s.size();
         for(int j=0;j<m;j++)s.push_back(s[j]+a[i]);
     }
-    return s;
 }
 
-ll solve(const vector<ll> &a,ll target)
+ll solve(ll target)
 {
     int n=a.size();
-    vector<ll> l=enum_sum(a,0,n/2),r=enum_sum(a,n/2,n);
+    enum_sum(0,n/2,0);enum_sum(n/2,n,1);
+    auto &l=sums[0],&r=sums[1];
     sort(r.begin(),r.end());
     ll ans=0;
     for(ll x:l)

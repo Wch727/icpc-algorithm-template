@@ -6,11 +6,10 @@ const int INF=0x3f3f3f3f;
 int n,k,L,R;
 int a[N],f[N],res[N];
 int q[N];// 单调队列，存下标（也可以用 deque<int>，见 P1886 写法）
-int mx[N],mn[N],bmx[N],bmn[N];// 对拍用的窗口结果
 
 // O(n)，滑动窗口最大值
 // 三步：入队前把队尾比它差的弹掉 -> 入队 -> 把越界的队首弹掉
-void window_max(int n,int k,int a[],int res[])
+void window_max()
 {
     int head=0,tail=0;
     for(int i=1;i<=n;i++)
@@ -23,7 +22,7 @@ void window_max(int n,int k,int a[],int res[])
 }
 
 // O(n)，滑动窗口最小值，队列改成单调递增
-void window_min(int n,int k,int a[],int res[])
+void window_min()
 {
     int head=0,tail=0;
     for(int i=1;i<=n;i++)
@@ -38,7 +37,7 @@ void window_min(int n,int k,int a[],int res[])
 // O(n)，单调队列优化转移：f[i]=a[i]+max(f[j])，i-R<=j<=i-L
 // f[i] 表示以 i 结尾的最大得分；j 也可以不选(原地起步)
 // 处理 i 时先把下标 i-L 入队，再把 < i-R 的弹掉，窗口正好是 [i-R,i-L]
-int jump_max_score(int n,int L,int R,int a[])
+int jump_max_score()
 {
     int head=0,tail=0,ans=-INF;
     for(int i=1;i<=n;i++)

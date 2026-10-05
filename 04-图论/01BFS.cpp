@@ -1,16 +1,18 @@
 #include<bits/stdc++.h>
 using namespace std;
 const int INF=INT_MAX/4;
+vector<vector<pair<int,int>>> adj;
+vector<int> d;
+deque<pair<int,int>> q;
 
 // adj[u] 存 {v,w}，只允许 w=0/1；点编号取 adj 的合法下标，支持 0 起。
 // 松弛成功时：0 边入队首，1 边入队尾；不能用普通 BFS 首次访问就锁定。
 // O(n+m)，不可达为 INF；队列带入队距离，跳过过期项。
-vector<int> bfs01(const vector<vector<pair<int,int>>> &adj,int s)
+void bfs01(int s)
 {
     int n=adj.size();
     assert(0<=s&&s<n);
-    vector<int> d(n,INF);
-    deque<pair<int,int>> q;
+    d.assign(n,INF);q.clear();
     d[s]=0,q.push_front({0,s});
     while(!q.empty())
     {
@@ -25,5 +27,4 @@ vector<int> bfs01(const vector<vector<pair<int,int>>> &adj,int s)
             else q.push_back({d[v],v});
         }
     }
-    return d;
 }

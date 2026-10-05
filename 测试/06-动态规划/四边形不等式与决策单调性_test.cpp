@@ -87,9 +87,10 @@ int main()
     for(int i=1;i<=n;i++)s[i]=s[i-1]+a[i];
     for(int l=1;l<=n;l++)
         for(int r=l;r<=n;r++)w[l][r]=(s[r]-s[l-1])*(s[r]-s[l-1]);
-    dnc_partition(n,K,w,fd,opt);
+    dnc_partition();
     brute_partition(n,K,w,bk);
-    printf("n=5 [1..5] 分 2 段 : 分治 %lld 暴力 %lld (期望 45 45)\n",fd[2][5],bk[2][5]);
+    assert(fd[2][5]==117&&bk[2][5]==117); // 6^2+9^2
+    printf("n=5 [1..5] 分 2 段 : 分治 %lld 暴力 %lld (期望 117 117)\n",fd[2][5],bk[2][5]);
 
     printf("==== 随机对拍 ====\n");
     int tt,bad=0;
@@ -101,7 +102,7 @@ int main()
         for(int l=1;l<=n;l++)
             for(int r=l;r<=n;r++)w[l][r]=(s[r]-s[l-1])*(s[r]-s[l-1]);
         brute_partition(n,K,w,bk);
-        dnc_partition(n,K,w,fd,opt);
+        dnc_partition();
         int wa=0;
         for(int k=1;k<=K;k++)
             for(int i=k;i<=n;i++)
@@ -121,7 +122,7 @@ int main()
         for(int l=1;l<=n;l++)
             for(int r=l;r<=n;r++)w[l][r]=(s[r]-s[l-1])*(s[r]-s[l-1]);
         for(int i=1;i<=n;i++)fd[1][i]=w[1][i];
-        mq_layer(n,w);
+        mq_layer();
         for(int i=2;i<=n;i++)
         {
             ll ref=INF;
@@ -138,7 +139,9 @@ int main()
         for(int l=1;l<=nn;l++)
             for(int r=l;r<=nn;r++)ww[l][r]=rndint(0,20);
         brute_partition(nn,2,ww,bk);
-        dnc_partition(nn,2,ww,fd,opt);
+        ::n=nn;::K=2;
+        for(int l=1;l<=nn;l++)for(int r=l;r<=nn;r++)w[l][r]=ww[l][r];
+        dnc_partition();
         for(int i=2;i<=nn;i++)
             if(fd[2][i]!=bk[2][i]){found=1;break;}
     }

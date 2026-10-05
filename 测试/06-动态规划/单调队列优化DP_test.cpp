@@ -2,6 +2,12 @@
 // 模板本体：06-动态规划/单调队列优化DP.cpp
 #include "../../06-动态规划/单调队列优化DP.cpp"
 
+int mx[N],mn[N],bmx[N],bmn[N];
+void load_case(int len,int width,const int *aa)
+{::n=len;::k=width;for(int i=1;i<=len;i++)::a[i]=aa[i];}
+void load_jump(int len,int lo,int hi,const int *aa)
+{load_case(len,1,aa);::L=lo;::R=hi;}
+
 int rndint(int l,int r)// 生成 [l,r] 的随机整数
 {
     return l+rand()%(r-l+1);
@@ -42,17 +48,17 @@ int main()
     printf("==== 固定样例 ====\n");
     n=8,k=3;
     int s1[9]={0,1,3,-1,-3,5,3,6,7};
-    window_max(n,k,s1,res);
+    (load_case(n,k,s1),window_max(),copy(::res+1,::res+::n-::k+2,res+1));
     printf("窗口最大值 :");
     for(int i=1;i<=n-k+1;i++)printf(" %d",res[i]);
     printf(" (期望 3 3 5 5 6 7)\n");
-    window_min(n,k,s1,res);
+    (load_case(n,k,s1),window_min(),copy(::res+1,::res+::n-::k+2,res+1));
     printf("窗口最小值 :");
     for(int i=1;i<=n-k+1;i++)printf(" %d",res[i]);
     printf(" (期望 -1 -3 -3 -3 3 3)\n");
     n=5,L=1,R=2;
     int s2[6]={0,1,-1,2,-2,3};
-    printf("跳跃最大得分 : %d (期望 6)\n",jump_max_score(n,L,R,s2));
+    printf("跳跃最大得分 : %d (期望 6)\n",(load_jump(n,L,R,s2),jump_max_score()));
 
     printf("==== 随机对拍 ====\n");
     int tt,bad=0;
@@ -60,7 +66,7 @@ int main()
     {
         n=rndint(1,200),k=rndint(1,n);
         for(int i=1;i<=n;i++)a[i]=rndint(-50,50);
-        window_max(n,k,a,mx),window_min(n,k,a,mn);
+        (load_case(n,k,a),window_max(),copy(::res+1,::res+::n-::k+2,mx+1)),(load_case(n,k,a),window_min(),copy(::res+1,::res+::n-::k+2,mn+1));
         brute_window(n,k,a,bmx,bmn);
         int wa=0;
         for(int i=1;i+k-1<=n;i++)
@@ -68,7 +74,7 @@ int main()
         if(wa){bad++;printf("WA! 窗口 轮%d n=%d k=%d\n",tt,n,k);break;}
         L=rndint(1,n),R=rndint(L,n);
         for(int i=1;i<=n;i++)a[i]=rndint(-50,50);
-        int cur=jump_max_score(n,L,R,a);
+        int cur=(load_jump(n,L,R,a),jump_max_score());
         int ref=brute_jump(n,L,R,a);
         if(cur!=ref){bad++;printf("WA! 跳跃 轮%d n=%d L=%d R=%d ref=%d cur=%d\n",tt,n,L,R,ref,cur);break;}
     }

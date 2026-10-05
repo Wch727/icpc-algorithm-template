@@ -9,11 +9,12 @@ int a[N];
 char s[N],t[N];
 int f[N],g[N],dp[N][N],best[N];// f/g 是滚动的线性 dp 数组
 int tri[15][15];// 数字三角形
+ll dp2[15][15];
 int grid[15][15];// 网格路径（1 表示障碍）
 
 // O(n^2)，最长上升子序列（严格递增），f[i] 表示以 i 结尾的 LIS 长度
 // 转移：f[i]=max(f[j])+1，其中 j<i 且 a[j]<a[i]
-int lis_n2(int n,int a[])
+int lis_n2()
 {
     int ans=0;
     for(int i=1;i<=n;i++)
@@ -28,7 +29,7 @@ int lis_n2(int n,int a[])
 
 // O(n log n)，LIS 贪心+二分：g[len] 存长度为 len 的上升子序列的最小结尾
 
-int lis_nlogn(int n,int a[])
+int lis_nlogn()
 {
     int len=0;
     for(int i=1;i<=n;i++)
@@ -41,7 +42,7 @@ int lis_nlogn(int n,int a[])
 }
 
 // O(n)，最大子段和：f[i] 表示以 i 结尾的最大子段和，f[i]=max(f[i-1],0)+a[i]
-int max_subarray(int n,int a[])
+int max_subarray()
 {
     f[0]=0;
     int ans=INT_MIN;
@@ -56,7 +57,7 @@ int max_subarray(int n,int a[])
 // O(n^2)，数字三角形：从顶走到底的最大路径和，顺推
 // 转移：dp[i][j]=max(dp[i-1][j-1],dp[i-1][j])+tri[i][j]
 // 边界必须判掉：j=1 没有左上方，j=i 没有正上方（否则会把没算过的 0 当答案）
-int triangle_max(int n,int tri[][15])
+int triangle_max()
 {
     dp[0][1]=0;
     for(int i=1;i<=n;i++)
@@ -72,9 +73,8 @@ int triangle_max(int n,int tri[][15])
 }
 
 // O(n^2)，网格路径数：只能往右/往下走，grid=1 是障碍
-ll grid_paths(int n,int m,int grid[][15])
+ll grid_paths()
 {
-    ll dp2[15][15];
     for(int i=0;i<=n;i++)
         for(int j=0;j<=m;j++)dp2[i][j]=0;
     dp2[1][1]=(grid[1][1]==1)?0:1;
@@ -89,7 +89,7 @@ ll grid_paths(int n,int m,int grid[][15])
 }
 
 // O(n^2)，最长公共子序列长度
-int lcs(char s[],char t[],int n,int m)
+int lcs()
 {
     for(int i=0;i<=n;i++)
         for(int j=0;j<=m;j++)
@@ -114,7 +114,7 @@ ll climb(int n)
 }
 
 // O(n)，数字解码方案数：'1'~'9' 单独成一位，'10'~'26' 两位成一位
-ll decode_ways(char s[],int n)
+ll decode_ways()
 {
     ll f0=1,f1=(n>=1&&s[1]!='0')?1:0;// f[i-2],f[i-1]
     if(n==0)return 0;
