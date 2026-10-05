@@ -21,7 +21,8 @@ int brute(const string &s,const string &t)
 int main()
 {
     srand(19260817);
-    bool ok=min_cover("ADOBECODEBANC","ABC")==4;
+    ::s="ADOBECODEBANC";::t="ABC";
+    bool ok=min_cover()==4;
     for(int t=1;t<=100;t++)
     {
         vector<int> a(rand()%20);
@@ -31,13 +32,15 @@ int main()
         bool found=false;
         for(int i=0;i<(int)a.size();i++)
             for(int j=i+1;j<(int)a.size();j++)if(a[i]+a[j]==target)found=true;
-        pair<int,int> p=two_sum(a,target);
+        ::a=a;
+        pair<int,int> p=two_sum(target);
         if((p.first>=0)!=found)ok=false;
         if(p.first>=0&&(p.first>=p.second||a[p.first]+a[p.second]!=target))ok=false;
         string s,u;
         for(int i=0,n=rand()%15;i<n;i++)s+=char('a'+rand()%4);
         for(int i=0,n=rand()%6;i<n;i++)u+=char('a'+rand()%4);
-        if(min_cover(s,u)!=brute(s,u))ok=false;
+        ::s=s;::t=u;
+        if(min_cover()!=brute(s,u))ok=false;
     }
     printf("双指针 %s\n",ok?"OK":"FAILED");
     if(!ok)return 1;

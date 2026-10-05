@@ -7,7 +7,8 @@ typedef long long ll;
 // 新候选在旧候选剩余有效期内始终有效且不劣，才能永久删除旧候选。
 // 若候选优劣随查询改变、可能反转，不能直接套这个循环。
 const int N=1000005;
-int n,k,a[N],ans[N];
+int n,k,ans[N];
+ll a[N],f[N];
 
 // 窗口最小值，下标从 1 开始，1<=k<=n；先加入 i，再查询包含 i 的窗口。
 void solve()
@@ -29,10 +30,9 @@ void solve()
 
 // DP 示例：f[0]=0，f[i]=a[i]+max{f[j] | max(0,i-k)<=j<i}，a 下标从 1 开始，k>=1。
 // 先过期、再转移、最后加入 i；初始候选 0 不可漏，不能让 i 转移到自己。
-vector<ll> dp(const vector<ll> &a,int k)
+void dp()
 {
-    int n=(int)a.size()-1;
-    vector<ll> f(n+1);
+    f[0]=0; // 每次调用从初始状态重算 f[1..n]
     deque<int> q{0};
     for(int i=1;i<=n;i++)
     {
@@ -41,7 +41,6 @@ vector<ll> dp(const vector<ll> &a,int k)
         while(!q.empty()&&f[q.back()]<=f[i])q.pop_back();
         q.push_back(i);
     }
-    return f;
 }
 // 按题目改转移值、有效区间及队尾比较；只把可达状态入队，空队时当前状态不可达。
 

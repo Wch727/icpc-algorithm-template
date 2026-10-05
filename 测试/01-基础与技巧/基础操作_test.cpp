@@ -51,7 +51,9 @@ int main()
                 for(int j=max(0,i-k);j<i;j++)best=max(best,want_dp[j]);
                 want_dp[i]=best+values[i];
             }
-            assert(mono_queue::dp(values,k)==want_dp);
+            for(int i=1;i<=n;i++)mono_queue::a[i]=values[i];
+            mono_queue::dp();
+            for(int i=0;i<=n;i++)assert(mono_queue::f[i]==want_dp[i]);
         }
     }
     for(unsigned long long mask=0;mask<256;mask++)

@@ -403,7 +403,8 @@ ll sum_min()
 \note{q 存候选下标；每个候选最多入队、出队一次，总 O(\allowbreak{}n)\allowbreak{}。 适用：候选按入队顺序失效，过期后不再有效；队首始终是当前最优候选。 新候选在旧候选剩余有效期内始终有效且不劣，才能永久删除旧候选。 若候选优劣随查询改变、可能反转，不能直接套这个循环。}
 \begin{lstlisting}
 const int N=1000005;
-int n,k,a[N],ans[N];
+int n,k,ans[N];
+ll a[N],f[N];
 \end{lstlisting}
 \note{窗口最小值，下标从 1 开始，1<\allowbreak{}=\allowbreak{}k<\allowbreak{}=\allowbreak{}n；先加入 i，再查询包含 i 的窗口。}
 \begin{lstlisting}
@@ -422,10 +423,9 @@ void solve()
 \note{窗口 [\allowbreak{}max(\allowbreak{}1,\allowbreak{}i-\allowbreak{}k+\allowbreak{}1)\allowbreak{},\allowbreak{}i]\allowbreak{}；求最大值把队尾比较 >\allowbreak{}=\allowbreak{} 改为 <\allowbreak{}=\allowbreak{}。 上述非严格比较保留相等值中最新的下标；改成 >\allowbreak{} /\allowbreak{} <\allowbreak{} 则保留最早的下标。 ans[\allowbreak{}i]\allowbreak{} 存下标，窗口值为 a[\allowbreak{}ans[\allowbreak{}i]\allowbreak{}]\allowbreak{}；只要完整窗口时，i>\allowbreak{}=\allowbreak{}k 才记录答案。 自定义题目：将队首条件换成 expired(\allowbreak{}id,\allowbreak{}i)\allowbreak{}，队尾条件换成 check(\allowbreak{}old,\allowbreak{}now)\allowbreak{}。 expired 判断是否失效，check 判断新候选能否永久淘汰旧候选，须满足上面的适用条件。}
 \topic{有界前驱 DP}\note{a 从 1 起，k 至少为 1；先过期、再转移、最后加入 i。初始候选 0 不可漏，不能让 i 转移到自己。}\[f_0=0,\qquad f_i=a_i+\max_{\max(0,i-k)\le j<i}f_j.\]
 \begin{lstlisting}
-vector<ll> dp(const vector<ll> &a,int k)
+void dp()
 {
-    int n=(int)a.size()-1;
-    vector<ll> f(n+1);
+    f[0]=0; // 每次调用从初始状态重算 f[1..n]
     deque<int> q{0};
     for(int i=1;i<=n;i++)
     {
@@ -434,7 +434,6 @@ vector<ll> dp(const vector<ll> &a,int k)
         while(!q.empty()&&f[q.back()]<=f[i])q.pop_back();
         q.push_back(i);
     }
-    return f;
 }
 \end{lstlisting}
 \note{按题目改转移值、有效区间及队尾比较；只把可达状态入队，空队时当前状态不可达。}
@@ -442,9 +441,14 @@ vector<ll> dp(const vector<ll> &a,int k)
 \subsection{双指针}
 
 \note{适用：有序数组两数和、满足条件的最短连续窗口；各指针只向一个方向走。 vector/\allowbreak{}string 都为 0-\allowbreak{}indexed；指针单调保证总扫描线性，窗口计数允许为负表示多余。}
+\begin{lstlisting}
+vector<int> a;
+string s,t;
+int cnt[256];
+\end{lstlisting}
 \note{O(\allowbreak{}n)\allowbreak{}、额外空间 O(\allowbreak{}1)\allowbreak{}；a 必须非降序，target 为目标和，返回两个不同的 0-\allowbreak{}based 下标。}
 \begin{lstlisting}
-pair<int,int> two_sum(const vector<int> &a,int target)
+pair<int,int> two_sum(int target)
 {
     int l=0,r=(int)a.size()-1;
     while(l<r)
@@ -459,10 +463,11 @@ pair<int,int> two_sum(const vector<int> &a,int target)
 \end{lstlisting}
 \note{O(\allowbreak{}|s|+\allowbreak{}|t|)\allowbreak{}、空间 O(\allowbreak{}256)\allowbreak{}；s 是文本、t 是需求多重集，窗口 [\allowbreak{}l,\allowbreak{}r]\allowbreak{} 两端均包含。 unsigned char 避免高位字节作为负下标；先扩大至满足，再收缩直到缺少一个所需字符。}
 \begin{lstlisting}
-int min_cover(const string &s,const string &t)
+int min_cover()
 {
+    memset(cnt,0,sizeof cnt); // 每次调用重置窗口计数
     if(t.empty())return 0;
-    int cnt[256]={0},need=t.size(),l=0,ans=INT_MAX;
+    int need=t.size(),l=0,ans=INT_MAX;
     for(unsigned char c:t)cnt[c]++;
     for(int r=0;r<(int)s.size();r++)
     {

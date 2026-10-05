@@ -2,9 +2,12 @@
 // vector/string 都为 0-indexed；指针单调保证总扫描线性，窗口计数允许为负表示多余。
 #include<bits/stdc++.h>
 using namespace std;
+vector<int> a;
+string s,t;
+int cnt[256];
 
 // O(n)、额外空间 O(1)；a 必须非降序，target 为目标和，返回两个不同的 0-based 下标。
-pair<int,int> two_sum(const vector<int> &a,int target)
+pair<int,int> two_sum(int target)
 {
     int l=0,r=(int)a.size()-1;
     while(l<r)
@@ -19,10 +22,11 @@ pair<int,int> two_sum(const vector<int> &a,int target)
 
 // O(|s|+|t|)、空间 O(256)；s 是文本、t 是需求多重集，窗口 [l,r] 两端均包含。
 // unsigned char 避免高位字节作为负下标；先扩大至满足，再收缩直到缺少一个所需字符。
-int min_cover(const string &s,const string &t)
+int min_cover()
 {
+    memset(cnt,0,sizeof cnt); // 每次调用重置窗口计数
     if(t.empty())return 0;
-    int cnt[256]={0},need=t.size(),l=0,ans=INT_MAX;
+    int need=t.size(),l=0,ans=INT_MAX;
     for(unsigned char c:t)cnt[c]++;
     for(int r=0;r<(int)s.size();r++)
     {
