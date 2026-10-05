@@ -6,6 +6,9 @@ namespace discrete_test {
 namespace bits {
 #include "../../01-基础与技巧/位运算技巧.cpp"
 }
+namespace sos {
+#include "../../06-动态规划/SOS子集与超集和.cpp"
+}
 namespace mono_queue {
 #include "../../01-基础与技巧/单调队列.cpp"
 }
@@ -86,7 +89,7 @@ int main()
         vector<long long> original(limit),f;
         for(auto &x:original)x=(int)(rng()%21)-10;
         f=original;
-        bits::sos_sum(f,b);
+        sos::subset_sum(f);
         for(unsigned long long s=0;s<limit;s++)
         {
             long long want=0;

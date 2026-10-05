@@ -131,7 +131,7 @@ void test_builtin()
     printf("[builtin] popcount(0b101101)=%d (期望 4)  ctz(0b1000)=%d (期望 3)  clz(1)=%d (期望 31)\n",
         __builtin_popcount(0b101101),__builtin_ctz(0b1000),__builtin_clz(1));
     printf("[builtin] parity(7)=%d (期望 1，7 有 3 个 1)  __lg(8)=%d (期望 3)  lowbit(12)=%d (期望 4)\n",
-        __builtin_parity(7),__lg(8),lowbit(12));
+        __builtin_parity(7),__lg(8),12&-12);
 }
 
 void test_fastio()
@@ -155,7 +155,7 @@ void test_fastio()
     clearerr(stdin);
     remove("_io_in.txt");
     printf("[fastio] 1..1000 之和=%lld (期望 500500)  读到 %d %d %d (期望 -5 -12345 0)\n",sum,x1,x2,x3);
-    printf("[fastio] mod_pow2(1025)=%d (期望 1)  add_mod(7,8,10)=%d (期望 5)\n",mod_pow2(1025),add_mod(7,8,10));
+    printf("[fastio] add_mod(7,8,10)=%d (期望 5)\n",add_mod(7,8,10));
     olen=0;
     write_int(-123);
     write_ll(456789012345ll);
@@ -167,7 +167,6 @@ void test_fastio()
     olen=0;
     assert(add_mod(INT_MAX-1,INT_MAX-1,INT_MAX)==INT_MAX-2);
     printf("[fastio] 快写输出 \"%s\" (期望 -123456789012345)\n",got.c_str());
-    printf("[fastio] sqr(7)=%d (期望 49)  MIN(3,5)=%d (期望 3)\n",sqr(7),MIN(3,5));
 }
 
 int main()

@@ -1,6 +1,10 @@
-// bitset优化技巧 的测试与对拍代码
-// 模板本体：09-其他/bitset优化技巧.cpp
-#include "../../09-其他/bitset优化技巧.cpp"
+// bitset与字并行 的测试与对拍代码
+// 模板本体：02-数据结构/bitset与字并行.cpp
+#include "../../02-数据结构/bitset与字并行.cpp"
+namespace masks {
+#include "../../01-基础与技巧/位运算技巧.cpp"
+}
+using masks::count_subset;
 
 int main()
 {

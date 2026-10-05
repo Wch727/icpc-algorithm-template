@@ -1,4 +1,5 @@
 #include "../../09-其他/交互题模板.cpp"
+#include "../helpers/交互假评测器.hpp"
 
 // 用流缓冲模拟评测机，直接运行模板 solve，而不是复制二分算法测试。
 struct ReplyBuf:streambuf

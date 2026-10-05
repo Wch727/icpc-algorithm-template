@@ -16,7 +16,7 @@ CHAPTERS = [
     ('01-基础与技巧', '基础与技巧'), ('02-数据结构', '数据结构'),
     ('03-字符串', '字符串'), ('04-图论', '图论'), ('05-数学', '数学'),
     ('06-动态规划', '动态规划'), ('07-搜索', '搜索'),
-    ('08-计算几何', '计算几何'), ('09-其他', '其他'),
+    ('08-计算几何', '计算几何'), ('09-其他', '实现与调试'),
 ]
 
 PREAMBLE = r'''% 自动生成；修改模板或打印配置后运行 _台账/生成LaTeX.py。
@@ -45,6 +45,7 @@ PREAMBLE = r'''% 自动生成；修改模板或打印配置后运行 _台账/生
 \titlespacing*{\subsection}{0pt}{5pt}{2pt}
 \setcounter{tocdepth}{2}
 \makeatletter
+\renewcommand{\@pnumwidth}{2em}
 \renewcommand{\l@section}{\@dottedtocline{1}{0em}{1.6em}}
 \renewcommand{\l@subsection}{\@dottedtocline{2}{0.8em}{2.7em}}
 \makeatother
@@ -113,16 +114,6 @@ p_i=\begin{cases}l_i,&b_i=0,\\r_i+1,&b_i=1,\end{cases}
 \]
 \note{各维预留第 0 层及右端点加 1。全零初始可直接修改；结果只还原一次。
 下方三维代码是逐维递推的具体写法。}
-''',
-    '01-基础与技巧/位运算技巧.cpp': r'''
-\note{对齐块 $[b,b+L)$：$L=2^k$，$b\equiv0\pmod L$，区间在无符号 64 位范围内。}
-\[
-H=b\mathbin{\mathtt{xor}}(v\mathbin{\mathtt{\&}}\mathord{\sim}(L-1)),
-\]
-\[
-\sum_{x=b}^{b+L-1}(x\mathbin{\mathtt{xor}}v)=LH+\frac{L(L-1)}2.
-\]
-\note{乘积和结果使用 128 位；低 $k$ 位在异或后仍遍历一次。}
 ''',
     '06-动态规划/概率期望DP.cpp': r'''
 \textbf{自环移项、线性性、尾和}
@@ -220,7 +211,8 @@ def escape(s, breakable=False):
                '≡': r'\equiv', '⊆': r'\subseteq', '∈': r'\in',
                'π': r'\pi', 'α': r'\alpha', 'Δ': r'\Delta',
                '∞': r'\infty', '²': '^2', '³': '^3', '−': '-',
-               '×': r'\times', '≠': r'\ne', '∑': r'\sum'}
+               '×': r'\times', '≠': r'\ne', '∑': r'\sum', 'τ': r'\tau',
+               '₁': '_1', '₂': '_2', '⁺': '^+', '⁻': '^-'}
     out = []
     for c in s:
         out.append(r'\ensuremath{' + symbols[c] + '}' if c in symbols else m.get(c, c))
@@ -431,11 +423,11 @@ def notes(md, common=False):
             started = True
             out.append(r'\topic{' + escape(l[3:]) + '}')
         elif l.startswith('### '):
-            out.append(r'\par\textbf{' + escape(l[4:]) + r'}\quad')
+            out.append(r'\par\textbf{' + escape(re.sub(r'^\d+\.\s*', '', l[4:])) + r'}\quad')
         elif started and l.startswith('- '):
             if '**你的题**' in l or '**模板**' in l:
                 continue
-            out.append(inline(l[2:]) + r'\par')
+            out.append(inline(l[2:].removeprefix('**结论**：')) + r'\par')
     if common:
         out.append(SPECIAL_NOTES)
         out.append(r'\topic{扩展欧拉、LGV 与建模补充}')
