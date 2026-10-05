@@ -502,11 +502,36 @@ def math_notes(md):
     return '\n'.join(out)
 
 
+def ordered_files(cfg):
+    """各章按常用程度与关联性编排；未列出的新模板稳定追加到章末。"""
+    order = cfg.get('chapter_order', {})
+    if not isinstance(order, dict):
+        raise ValueError('chapter_order must be an object')
+    unknown = set(order) - {d for d, _ in CHAPTERS}
+    if unknown:
+        raise ValueError('Unknown ordered chapters: ' + ','.join(sorted(unknown)))
+    result = []
+    for directory, _ in CHAPTERS:
+        files = sorted(p for p in (ROOT / directory).iterdir()
+                       if p.suffix in ('.cpp', '.md'))
+        names = order.get(directory, [])
+        if not isinstance(names, list) or any(not isinstance(x, str) for x in names):
+            raise ValueError('chapter_order entries must be filename lists: ' + directory)
+        if len(names) != len(set(names)):
+            raise ValueError('Duplicate ordered files: ' + directory)
+        available = {p.name: p for p in files}
+        missing = set(names) - set(available)
+        if missing:
+            raise ValueError('Unknown ordered files in ' + directory + ': ' + ','.join(sorted(missing)))
+        result.extend(available[name] for name in names)
+        result.extend(p for p in files if p.name not in set(names))
+    return result
+
+
 def main():
     cfg = json.loads(CFG.read_text(encoding='utf-8-sig'))
     excluded = set(cfg.get('exclude', []))
-    all_files = [p for d, _ in CHAPTERS for p in sorted((ROOT / d).iterdir())
-                 if p.suffix in ('.cpp', '.md')]
+    all_files = ordered_files(cfg)
     all_rel = {p.relative_to(ROOT).as_posix() for p in all_files}
     unknown = excluded - all_rel
     if unknown:
