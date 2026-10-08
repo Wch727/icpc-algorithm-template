@@ -34,7 +34,9 @@ void build_sa(char *str)
         // 第二关键字排序：后半段为空的后缀排最前，其余按上一轮 rk 顺序
         int num=0;
         for(int i=len-k;i<len;i++)yr[num++]=i;
-        for(int i=0;i<len;i++)if(sa[i]>=k)yr[num++]=sa[i]-k;
+        for(int i= 0; i < len; i++)
+            if(sa[i] >= k)
+                yr[num++]= sa[i] - k;
         for(int i=0;i<=p;i++)cnt[i]=0;
         for(int i=0;i<len;i++)cnt[rk[yr[i]]]++;
         for(int i=1;i<=p;i++)cnt[i]+=cnt[i-1];

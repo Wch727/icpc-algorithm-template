@@ -13,9 +13,21 @@ int gauss_mod(vector<vector<ll>> a,int m,ll p,vector<ll> &x)
     for(auto &row:a)
     {
         assert((int)row.size()==m+1);
-        for(ll &v:row){v%=p;if(v<0)v+=p;}
+        for(ll &v : row)
+        {
+            v%= p;
+            if(v < 0)
+                v+= p;
+        }
     }
-    auto power=[&](ll v,ll e){ll z=1;for(;e;e>>=1,v=(__int128)v*v%p)if(e&1)z=(__int128)z*v%p;return z;};
+    auto power= [&](ll v, ll e)
+    {
+        ll z= 1;
+        for(; e; e>>= 1, v= (__int128)v * v % p)
+            if(e & 1)
+                z= (__int128)z * v % p;
+        return z;
+    };
     for(int c=0;c<m&&r<n;c++)
     {
         int k=r;
@@ -24,20 +36,25 @@ int gauss_mod(vector<vector<ll>> a,int m,ll p,vector<ll> &x)
         swap(a[k],a[r]),where[c]=r;
         ll inv=power(a[r][c],p-2);
         for(int j=c;j<=m;j++)a[r][j]=(__int128)a[r][j]*inv%p;
-        for(int i=0;i<n;i++)if(i!=r&&a[i][c])
-        {
-            ll t=a[i][c];
-            for(int j=c;j<=m;j++)
+        for(int i= 0; i < n; i++)
+            if(i != r && a[i][c])
             {
-                ll v=(a[i][j]-(__int128)t*a[r][j])%p;
-                a[i][j]=v<0?v+p:v;
+                ll t= a[i][c];
+                for(int j= c; j <= m; j++)
+                {
+                    ll v= (a[i][j] - (__int128)t * a[r][j]) % p;
+                    a[i][j]= v < 0 ? v + p : v;
+                }
             }
-        }
         ++r;
     }
     x.assign(m,0);
-    for(int i=r;i<n;i++)if(a[i][m])return -1;
-    for(int c=0;c<m;c++)if(where[c]>=0)x[c]=a[where[c]][m];
+    for(int i= r; i < n; i++)
+        if(a[i][m])
+            return -1;
+    for(int c= 0; c < m; c++)
+        if(where[c] >= 0)
+            x[c]= a[where[c]][m];
     return r==m?0:1;
 }
 
@@ -56,10 +73,16 @@ int gauss_xor(vector<bitset<B>> &a,int m,bitset<B> &x,int &rank)
         while(k<n&&!a[k][c])++k;
         if(k==n)continue;
         swap(a[k],a[rank]),where[c]=rank;
-        for(int i=0;i<n;i++)if(i!=rank&&a[i][c])a[i]^=a[rank];
+        for(int i= 0; i < n; i++)
+            if(i != rank && a[i][c])
+                a[i]^= a[rank];
         ++rank;
     }
-    for(int i=rank;i<n;i++)if(a[i][m])return -1;
-    for(int c=0;c<m;c++)if(where[c]>=0)x[c]=a[where[c]][m];
+    for(int i= rank; i < n; i++)
+        if(a[i][m])
+            return -1;
+    for(int c= 0; c < m; c++)
+        if(where[c] >= 0)
+            x[c]= a[where[c]][m];
     return rank==m?0:1;
 }

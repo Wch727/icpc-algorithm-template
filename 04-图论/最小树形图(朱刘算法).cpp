@@ -46,7 +46,9 @@ ll zhuliu()// 有向图最小树形图（朱刘/Edmonds），O(n*m)；结果存�
             }
         }
         if(!cnt)break;// 一个环都没有，已经是最小树形图
-        for(int i=0;i<n;i++)if(idd[i]==-1)idd[i]=cnt++;// 不在环里的点各成一点
+        for(int i= 0; i < n; i++)
+            if(idd[i] == -1)
+                idd[i]= cnt++; // 不在环里的点各成一点
         for(int i=1;i<=m;i++)
         {
             int v=e[i].v;

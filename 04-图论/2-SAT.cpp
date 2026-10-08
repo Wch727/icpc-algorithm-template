@@ -46,7 +46,9 @@ int solve()// 返回是否有解，有解时 val[] 是一组可行赋值
     // 重新判定只清 SCC 工作数组，保留图与此前固定条件。
     for(int i=1;i<=2*n;i++)dfn[i]=low[i]=scc[i]=ins[i]=0;
     tim=top=cnt=0;
-    for(int i=1;i<=2*n;i++)if(!dfn[i])tarjan(i);
+    for(int i= 1; i <= 2 * n; i++)
+        if(!dfn[i])
+            tarjan(i);
     for(int i=1;i<=n;i++)
     {
         if(scc[i]==scc[i+n])return 0;// 真和假互相可达 -> 矛盾

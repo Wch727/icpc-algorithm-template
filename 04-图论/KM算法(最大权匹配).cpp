@@ -43,7 +43,9 @@ ll km()// 二分图最大权完美匹配，O(n^4) 最坏；本版反复 DFS，�
         while(!dfs(u))// 增广失败就调顶标，直到能找到相等边
         {
             ll d=INF;
-            for(int i=1;i<=n;i++)if(!visy[i])d=min(d,slack[i]);
+            for(int i= 1; i <= n; i++)
+                if(!visy[i])
+                    d= min(d, slack[i]);
             for(int i=1;i<=n;i++)
             {
                 if(visx[i])lx[i]-=d;

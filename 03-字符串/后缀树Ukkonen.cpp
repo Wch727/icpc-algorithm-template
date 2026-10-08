@@ -12,23 +12,58 @@ struct SuffixTree
     void append(int i,int c)
     {
         again:
-        if(r[v]<=q){if(next[v][c]<0){next[v][c]=nodes;l[nodes]=i;parent[nodes++]=v;v=link[v];q=r[v];goto again;}v=next[v][c];q=l[v];}
+            if(r[v] <= q)
+            {
+                if(next[v][c] < 0)
+                {
+                    next[v][c]= nodes;
+                    l[nodes]= i;
+                    parent[nodes++]= v;
+                    v= link[v];
+                    q= r[v];
+                    goto again;
+                }
+                v= next[v][c];
+                q= l[v];
+            }
         if(q==-1||c==code(text[q]))q++;
         else
         {
             l[nodes+1]=i;parent[nodes+1]=nodes;l[nodes]=l[v];r[nodes]=q;parent[nodes]=parent[v];next[nodes][c]=nodes+1;next[nodes][code(text[q])]=v;
             l[v]=q;parent[v]=nodes;next[parent[nodes]][code(text[l[nodes]])]=nodes;
-            v=link[parent[nodes]];q=l[nodes];while(q<r[nodes]){v=next[v][code(text[q])];q+=r[v]-l[v];}
+            v= link[parent[nodes]];
+            q= l[nodes];
+            while(q < r[nodes])
+            {
+                v= next[v][code(text[q])];
+                q+= r[v] - l[v];
+            }
             link[nodes]=q==r[nodes]?v:nodes+2;q=r[v]-(q-r[nodes]);nodes+=2;goto again;
         }
     }
     SuffixTree(string s):text(s+"{"),original(s.size()),next(2*text.size()+3),l(next.size()),r(next.size(),text.size()),parent(next.size()),link(next.size())
     {
-        for(char c:s)assert(c>='a'&&c<='z');for(auto &a:next)a.fill(-1);next[1].fill(0);
+        for(char c : s)
+            assert(c >= 'a' && c <= 'z');
+        for(auto &a : next)
+            a.fill(-1);
+        next[1].fill(0);
         link[0]=1;l[0]=l[1]=-1;r[0]=r[1]=0;for(int i=0;i<(int)text.size();i++)append(i,code(text[i]));
     }
     bool contains(const string &s)const
     {
-        int u=0,i=0;while(i<(int)s.size()){if(s[i]<'a'||s[i]>'z')return false;u=next[u][code(s[i])];if(u<0)return false;for(int j=l[u];j<r[u]&&i<(int)s.size();j++,i++)if(text[j]!=s[i])return false;}return true;
+        int u= 0, i= 0;
+        while(i < (int)s.size())
+        {
+            if(s[i] < 'a' || s[i] > 'z')
+                return false;
+            u= next[u][code(s[i])];
+            if(u < 0)
+                return false;
+            for(int j= l[u]; j < r[u] && i < (int)s.size(); j++, i++)
+                if(text[j] != s[i])
+                    return false;
+        }
+        return true;
     }
 };

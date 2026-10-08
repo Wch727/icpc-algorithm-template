@@ -25,13 +25,17 @@ struct Centroid
         vector<int> q(1,rt);
         fa[rt]=0;
         for(int i=0;i<(int)q.size();i++)
-            for(int v:adj[q[i]])if(v!=fa[q[i]]&&!vis[v])fa[v]=q[i],q.push_back(v);
+            for(int v : adj[q[i]])
+                if(v != fa[q[i]] && !vis[v])
+                    fa[v]= q[i], q.push_back(v);
         int tot=q.size(),c=rt,best=tot;
         for(int i=tot-1;i>=0;i--)
         {
             int u=q[i],mx=0;
             sz[u]=1;
-            for(int v:adj[u])if(fa[v]==u&&!vis[v])sz[u]+=sz[v],mx=max(mx,sz[v]);
+            for(int v : adj[u])
+                if(fa[v] == u && !vis[v])
+                    sz[u]+= sz[v], mx= max(mx, sz[v]);
             mx=max(mx,tot-sz[u]);
             if(mx<best)best=mx,c=u;
         }
@@ -45,25 +49,32 @@ struct Centroid
         ll ans=0;
         vector<int> used(1,0);
         cnt[0]=1;
-        for(int v:adj[c])if(!vis[v])
-        {
-            vector<array<int,3> > q(1,{v,c,1});
-            vector<int> d;
-            for(int i=0;i<(int)q.size();i++)
+        for(int v : adj[c])
+            if(!vis[v])
             {
-                int u=q[i][0],p=q[i][1],dep=q[i][2];
-                if(dep>k)continue;
-                d.push_back(dep),ans+=cnt[k-dep];
-                for(int w:adj[u])if(w!=p&&!vis[w])q.push_back({w,u,dep+1});
+                vector<array<int, 3>> q(1, {v, c, 1});
+                vector<int> d;
+                for(int i= 0; i < (int)q.size(); i++)
+                {
+                    int u= q[i][0], p= q[i][1], dep= q[i][2];
+                    if(dep > k)
+                        continue;
+                    d.push_back(dep), ans+= cnt[k - dep];
+                    for(int w : adj[u])
+                        if(w != p && !vis[w])
+                            q.push_back({w, u, dep + 1});
+                }
+                for(int dep : d)
+                {
+                    if(!cnt[dep])
+                        used.push_back(dep);
+                    cnt[dep]++;
+                }
             }
-            for(int dep:d)
-            {
-                if(!cnt[dep])used.push_back(dep);
-                cnt[dep]++;
-            }
-        }
         for(int d:used)cnt[d]=0;
-        for(int v:adj[c])if(!vis[v])ans+=solve(v);
+        for(int v : adj[c])
+            if(!vis[v])
+                ans+= solve(v);
         return ans;
     }
     ll run()

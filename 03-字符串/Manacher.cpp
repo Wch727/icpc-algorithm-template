@@ -41,7 +41,9 @@ struct Manacher
     int longest()
     {
         int ans=0;
-        for(int i=1;i<=len_cur;i++)if(rr[i]>ans)ans=rr[i];
+        for(int i= 1; i <= len_cur; i++)
+            if(rr[i] > ans)
+                ans= rr[i];
         return ans;
     }
     // 回文子串个数（按出现位置计，可重复）

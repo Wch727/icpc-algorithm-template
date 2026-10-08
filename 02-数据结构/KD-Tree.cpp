@@ -16,14 +16,19 @@ struct KDTree
     {
         if(l>r)return 0;
         int mid=(l+r)>>1,p=mid+1;
-        nth_element(a.begin()+l,a.begin()+mid,a.begin()+r+1,[d](Point u,Point v) { return d?u.y<v.y:u.x<v.x; });
+        nth_element(a.begin() + l, a.begin() + mid, a.begin() + r + 1,
+                    [d](Point u, Point v)
+                    { return d ? u.y < v.y : u.x < v.x; });
         tr[p].p=a[mid],tr[p].l=build(l,mid-1,d^1),tr[p].r=build(mid+1,r,d^1);
         tr[p].lo[0]=tr[p].hi[0]=a[mid].x,tr[p].lo[1]=tr[p].hi[1]=a[mid].y,tr[p].sz=1;
-        for(int v:{tr[p].l,tr[p].r})if(v)
-        {
-            tr[p].sz+=tr[v].sz;
-            for(int k=0;k<2;k++)tr[p].lo[k]=min(tr[p].lo[k],tr[v].lo[k]),tr[p].hi[k]=max(tr[p].hi[k],tr[v].hi[k]);
-        }
+        for(int v : {tr[p].l, tr[p].r})
+            if(v)
+            {
+                tr[p].sz+= tr[v].sz;
+                for(int k= 0; k < 2; k++)
+                    tr[p].lo[k]= min(tr[p].lo[k], tr[v].lo[k]),
+                    tr[p].hi[k]= max(tr[p].hi[k], tr[v].hi[k]);
+            }
         return p;
     }
     ll dist(Point u,Point v) { return (u.x-v.x)*(u.x-v.x)+(u.y-v.y)*(u.y-v.y); }

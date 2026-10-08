@@ -54,11 +54,13 @@ struct Blossom
                     int b=lca(u,v);
                     fill(flower.begin(),flower.end(),0);
                     mark_path(u,b,v),mark_path(v,b,u);
-                    for(int w=1;w<=n;w++)if(flower[base[w]])
-                    {
-                        base[w]=b;
-                        if(!vis[w])vis[w]=1,q.push_back(w);
-                    }
+                    for(int w= 1; w <= n; w++)
+                        if(flower[base[w]])
+                        {
+                            base[w]= b;
+                            if(!vis[w])
+                                vis[w]= 1, q.push_back(w);
+                        }
                 }
                 else if(!fa[v])
                 {
@@ -82,7 +84,9 @@ struct Blossom
     {
         fill(match.begin(),match.end(),0);
         int ans=0;
-        for(int i=1;i<=n;i++)if(!match[i])ans+=augment(i);
+        for(int i= 1; i <= n; i++)
+            if(!match[i])
+                ans+= augment(i);
         return ans;
     }
 };

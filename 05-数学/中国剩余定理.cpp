@@ -13,7 +13,11 @@ const int N=100005;
 // O(log min(a,b))，x/y 引用返回裴蜀系数；模数使用正数。
 ll exgcd(ll a,ll b,ll &x,ll &y)
 {
-    if(!b){x=1,y=0;return a;}
+    if(!b)
+    {
+        x= 1, y= 0;
+        return a;
+    }
     ll xx,yy;
     ll g=exgcd(b,a%b,xx,yy);
     x=yy,y=xx-(a/b)*yy;

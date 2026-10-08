@@ -44,7 +44,9 @@ struct Dlx
     {
         if(r[0]==0)return true;
         int c=r[0];
-        for(int j=r[c];j;j=r[j])if(sz[j]<sz[c])c=j;
+        for(int j= r[c]; j; j= r[j])
+            if(sz[j] < sz[c])
+                c= j;
         remove(c);
         bool found=false;
         for(int i=d[c];i!=c&&!found;i=d[i])

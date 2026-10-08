@@ -79,7 +79,9 @@ vector<Point> convex_hull_keep_col(vector<Point> p)
     p.resize(n);
     if(n<3)return p;
     bool all_line=true;
-    for(Point x:p)if(sgn(cross(p.back()-p.front(),x-p.front()))!=0)all_line=false;
+    for(Point x : p)
+        if(sgn(cross(p.back() - p.front(), x - p.front())) != 0)
+            all_line= false;
     if(all_line)return p;
     vector<Point> h(2*n);
     int k=0;

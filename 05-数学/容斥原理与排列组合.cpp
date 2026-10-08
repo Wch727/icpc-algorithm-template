@@ -62,13 +62,18 @@ ll avoid(ll n,const vector<ll> &d)
     {
         ll l=1;
         bool over=false;
-        for(int i=0;i<m;i++)if(s>>i&1)
-        {
-            assert(d[i]>0);
-            ll x=d[i]/gcd(l,d[i]);
-            if(l>n/x){over=true;break;}
-            l*=x;
-        }
+        for(int i= 0; i < m; i++)
+            if(s >> i & 1)
+            {
+                assert(d[i] > 0);
+                ll x= d[i] / gcd(l, d[i]);
+                if(l > n / x)
+                {
+                    over= true;
+                    break;
+                }
+                l*= x;
+            }
         if(over)continue; // 最小公倍数已超过 n，该交集贡献为 0；不构造 n+1
         ll x=n/l;
         if(__builtin_popcount((unsigned)s)&1)ans-=x;

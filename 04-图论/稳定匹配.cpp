@@ -7,14 +7,21 @@ vector<int> stable_matching()
 {
     int n=a.size();assert((int)b.size()==n);
     vector<vector<int>> rank(n,vector<int>(n));
-    for(int j=0;j<n;j++)for(int k=0;k<n;k++)rank[j][b[j][k]]=k;
+    for(int j= 0; j < n; j++)
+        for(int k= 0; k < n; k++)
+            rank[j][b[j][k]]= k;
     vector<int> next(n),left(n,-1),right(n,-1);queue<int> q;
     for(int i=0;i<n;i++)q.push(i);
     while(!q.empty())
     {
         int i=q.front();q.pop();int j=a[i][next[i]++],old=right[j];
         if(old<0||rank[j][i]<rank[j][old])
-        {left[i]=j;right[j]=i;if(old>=0)left[old]=-1,q.push(old);}
+        {
+            left[i]= j;
+            right[j]= i;
+            if(old >= 0)
+                left[old]= -1, q.push(old);
+        }
         else q.push(i);
     }
     return left;

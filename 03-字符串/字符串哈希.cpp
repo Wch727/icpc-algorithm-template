@@ -54,7 +54,8 @@ struct Hash2
     // 下标 1 开始，返回 [l,r] 的双哈希
     pair<ull,ull> get(int l,int r)
     {
-        if(l>r)return {0,0};
+        if(l > r)
+            return {0, 0};
         ull x=(h1[r]+mod1-h1[l-1]*p1[r-l+1]%mod1)%mod1;
         ull y=(h2[r]+mod2-h2[l-1]*p2[r-l+1]%mod2)%mod2;
         return {x,y};

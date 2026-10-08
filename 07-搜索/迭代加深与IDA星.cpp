@@ -63,7 +63,11 @@ void ks_dfs(int x,int y,int g,int pre)
 {
     ks_nodes++;
     int h=ks_h();
-    if(h==0){ks_sol=g;return;}
+    if(h == 0)
+    {
+        ks_sol= g;
+        return;
+    }
     if(g+h>ks_lim)return;//IDA* 核心剪枝
     for(int i=1;i<=8;i++)
     {
@@ -112,7 +116,11 @@ int cr_h()
 void cr_dfs(int g,int pre)
 {
     int h=cr_h();
-    if(h==0){cr_sol=g;return;}
+    if(h == 0)
+    {
+        cr_sol= g;
+        return;
+    }
     if(g+h>cr_lim)return;
     for(int i=1;i<=cr_n;i++)
     {

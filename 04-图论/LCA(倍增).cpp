@@ -31,7 +31,9 @@ int lca(int x,int y)// 倍增求 LCA，O(log n)
 {
     if(dep[x]<dep[y])swap(x,y);
     int d=dep[x]-dep[y];
-    for(int k=0;k<20;k++)if(d>>k&1)x=fa[x][k];// 先把深的提到同一层
+    for(int k= 0; k < 20; k++)
+        if(d >> k & 1)
+            x= fa[x][k]; // 先把深的提到同一层
     if(x==y)return x;
     for(int k=19;k>=0;k--)
         if(fa[x][k]!=fa[y][k])x=fa[x][k],y=fa[y][k];

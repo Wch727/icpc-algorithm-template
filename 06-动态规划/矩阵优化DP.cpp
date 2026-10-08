@@ -9,7 +9,9 @@ struct Matrix
     vector<vector<ll> > a;
     Matrix(int n_,bool unit=false):n(n_),a(n_,vector<ll>(n_,0))
     {
-        if(unit)for(int i=0;i<n;i++)a[i][i]=1;
+        if(unit)
+            for(int i= 0; i < n; i++)
+                a[i][i]= 1;
     }
 };
 

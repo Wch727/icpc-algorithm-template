@@ -148,10 +148,14 @@ struct Blossom {
       int nu = st[match[v]];
       slack[v] = slack[nu] = 0;
       S[nu] = 0, q_push(nu);
-    } else if (S[v] == 0) {
-      int lca = get_lca(u, v);
-      if (!lca) return augment(u, v), augment(v, u), 1;
-      else add_blossom(u, lca, v);
+    }
+    else if(S[v] == 0)
+    {
+        int lca= get_lca(u, v);
+        if(!lca)
+            return augment(u, v), augment(v, u), 1;
+        else
+            add_blossom(u, lca, v);
     }
     return 0;
   }

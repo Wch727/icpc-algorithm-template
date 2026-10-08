@@ -82,7 +82,11 @@ ll grid_paths()
         for(int j=1;j<=m;j++)
         {
             if(i==1&&j==1)continue;
-            if(grid[i][j]==1){dp2[i][j]=0;continue;}
+            if(grid[i][j] == 1)
+            {
+                dp2[i][j]= 0;
+                continue;
+            }
             dp2[i][j]=dp2[i-1][j]+dp2[i][j-1];// 从上面或左面推过来
         }
     return dp2[n][m];
@@ -94,7 +98,11 @@ int lcs()
     for(int i=0;i<=n;i++)
         for(int j=0;j<=m;j++)
         {
-            if(i==0||j==0){dp[i][j]=0;continue;}
+            if(i == 0 || j == 0)
+            {
+                dp[i][j]= 0;
+                continue;
+            }
             if(s[i]==t[j])dp[i][j]=dp[i-1][j-1]+1;
             else dp[i][j]=max(dp[i-1][j],dp[i][j-1]);
         }

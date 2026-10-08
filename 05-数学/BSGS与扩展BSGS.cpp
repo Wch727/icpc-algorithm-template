@@ -13,14 +13,20 @@ typedef __int128 lll;
 ll qpow(ll a,ll n,ll p)
 {
     ll ans=1%p;
-    for(a%=p;n;n>>=1,a=(lll)a*a%p)if(n&1)ans=(lll)ans*a%p;
+    for(a%= p; n; n>>= 1, a= (lll)a * a % p)
+        if(n & 1)
+            ans= (lll)ans * a % p;
     return ans;
 }
 
 // O(log min(a,b))，返回 gcd，引用 x/y 输出 ax+by=gcd 的系数。
 ll exgcd(ll a,ll b,ll &x,ll &y)
 {
-    if(!b){x=1,y=0;return a;}
+    if(!b)
+    {
+        x= 1, y= 0;
+        return a;
+    }
     ll u,v,g=exgcd(b,a%b,u,v);
     x=v,y=u-a/b*v;
     return g;
@@ -45,9 +51,12 @@ ll bsgs(ll a,ll b,ll p)
     if(gcd(a,p)!=1)return -1;// 非互素请用扩展版本
     ll m=sqrtl(p)+1,cur=1;
     vector<pair<ll,ll> > v;
-    for(ll j=0;j<m;j++)v.push_back({cur,j}),cur=(lll)cur*a%p;
+    for(ll j= 0; j < m; j++)
+        v.push_back({cur, j}), cur= (lll)cur * a % p;
     sort(v.begin(),v.end());
-    v.erase(unique(v.begin(),v.end(),[](pair<ll,ll> x,pair<ll,ll> y){return x.first==y.first;}),v.end());
+    v.erase(unique(v.begin(), v.end(), [](pair<ll, ll> x, pair<ll, ll> y)
+                   { return x.first == y.first; }),
+            v.end());
     ll step=inv_mod(qpow(a,m,p),p);
     cur=b;
     for(ll i=0;i<=m;i++,cur=(lll)cur*step%p)

@@ -14,7 +14,7 @@ struct BlockTree
     void add_edge(int u,int v,int id)
     {
         if(u==v)return;
-        adj[u].push_back({v,id}),adj[v].push_back({u,id});
+        adj[u].push_back({v, id}), adj[v].push_back({u, id});
     }
     void dfs(int u,int pe)
     {
@@ -43,7 +43,9 @@ struct BlockTree
     }
     void build()
     {
-        for(int u=1;u<=n;u++)if(!dfn[u])dfs(u,-1),st.pop_back();
+        for(int u= 1; u <= n; u++)
+            if(!dfn[u])
+                dfs(u, -1), st.pop_back();
     }
     // 圆方树路径上的原点即必经点，包含两个端点；不连通返回 -1
     // 单次 O(n)，多询问可预处理 LCA 与路径前缀和至 O(log n)
@@ -56,7 +58,9 @@ struct BlockTree
         {
             int u=q.front();
             q.pop();
-            for(int v:tr[u])if(fa[v]<0)fa[v]=u,q.push(v);
+            for(int v : tr[u])
+                if(fa[v] < 0)
+                    fa[v]= u, q.push(v);
         }
         if(fa[t]<0)return -1;
         int ans=0;

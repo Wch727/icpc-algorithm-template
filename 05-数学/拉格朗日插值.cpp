@@ -15,7 +15,9 @@ const int P=998244353;
 ll qpow(ll a,ll b)
 {
     ll ans=1;
-    for(;b;b>>=1,a=a*a%P)if(b&1)ans=ans*a%P;
+    for(; b; b>>= 1, a= a * a % P)
+        if(b & 1)
+            ans= ans * a % P;
     return ans;
 }
 

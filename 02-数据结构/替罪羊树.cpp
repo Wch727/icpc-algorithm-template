@@ -74,7 +74,11 @@ struct Scapegoat
         {
             int s=tr[tr[p].l].sz;
             if(k<=s)p=tr[p].l;
-            else if(k<=s+tr[p].cnt) { x=tr[p].v; return true; }
+            else if(k <= s + tr[p].cnt)
+            {
+                x= tr[p].v;
+                return true;
+            }
             else k-=s+tr[p].cnt,p=tr[p].r;
         }
         return false;

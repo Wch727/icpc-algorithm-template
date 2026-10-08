@@ -8,6 +8,20 @@ string s;
 vector<pair<int,int>> lyndon_factorization()
 {
     int n=s.size(),i=0;vector<pair<int,int>> ans;
-    while(i<n){int j=i+1,k=i;while(j<n&&(unsigned char)s[k]<=(unsigned char)s[j]){if((unsigned char)s[k]<(unsigned char)s[j])k=i;else k++;j++;}int len=j-k;while(i<=k)ans.push_back({i,i+len}),i+=len;}
+    while(i < n)
+    {
+        int j= i + 1, k= i;
+        while(j < n && (unsigned char)s[k] <= (unsigned char)s[j])
+        {
+            if((unsigned char)s[k] < (unsigned char)s[j])
+                k= i;
+            else
+                k++;
+            j++;
+        }
+        int len= j - k;
+        while(i <= k)
+            ans.push_back({i, i + len}), i+= len;
+    }
     return ans;
 }

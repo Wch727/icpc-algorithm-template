@@ -30,7 +30,9 @@ ll ternary_int(ll l,ll r)
         else l=x;
     }
     ll pos=l;
-    for(ll i=l;i<r;i++)if(g(i+1)<g(pos))pos=i+1;
+    for(ll i= l; i < r; i++)
+        if(g(i + 1) < g(pos))
+            pos= i + 1;
     return pos;
 }
 // 整数区间最后剩至多 4 个点，必须枚举；不能照搬固定轮数的实数版。

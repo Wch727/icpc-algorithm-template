@@ -25,12 +25,14 @@ struct Matrix
     Matrix operator*(const Matrix &o)const
     {
         Matrix c;
-        for(int i=0;i<2;i++)for(int j=0;j<2;j++)
-        {
-            c.a[i][j]=NEG;
-            for(int k=0;k<2;k++)if(a[i][k]!=NEG&&o.a[k][j]!=NEG)
-                c.a[i][j]=max(c.a[i][j],a[i][k]+o.a[k][j]);
-        }
+        for(int i= 0; i < 2; i++)
+            for(int j= 0; j < 2; j++)
+            {
+                c.a[i][j]= NEG;
+                for(int k= 0; k < 2; k++)
+                    if(a[i][k] != NEG && o.a[k][j] != NEG)
+                        c.a[i][j]= max(c.a[i][j], a[i][k] + o.a[k][j]);
+            }
         return c;
     }
 };
@@ -55,7 +57,11 @@ Matrix mt_of(int u)// 点 u 在重链上的转移矩阵
 void build_seg(int c,int p,int l,int r)
 {
     int len=chnode[c].size();
-    if(l==r){tr[c][p]=mt_of(chnode[c][len-1-l]);return;}
+    if(l == r)
+    {
+        tr[c][p]= mt_of(chnode[c][len - 1 - l]);
+        return;
+    }
     int mid=(l+r)>>1;
     build_seg(c,p<<1,l,mid);
     build_seg(c,p<<1|1,mid+1,r);
@@ -64,7 +70,11 @@ void build_seg(int c,int p,int l,int r)
 
 void modify(int c,int p,int l,int r,int x,Matrix v)
 {
-    if(l==r){tr[c][p]=v;return;}
+    if(l == r)
+    {
+        tr[c][p]= v;
+        return;
+    }
     int mid=(l+r)>>1;
     if(x<=mid)modify(c,p<<1,l,mid,x,v);
     else modify(c,p<<1|1,mid+1,r,x,v);
@@ -125,7 +135,8 @@ void build_all()
     vector<int> corder;
     for(int i=1;i<=n;i++)
         if(chnode[i].size())corder.push_back(i);
-    sort(corder.begin(),corder.end(),[&](int x,int y){return dfn[x]>dfn[y];});
+    sort(corder.begin(), corder.end(),
+         [&](int x, int y) { return dfn[x] > dfn[y]; });
     for(int c:corder)
     {
         int L=chnode[c].size();

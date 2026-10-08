@@ -82,7 +82,7 @@ ll query(const string &txt)
 struct PrefixLCP
 {
     vector<array<int,26>> tr{array<int,26>{}};
-    vector<int> cnt{0},f{0};
+    vector<int> cnt{0}, f{0};
     ll sum=0;
     ll insert(const string &s)
     {
@@ -97,7 +97,12 @@ struct PrefixLCP
                 tr.push_back({});cnt.push_back(0);
             }
             p=tr[p][x];int c=++cnt[p];
-            if(h>f[c]){sum-=f[c]^c;f[c]=h;sum+=f[c]^c;}
+            if(h > f[c])
+            {
+                sum-= f[c] ^ c;
+                f[c]= h;
+                sum+= f[c] ^ c;
+            }
         }
         return sum;
     }

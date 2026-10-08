@@ -58,7 +58,9 @@ void mask_subset()
 {
     for(int mask=0;mask<(1<<n);mask++)
         for(int i=0;i<n;i++)
-            if(mask>>i&1){}//i 在子集里
+            if(mask >> i & 1)
+            {
+            } //i 在子集里
 }
 
 // ---------- 二、可行性剪枝 ----------

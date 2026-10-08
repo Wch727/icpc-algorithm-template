@@ -24,7 +24,7 @@ PREAMBLE = r'''% 自动生成；修改模板或打印配置后运行 _台账/生
 % 独立文件：XeLaTeX 编译两次即可，不需要 input 或外部代码文件。
 \documentclass[UTF8,fontset=fandol,a4paper,twoside]{ctexart}
 \usepackage[inner=11mm,outer=9mm,top=11mm,bottom=12mm,
-    headheight=11pt,headsep=3mm,footskip=6mm]{geometry}
+    headheight=13pt,headsep=3mm,footskip=6mm]{geometry}
 \usepackage{amsmath,amssymb,multicol,listings,xcolor,enumitem,fancyhdr,titlesec,tabularx}
 \usepackage[hidelinks,unicode]{hyperref}
 \setmonofont{lmmono10-regular.otf}[BoldFont=lmmonolt10-bold.otf]
@@ -32,6 +32,7 @@ PREAMBLE = r'''% 自动生成；修改模板或打印配置后运行 _台账/生
 \definecolor{ink}{gray}{0.18}
 \setlength{\columnsep}{6mm}
 \setlength{\columnseprule}{0.2pt}
+\raggedcolumns
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{1pt}
 \setlength{\multicolsep}{3pt}
@@ -40,8 +41,8 @@ PREAMBLE = r'''% 自动生成；修改模板或打印配置后运行 _台账/生
 \setlength{\abovedisplayshortskip}{2pt}
 \setlength{\belowdisplayshortskip}{2pt}
 \setlist[itemize]{nosep,leftmargin=1.1em,topsep=1pt}
-\titleformat{\section}{\fontsize{11}{12}\selectfont\bfseries}{\thesection}{0.4em}{}
-\titleformat{\subsection}{\fontsize{9}{10}\selectfont\bfseries}{\thesubsection}{0.4em}{}
+\titleformat{\section}{\fontsize{13}{15}\selectfont\bfseries}{\thesection}{0.4em}{}
+\titleformat{\subsection}{\fontsize{11.5}{13.5}\selectfont\bfseries}{\thesubsection}{0.4em}{}
 \titlespacing*{\section}{0pt}{7pt}{3pt}
 \titlespacing*{\subsection}{0pt}{5pt}{2pt}
 \setcounter{tocdepth}{2}
@@ -51,8 +52,8 @@ PREAMBLE = r'''% 自动生成；修改模板或打印配置后运行 _台账/生
 \renewcommand{\l@subsection}{\@dottedtocline{2}{0.8em}{2.7em}}
 \makeatother
 \pagestyle{fancy}\fancyhf{}
-\fancyhead[LE,RO]{\fontsize{7.5}{9}\selectfont\thepage}
-\fancyhead[LO,RE]{\fontsize{7.5}{9}\selectfont ICPC 算法手册\quad\nouppercase{\leftmark}}
+\fancyhead[LE,RO]{\fontsize{10}{12}\selectfont\thepage}
+\fancyhead[LO,RE]{\fontsize{10}{12}\selectfont ICPC 算法手册\quad\nouppercase{\leftmark}}
 \renewcommand{\headrulewidth}{0.2pt}
 \renewcommand{\sectionmark}[1]{\markboth{\thesection\ #1}{}}
 \lstset{language=C++,basicstyle=\ttfamily\fontsize{@CODE@}{@LEAD@}\selectfont,
@@ -71,9 +72,9 @@ PREAMBLE = r'''% 自动生成；修改模板或打印配置后运行 _台账/生
     {²}{{$^2$}}1 {³}{{$^3$}}1 {√}{{$\sqrt{\ }$}}1
 }
 \newcommand{\topic}[1]{\par\smallskip\textbf{#1}\par\nobreak}
-\newcommand{\note}[1]{{\fontsize{8}{9.5}\selectfont #1\par}}
+\newcommand{\note}[1]{{\fontsize{10}{12}\selectfont #1\par}}
 \begin{document}
-\fontsize{8.3}{9.8}\selectfont
+\fontsize{10}{12}\selectfont
 '''
 
 FORMULAS = {
@@ -103,15 +104,21 @@ a(x)&=d(x)+\sum_{b\ne0}(-1)^{|b|+1}a(x-b).
 \textbf{逐维递推：$O(DS)$，$S$ 为格数}
 \begin{align*}
 G_0(x)&=a(x),\\
-G_i(x)&=G_{i-1}(x)-G_{i-1}(x-e_i),\quad G_D=d,\\
+G_i(x)&=G_{i-1}(x)\\
+&\quad-G_{i-1}(x-e_i),\\
+G_D(x)&=d(x),\\
 F_0(x)&=d(x),\\
-F_i(x)&=F_{i-1}(x)+F_i(x-e_i),\quad F_D=a.
+F_i(x)&=F_{i-1}(x)\\
+&\quad+F_i(x-e_i),\\
+F_D(x)&=a(x).
 \end{align*}
 \note{原地建表沿当前维倒序，还原正序。直接容斥还原为 $O(2^D S)$。}
 \textbf{闭区域加 $v$：$2^D$ 个角点}
 \[
 p_i=\begin{cases}l_i,&b_i=0,\\r_i+1,&b_i=1,\end{cases}
-\qquad d(p)\mathrel{+}=(-1)^{|b|}v.
+\]
+\[
+d(p)\mathrel{+}=(-1)^{|b|}v.
 \]
 \note{各维预留第 0 层及右端点加 1。全零初始可直接修改；结果只还原一次。
 下方三维代码是逐维递推的具体写法。}
@@ -119,11 +126,15 @@ p_i=\begin{cases}l_i,&b_i=0,\\r_i+1,&b_i=1,\end{cases}
     '06-动态规划/概率期望DP.cpp': r'''
 \textbf{自环移项、线性性、尾和}
 \[
-E=c+pE+\sum_jq_jE_j
-\quad\Longrightarrow\quad E=\frac{c+\sum_jq_jE_j}{1-p}.
+\begin{aligned}
+E&=c+pE+\sum_jq_jE_j,\\
+E&=\frac{c+\sum_jq_jE_j}{1-p}.
+\end{aligned}
 \]
 \[
-\mathbb E\Bigl[\sum_iX_i\Bigr]=\sum_i\mathbb E[X_i],\qquad
+\mathbb E\Bigl[\sum_iX_i\Bigr]=\sum_i\mathbb E[X_i].
+\]
+\[
 \mathbb E[T]=\sum_{k\ge0}\Pr(T>k).
 \]
 \note{第一式要求 $p<1$ 且期望有限；尾和适用于非负整数随机变量。
@@ -132,7 +143,9 @@ E=c+pE+\sum_jq_jE_j
 \note{若 $S$ 是已取得的项目集合，每步等概率抽取 $n$ 项中的一项：}
 \[
 E[S]=\frac{n+\sum_{i\notin S}E[S\cup\{i\}]}{n-|S|},
-\quad E[\text{完成状态}]=0.
+\]
+\[
+E[\text{完成状态}]=0.
 \]
 \note{稳态 move-to-front 模型中，若 $p_i+p_j>0$，
 一对项目的期望逆序贡献为 $p_ip_j/(p_i+p_j)$；零概率对贡献为 0。}
@@ -240,6 +253,8 @@ def clean_code(s, rel, preserve_indent=False):
                       r'typedef long long ll;|using ll\s*=\s*long long;)\s*$')
     if rel == '01-基础与技巧/高维差分.cpp':
         s = s.split('// D 维统一公式：')[0]
+    if rel == '02-数据结构/线段树分裂与合并.cpp':
+        s = re.sub(r'\A(?://[^\n]*\n)+', '', s)
     # 以下新增应用说明已单独排为正文，不在代码块重复打印。
     printed_prose = (
         '// 等长区间右移', '// 重叠部分不变', '// 恰覆盖 k 次', '// 前缀和后，允许', '// 注意 d=0',
@@ -259,6 +274,11 @@ def clean_code(s, rel, preserve_indent=False):
         for char, symbol in {'σ': r'\sigma', '≡': r'\equiv', '⊆': r'\subseteq'}.items():
             comment = comment.replace(char, '(*@$' + symbol + '$@*)')
         lines[i] = code + sep + comment
+    # 长数字数组初始化在逗号后断行，避免大字号 listings 将整串数字排成不可断行的盒子。
+    for i, line in enumerate(lines):
+        if len(line) > 40 and re.fullmatch(r'\s*(?:const\s+)?(?:int|ll)\s+\w+(?:\[[^\]]+\])+\s*=\s*\{[0-9,{} ]+\};\s*', line):
+            indent = re.match(r'\s*', line).group()
+            lines[i] = line.replace(',', ',\n' + indent + '    ')
     # 只收紧空行；函数体、声明、容量和算法注释均不截断。
     body = re.sub(r'\n\s*\n+', '\n', '\n'.join(lines))
     return body.strip('\n') if preserve_indent else body.strip()
@@ -465,15 +485,15 @@ def reference(md):
             if all(re.fullmatch(r':?-+:?', s) for s in cells):
                 continue
             if not table:
-                out.extend([r'\begingroup\fontsize{7.8}{9}\selectfont',
-                            r'\renewcommand{\arraystretch}{1.05}',
+                out.extend([r'\begingroup\fontsize{10}{11}\selectfont',
+                            r'\renewcommand{\arraystretch}{0.95}',
                             r'\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{0.45\linewidth}'
-                            r'@{\hspace{4pt}}>{\raggedright\arraybackslash}X@{}}\hline',
+                            r'@{\hspace{3pt}}>{\raggedright\arraybackslash}X@{}}\hline',
                             r'\textbf{' + escape(cells[0]) + '} & '
                             r'\textbf{' + escape(cells[1]) + r'}\\\hline'])
                 table = True
             else:
-                out.append(inline(cells[0]) + ' & ' + inline(cells[1]) + r'\\[2pt]')
+                out.append(inline(cells[0]) + ' & ' + inline(cells[1]) + r'\\[0.5pt]')
         else:
             out.append(r'\note{' + inline(line) + '}')
     if table:

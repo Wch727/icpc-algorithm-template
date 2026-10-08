@@ -15,13 +15,21 @@ array<pair<ll,ll>,2> fraction_bounds(ll P,ll Q,Check check)
     {
         bool left=check(a+c,b+d);
         ll x=left?a:c,y=left?b:d,u=left?c:a,v=left?d:b;
-        ll cap=LLONG_MAX;if(u)cap=min(cap,(P-x)/u);if(v)cap=min(cap,(Q-y)/v);
-        auto same=[&](ll k){return check(x+k*u,y+k*v)==left;};
+        ll cap= LLONG_MAX;
+        if(u)
+            cap= min(cap, (P - x) / u);
+        if(v)
+            cap= min(cap, (Q - y) / v);
+        auto same= [&](ll k) { return check(x + k * u, y + k * v) == left; };
         ll good=1,bad=cap;
         while(good<cap)
         {
             ll k=good>cap/2?cap:good*2;
-            if(!same(k)){bad=k;break;}
+            if(!same(k))
+            {
+                bad= k;
+                break;
+            }
             good=k;
         }
         while(good+1<bad)
@@ -32,7 +40,7 @@ array<pair<ll,ll>,2> fraction_bounds(ll P,ll Q,Check check)
         if(left)a=x+good*u,b=y+good*v;
         else c=x+good*u,d=y+good*v;
     }
-    return {{{a,b},{c,d}}};
+    return {{{a, b}, {c, d}}};
 }
 // 邻界满足 cb-ad=1；mediant=(a+c)/(b+d)，在它之间的其他既约分数分子分母更大。
 // 精确比较 p/q<=x/y：(__int128)p*y<=(__int128)x*q；不要转 double 判等。

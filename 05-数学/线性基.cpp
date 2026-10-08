@@ -16,7 +16,12 @@ struct LinearBasis{
     ll b[64];
     int cnt;// 基的大小（秩）
     bool zero;// 是否存在异或为 0 的非空子集
-    LinearBasis(){memset(b,0,sizeof(b));cnt=0;zero=false;}
+    LinearBasis()
+    {
+        memset(b, 0, sizeof(b));
+        cnt= 0;
+        zero= false;
+    }
 
     // O(63)，插入 x，返回 x 是否独立
     bool insert(ll x)
@@ -24,7 +29,12 @@ struct LinearBasis{
         for(int i=62;i>=0;i--)
         {
             if(!(x>>i&1))continue;
-            if(!b[i]){b[i]=x;cnt++;return true;}
+            if(!b[i])
+            {
+                b[i]= x;
+                cnt++;
+                return true;
+            }
             x^=b[i];
         }
         zero=true;// 异或成 0
@@ -98,8 +108,17 @@ struct RangeLinearBasis
         for(int i=62;i>=0;i--)
         {
             if(!(x>>i&1))continue;
-            if(!b[i]){b[i]=x;pos[i]=p;return;}
-            if(pos[i]<p){swap(b[i],x);swap(pos[i],p);}
+            if(!b[i])
+            {
+                b[i]= x;
+                pos[i]= p;
+                return;
+            }
+            if(pos[i] < p)
+            {
+                swap(b[i], x);
+                swap(pos[i], p);
+            }
             x^=b[i];
         }
     }

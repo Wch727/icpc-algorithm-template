@@ -10,7 +10,7 @@ typedef long long ll;
 // 高度严格下降保证无环；存在循环依赖时，缓存或访问标记本身不能解决状态转移。
 const int N=1005;
 int n,m,h[N][N],f[N][N];
-int dx[4]={0,0,1,-1},dy[4]={1,-1,0,0};
+int dx[4]= {0, 0, 1, -1}, dy[4]= {1, -1, 0, 0};
 
 int dfs(int x,int y)
 {

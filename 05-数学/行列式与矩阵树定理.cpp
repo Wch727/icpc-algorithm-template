@@ -41,7 +41,11 @@ ll det_mod(ll a[N][N],int n,ll p)
     {
         int pivot=-1;
         for(int i=c;i<=n;i++)
-            if(a[i][c]%p){pivot=i;break;}
+            if(a[i][c] % p)
+            {
+                pivot= i;
+                break;
+            }
         if(pivot==-1)return 0;// 有一列全 0，行列式为 0
         if(pivot!=c)
         {

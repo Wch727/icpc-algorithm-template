@@ -47,10 +47,17 @@ void add_dedge(int u,int v)// 有向边
 int connected_undirected()
 {
     int s=0;
-    for(int i=1;i<=n;i++)if(deg[i]){s=i;break;}
+    for(int i= 1; i <= n; i++)
+        if(deg[i])
+        {
+            s= i;
+            break;
+        }
     if(!s)return 1;// 没有边
     int vis2[N]={0},q[N],hd=0,tl=0,cnt=0,all=0;
-    for(int i=1;i<=n;i++)if(deg[i])all++;
+    for(int i= 1; i <= n; i++)
+        if(deg[i])
+            all++;
     vis2[s]=1,q[tl++]=s;
     while(hd<tl)
     {
@@ -69,14 +76,23 @@ int connected_directed()
 {
     for(int i=1;i<=n;i++)ufa[i]=i;
     int all=0;
-    for(int i=1;i<=n;i++)if(din[i]||dout[i])all++;
+    for(int i= 1; i <= n; i++)
+        if(din[i] || dout[i])
+            all++;
     for(int u=1;u<=n;u++)
         for(auto [v,id]:dadj[u])
             ufa[findd(u)]=findd(v);
     if(!all)return 1;
     int r=-1;
-    for(int i=1;i<=n;i++)if(din[i]||dout[i]){r=findd(i);break;}
-    for(int i=1;i<=n;i++)if((din[i]||dout[i])&&findd(i)!=r)return 0;
+    for(int i= 1; i <= n; i++)
+        if(din[i] || dout[i])
+        {
+            r= findd(i);
+            break;
+        }
+    for(int i= 1; i <= n; i++)
+        if((din[i] || dout[i]) && findd(i) != r)
+            return 0;
     return 1;
 }
 
@@ -91,12 +107,23 @@ int euler_undirected(int &s)
     if(odd==2)
     {
         int c=0;
-        for(int i=1;i<=n;i++)if(deg[i]&1){c++;if(c==1)s=i;}
+        for(int i= 1; i <= n; i++)
+            if(deg[i] & 1)
+            {
+                c++;
+                if(c == 1)
+                    s= i;
+            }
     }
     else
     {
         s=0;
-        for(int i=1;i<=n;i++)if(deg[i]){s=i;break;}
+        for(int i= 1; i <= n; i++)
+            if(deg[i])
+            {
+                s= i;
+                break;
+            }
     }
     if(!s)return 2;
     if(!connected_undirected())return 0;
@@ -142,7 +169,12 @@ int euler_directed(int &s)
     if(!((c1==1&&c2==1)||(c1==0&&c2==0)))return 0;
     if(c1==0)
     {
-        for(int i=1;i<=n;i++)if(dout[i]){s=i;break;}
+        for(int i= 1; i <= n; i++)
+            if(dout[i])
+            {
+                s= i;
+                break;
+            }
     }
     if(!s)return 2;
     if(!connected_directed())return 0;

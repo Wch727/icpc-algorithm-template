@@ -28,16 +28,17 @@ ll qpow(ll a,ll n,ll mod)
 }
 
 // O(log p)，返回 a 的逆元；p 为素数且 a 不是 p 的倍数。
-ll inv_fermat(ll a,ll p)
-{
-    return qpow(a,p-2,p);
-}
+ll inv_fermat(ll a,ll p){return qpow(a,p-2,p);}
 
 // O(log p)，exgcd 求逆元，只需 gcd(a,p)=1
 // O(log min(a,b))，返回 gcd，引用 x/y 输出 ax+by=gcd。
 ll exgcd(ll a,ll b,ll &x,ll &y)
 {
-    if(!b){x=1,y=0;return a;}
+    if(!b)
+    {
+        x= 1, y= 0;
+        return a;
+    }
     ll xx,yy;
     ll g=exgcd(b,a%b,xx,yy);
     x=yy,y=xx-(a/b)*yy;

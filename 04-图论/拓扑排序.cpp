@@ -14,7 +14,9 @@ int q[N];// 手写队列，避免 STL queue 在拓扑里反复 push
 int topo(int mode)// mode=0 统计方案数(取模)，mode=1 最长路；返回拓扑点数
 {
     int head=0,tail=0;
-    for(int i=1;i<=n;i++)if(in[i]==0)q[tail++]=i;
+    for(int i= 1; i <= n; i++)
+        if(in[i] == 0)
+            q[tail++]= i;
     int cnt=0;
     while(head<tail)
     {

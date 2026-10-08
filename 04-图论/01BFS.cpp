@@ -23,7 +23,8 @@ void bfs01(int s)
             assert(0<=v&&v<n&&(w==0||w==1));
             if(d[v]<=dist+w)continue;
             d[v]=dist+w;
-            if(w==0)q.push_front({d[v],v});
+            if(w == 0)
+                q.push_front({d[v], v});
             else q.push_back({d[v],v});
         }
     }

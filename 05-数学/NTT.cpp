@@ -67,7 +67,11 @@ void ntt(ll a[],int n,int inv)
 // O(L log L)，输出 c[0..clen-1]；clen 引用返回 n+m-1，c 至少有这些槽。
 void poly_mul(ll a[],int n,ll b[],int m,ll c[],int &clen)
 {
-    if(n<=0||m<=0){clen=0;return;}
+    if(n <= 0 || m <= 0)
+    {
+        clen= 0;
+        return;
+    }
     int len=1;
     while(len<n+m-1)len<<=1;
     assert(len<=N);

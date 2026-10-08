@@ -18,8 +18,13 @@ struct KruskalTree
         assert(n>=1);
         vector<int> fa(n+1),sz(n+1,1),node(n+1),par(2*n);
         iota(fa.begin(),fa.end(),0),iota(node.begin(),node.end(),0);
-        auto find=[&](int x){while(x!=fa[x])x=fa[x]=fa[fa[x]];return x;};
-        sort(e.begin(),e.end(),[](Edge a,Edge b){return a.w<b.w;});
+        auto find= [&](int x)
+        {
+            while(x != fa[x])
+                x= fa[x]= fa[fa[x]];
+            return x;
+        };
+        sort(e.begin(), e.end(), [](Edge a, Edge b) { return a.w < b.w; });
         for(auto [u,v,w]:e)
         {
             int a=find(u),b=find(v);if(a==b)continue;
@@ -42,14 +47,20 @@ struct KruskalTree
     {
         if(root[u]!=root[v])return 0;
         if(dep[u]<dep[v])swap(u,v);
-        for(int j=lg-1;j>=0;--j)if((dep[u]-dep[v])>>j&1)u=up[j][u];
+        for(int j= lg - 1; j >= 0; --j)
+            if((dep[u] - dep[v]) >> j & 1)
+                u= up[j][u];
         if(u==v)return u;
-        for(int j=lg-1;j>=0;--j)if(up[j][u]!=up[j][v])u=up[j][u],v=up[j][v];
+        for(int j= lg - 1; j >= 0; --j)
+            if(up[j][u] != up[j][v])
+                u= up[j][u], v= up[j][v];
         return up[0][u];
     }
     int component(int u,ll w)const
     {
-        for(int j=lg-1;j>=0;--j)if(up[j][u]&&val[up[j][u]]<=w)u=up[j][u];
+        for(int j= lg - 1; j >= 0; --j)
+            if(up[j][u] && val[up[j][u]] <= w)
+                u= up[j][u];
         return u;
     }
 };

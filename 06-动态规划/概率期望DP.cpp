@@ -110,7 +110,11 @@ double exp_forward_grid(int n,int m,double a,double b)
         for(int i=0;i<n;i++)
             for(int j=0;j<m;j++)
             {
-                if(i==n-1&&j==m-1){ns[i][j]+=st[i][j];continue;}
+                if(i == n - 1 && j == m - 1)
+                {
+                    ns[i][j]+= st[i][j];
+                    continue;
+                }
                 double v=st[i][j];
                 ns[i][j]+=v*(1-a-b);// 原地不动
                 ns[min(i+1,n-1)][j]+=v*a;// 向右，到边界就停在终点方向

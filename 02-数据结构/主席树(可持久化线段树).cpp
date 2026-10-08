@@ -25,7 +25,11 @@ struct ChairTree{
     {
         int p=++tot;
         ls[p]=ls[old],rs[p]=rs[old];
-        if(l==r){sum[p]=sum[old]+1;return p;}
+        if(l == r)
+        {
+            sum[p]= sum[old] + 1;
+            return p;
+        }
         int mid=(l+r)>>1;
         if(pos<=mid)ls[p]=insert(ls[old],l,mid,pos);
         else rs[p]=insert(rs[old],mid+1,r,pos);

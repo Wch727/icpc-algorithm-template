@@ -17,7 +17,11 @@ ll g4[N][205];// 示例4 数位和 <= K
 void get_dig(ll x)
 {
     len=0;
-    if(x==0){dig[++len]=0;return;}
+    if(x == 0)
+    {
+        dig[++len]= 0;
+        return;
+    }
     while(x>0)dig[++len]=x%10,x/=10;
 }
 

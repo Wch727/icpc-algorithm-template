@@ -14,7 +14,13 @@ struct SegmentTree
     #define lp (p<<1)
     #define rp ((p<<1)|1)
     #define mid ((l+r)>>1)
-    T mo(__int128 x){if(!mod)return (T)x; x%=mod; return (T)(x<0?x+mod:x);}
+    T mo(__int128 x)
+    {
+        if(!mod)
+            return (T)x;
+        x%= mod;
+        return (T)(x < 0 ? x + mod : x);
+    }
     void build(int l,int r,int p)
     {
         add[p]=0,mul[p]=1;//加标记 0，乘标记 1

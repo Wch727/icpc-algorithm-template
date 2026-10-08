@@ -15,13 +15,32 @@ pair<ll,vector<int>> hungarian()
         do
         {
             used[j0]=true;int i0=p[j0],j1=0;ll delta=LLONG_MAX/4;
-            for(int j=1;j<=m;j++)if(!used[j])
-            {ll x=c[i0-1][j-1]-u[i0]-v[j];if(x<d[j])d[j]=x,way[j]=j0;if(d[j]<delta)delta=d[j],j1=j;}
-            for(int j=0;j<=m;j++)if(used[j])u[p[j]]+=delta,v[j]-=delta;else d[j]-=delta;
+            for(int j= 1; j <= m; j++)
+                if(!used[j])
+                {
+                    ll x= c[i0 - 1][j - 1] - u[i0] - v[j];
+                    if(x < d[j])
+                        d[j]= x, way[j]= j0;
+                    if(d[j] < delta)
+                        delta= d[j], j1= j;
+                }
+            for(int j= 0; j <= m; j++)
+                if(used[j])
+                    u[p[j]]+= delta, v[j]-= delta;
+                else
+                    d[j]-= delta;
             j0=j1;
         }while(p[j0]);
-        do{int j1=way[j0];p[j0]=p[j1];j0=j1;}while(j0);
+        do
+        {
+            int j1= way[j0];
+            p[j0]= p[j1];
+            j0= j1;
+        } while(j0);
     }
-    vector<int> match(n);for(int j=1;j<=m;j++)if(p[j])match[p[j]-1]=j-1;
+    vector<int> match(n);
+    for(int j= 1; j <= m; j++)
+        if(p[j])
+            match[p[j] - 1]= j - 1;
     return {-v[0],match};
 }

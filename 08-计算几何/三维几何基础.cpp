@@ -8,18 +8,12 @@ struct Point
     Point operator-(Point b)const{return {x-b.x,y-b.y,z-b.z};}
     Point operator*(double k)const{return {x*k,y*k,z*k};}
 };
-double dot(Point a,Point b)
-{
-    return a.x*b.x+a.y*b.y+a.z*b.z;
-}
+double dot(Point a,Point b){return a.x*b.x+a.y*b.y+a.z*b.z;}
 Point cross(Point a,Point b)
 {
     return {a.y*b.z-a.z*b.y,a.z*b.x-a.x*b.z,a.x*b.y-a.y*b.x};
 }
-double len(Point a)
-{
-    return sqrt(dot(a,a));
-}
+double len(Point a){return sqrt(dot(a,a));}
 struct Plane
 {
     Point p,n;// 平面上一点与非零法向量
@@ -60,8 +54,10 @@ Point rotate_axis(Point p,int axis,int times)
 {
     assert(0<=axis&&axis<3);times=(times%4+4)%4;
     while(times--)
-        if(axis==0)p={p.x,-p.z,p.y};
-        else if(axis==1)p={p.z,p.y,-p.x};
+        if(axis == 0)
+            p= {p.x, -p.z, p.y};
+        else if(axis == 1)
+            p= {p.z, p.y, -p.x};
         else p={-p.y,p.x,p.z};
     return p;
 }

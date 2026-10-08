@@ -9,11 +9,18 @@ vector<int> first_connected()
 {
     int m=e.size(),q=query.size();
     vector<int> l(q),r(q,m+1),fa(n+1),sz(n+1);
-    auto find=[&](int x){while(x!=fa[x])x=fa[x]=fa[fa[x]];return x;};
+    auto find= [&](int x)
+    {
+        while(x != fa[x])
+            x= fa[x]= fa[fa[x]];
+        return x;
+    };
     while(1)
     {
         vector<vector<int>> bucket(m+1);bool pending=false;
-        for(int i=0;i<q;++i)if(l[i]<r[i])bucket[l[i]+(r[i]-l[i])/2].push_back(i),pending=true;
+        for(int i= 0; i < q; ++i)
+            if(l[i] < r[i])
+                bucket[l[i] + (r[i] - l[i]) / 2].push_back(i), pending= true;
         if(!pending)return l;
         iota(fa.begin(),fa.end(),0),fill(sz.begin(),sz.end(),1);
         for(int t=0;t<=m;++t)
@@ -21,7 +28,12 @@ vector<int> first_connected()
             if(t)
             {
                 auto [u,v]=e[t-1];u=find(u),v=find(v);
-                if(u!=v){if(sz[u]<sz[v])swap(u,v);fa[v]=u,sz[u]+=sz[v];}
+                if(u != v)
+                {
+                    if(sz[u] < sz[v])
+                        swap(u, v);
+                    fa[v]= u, sz[u]+= sz[v];
+                }
             }
             for(int i:bucket[t])
                 if(find(query[i].first)==find(query[i].second))r[i]=t;

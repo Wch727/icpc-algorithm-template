@@ -55,9 +55,12 @@ struct Treap
     // 按前 k 个元素分裂，允许 k=0 或整段长度
     pair<int,int> split(int p,int k)
     {
-        if(!p)return {0,0};
-        if(k<=0)return {0,p};
-        if(k>=tr[p].sz)return {p,0};
+        if(!p)
+            return {0, 0};
+        if(k <= 0)
+            return {0, p};
+        if(k >= tr[p].sz)
+            return {p, 0};
         p=clone(p),push_down(p);
         int s=tr[tr[p].lc].sz;
         if(k<=s)

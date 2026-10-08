@@ -39,21 +39,38 @@ void find_ring_undirected(int rt)
         {
             auto [v,id]=adj[u][fit[tp]++];
             if(id==pe[u])continue;// 只跳同一条父边，保留重边
-            if(vis[v]){cu=u,cv=v;break;}// 碰到走过的点 → 找到环
+            if(vis[v])
+            {
+                cu= u, cv= v;
+                break;
+            } // 碰到走过的点 → 找到环
             vis[v]=1,par[v]=u,pe[v]=id;
             fstk[++tp]=v,fit[tp]=0;
         }
         else tp--;
     }
-    if(!cu){rn=0;return;}
+    if(!cu)
+    {
+        rn= 0;
+        return;
+    }
     // 先打出 cu 到根的链，再从 cv 往上走到第一个落在链上的点 l（用时间戳判，不用清数组）
     // 环 = cu→l 这一支 + cv→l 这一支接起来，正好是「树边 + 那条回边」构成的唯一环
     // 注意 l 可能就是 cv 自己（cv 是 cu 的祖先），所以要从 cv 自身开始判
     for(int i=1;i<=n;i++)mark[i]=0;
     for(int p=cu;p;p=par[p])mark[p]=1;
     int l=0;
-    for(int p=cv;p;p=par[p])if(mark[p]){l=p;break;}
-    if(!l){rn=0;return;}
+    for(int p= cv; p; p= par[p])
+        if(mark[p])
+        {
+            l= p;
+            break;
+        }
+    if(!l)
+    {
+        rn= 0;
+        return;
+    }
     rn=0;
     for(int p=cu;p!=l;p=par[p])ring[++rn]=p;// cu 这一支
     ring[++rn]=l;

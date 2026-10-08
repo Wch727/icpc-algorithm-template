@@ -12,10 +12,7 @@ typedef __int128 lll;
 
 // O(log^3 n)，Miller-Rabin 素性判定，确定性基组覆盖 64 位
 // O(1)，计算非负 a*b mod mod；mod>0，先扩为 __int128。
-ll qmul(ll a,ll b,ll mod)
-{
-    return (ll)((lll)a*b%mod);
-}
+ll qmul(ll a,ll b,ll mod){return (ll)((lll)a*b%mod);}
 
 // O(log n)，模 mod 快速幂；n 是非负指数。
 ll qpow(ll a,ll n,ll mod)
@@ -52,7 +49,11 @@ bool miller_rabin(ll n)
         for(int j=1;j<s;j++)
         {
             x=qmul(x,x,n);
-            if(x==n-1){ok=true;break;}
+            if(x == n - 1)
+            {
+                ok= true;
+                break;
+            }
         }
         if(!ok)return false;// 一定是合数
     }
@@ -87,7 +88,11 @@ ll pollard_rho(ll n)
             }
             if(d==1)d=__gcd(q,n);
             y=x;
-            if(d==n){x=tx;break;}// 失败重来
+            if(d == n)
+            {
+                x= tx;
+                break;
+            } // 失败重来
         }
         if(d>1&&d<n)return d;
     }
@@ -98,7 +103,11 @@ ll pollard_rho(ll n)
 void factor(ll n,vector<ll> &v)
 {
     if(n==1)return;
-    if(miller_rabin(n)){v.push_back(n);return;}
+    if(miller_rabin(n))
+    {
+        v.push_back(n);
+        return;
+    }
     ll d=pollard_rho(n);
     // 随机递归分解，v 为追加输出而非覆盖；n=1 不追加，重复因子保留，结果需自行排序。
     factor(d,v);

@@ -19,7 +19,8 @@ struct Job
 vector<Job> jobs;
 ll job_schedule()
 {
-    sort(jobs.begin(),jobs.end(),[](const Job &a,const Job &b){return a.d<b.d;});
+    sort(jobs.begin(), jobs.end(),
+         [](const Job &a, const Job &b) { return a.d < b.d; });
     priority_queue<int,vector<int>,greater<int> > q;
     ll ans=0;
     for(Job x:jobs)
@@ -42,7 +43,8 @@ struct Task
 vector<Task> tasks;
 int task_schedule()
 {
-    sort(tasks.begin(),tasks.end(),[](const Task &a,const Task &b){return a.d<b.d;});
+    sort(tasks.begin(), tasks.end(),
+         [](const Task &a, const Task &b) { return a.d < b.d; });
     priority_queue<ll> q;
     ll tot=0;
     for(Task x:tasks)

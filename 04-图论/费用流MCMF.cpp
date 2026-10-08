@@ -50,7 +50,9 @@ void spfa_init()// 先用 SPFA 求一遍初始势能，这样有负费用边也�
             }
         }
     }
-    for(int i=1;i<=n;i++)if(h[i]==INF)h[i]=0;// 不可达点势能置 0
+    for(int i= 1; i <= n; i++)
+        if(h[i] == INF)
+            h[i]= 0; // 不可达点势能置 0
 }
 
 // O((n+m)*log(n+m))，仅走正容量边；pre[v] 保存入边，返回 t 是否可达。
@@ -88,7 +90,9 @@ void mcmf()// 最小费用最大流，结果放 ans_flow / ans_cost
     spfa_init();
     while(dijkstra())
     {
-        for(int i=1;i<=n;i++)if(dis[i]<INF)h[i]+=dis[i];// 累加势能
+        for(int i= 1; i <= n; i++)
+            if(dis[i] < INF)
+                h[i]+= dis[i]; // 累加势能
         ll f=INF;
         for(int v=t;v!=s;v=e[pre[v]^1].to)f=min(f,e[pre[v]].cap);// 沿路径找瓶颈
         for(int v=t;v!=s;v=e[pre[v]^1].to)

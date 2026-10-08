@@ -35,7 +35,7 @@ void dnc_partition()
 void mq_layer()
 {
     if(n<2)return;
-    auto value=[&](int j,int i){return fd[1][j]+w[j+1][i];};
+    auto value= [&](int j, int i) { return fd[1][j] + w[j + 1][i]; };
     hd=0,tl=1,dq[0]=1,beg[0]=2;
     for(int i=2;i<=n;i++)
     {
@@ -43,7 +43,11 @@ void mq_layer()
         fd[2][i]=value(dq[hd],i);
         if(i==n)break;
         while(hd<tl&&value(i,max(i+1,beg[tl-1]))<=value(dq[tl-1],max(i+1,beg[tl-1])))--tl;
-        if(hd==tl){dq[tl]=i,beg[tl++]=i+1; continue;}
+        if(hd == tl)
+        {
+            dq[tl]= i, beg[tl++]= i + 1;
+            continue;
+        }
         int old=dq[tl-1];
         if(value(i,n)>value(old,n))continue;
         int l=max(i+1,beg[tl-1]),rr=n;

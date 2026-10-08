@@ -12,21 +12,31 @@ pair<vector<int>,vector<int>> vertex_cover()
 {
     int nl=(int)adj.size()-1,nr=(int)match.size()-1;
     vector<int> ml(nl+1),vl(nl+1),vr(nr+1);
-    for(int v=1;v<=nr;v++)if(match[v])ml[match[v]]=v;
+    for(int v= 1; v <= nr; v++)
+        if(match[v])
+            ml[match[v]]= v;
     queue<int> q;
-    for(int u=1;u<=nl;u++)if(!ml[u])vl[u]=1,q.push(u);
+    for(int u= 1; u <= nl; u++)
+        if(!ml[u])
+            vl[u]= 1, q.push(u);
     while(!q.empty())
     {
         int u=q.front();q.pop();
-        for(int v:adj[u])if(v!=ml[u]&&!vr[v])
-        {
-            vr[v]=1;
-            int w=match[v];
-            if(w&&!vl[w])vl[w]=1,q.push(w);
-        }
+        for(int v : adj[u])
+            if(v != ml[u] && !vr[v])
+            {
+                vr[v]= 1;
+                int w= match[v];
+                if(w && !vl[w])
+                    vl[w]= 1, q.push(w);
+            }
     }
     pair<vector<int>,vector<int>> ans;
-    for(int u=1;u<=nl;u++)if(!vl[u])ans.first.push_back(u);
-    for(int v=1;v<=nr;v++)if(vr[v])ans.second.push_back(v);
+    for(int u= 1; u <= nl; u++)
+        if(!vl[u])
+            ans.first.push_back(u);
+    for(int v= 1; v <= nr; v++)
+        if(vr[v])
+            ans.second.push_back(v);
     return ans;
 }

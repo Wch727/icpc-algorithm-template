@@ -19,7 +19,11 @@ struct Edge
 struct Graph
 {
     vector<Edge> adj[N];
-    void init(int n){for(int i=0;i<=n;i++)adj[i].clear();}
+    void init(int n)
+    {
+        for(int i= 0; i <= n; i++)
+            adj[i].clear();
+    }
     void add_edge(int u,int v,int w){adj[u].push_back({v,w});}
 };
 
@@ -79,7 +83,8 @@ ll kth_shortest(int s,int t,int kk)
         for(Edge e:g.adj[u])
         {
             int v=e.to,w=e.w;
-            if(h[v]<INF)pq.push({v,cur.d+w});
+            if(h[v] < INF)
+                pq.push({v, cur.d + w});
         }
     }
     return -1;
@@ -137,7 +142,7 @@ int pz_h(ll s)//不在目标位置的格子数，可采纳
 // A* 解八数码，h 用「不在目标位置的格子数」，O(状态数 log)
 int astar_puzzle(int st[3][3])
 {
-    int goal[3][3]={{1,2,3},{4,5,6},{7,8,0}};
+    int goal[3][3]= {{1, 2, 3}, {4, 5, 6}, {7, 8, 0}};
     const ll GOAL=pz_encode(goal);//目标态编码 = 0x123456780
     ll s0=pz_encode(st);
     if(s0==GOAL)return 0;

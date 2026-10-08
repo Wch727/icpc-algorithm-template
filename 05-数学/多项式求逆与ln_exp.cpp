@@ -16,7 +16,9 @@ const int P=998244353;
 int qpow(int a,int b)
 {
     int ans=1;
-    for(;b;b>>=1,a=(ll)a*a%P)if(b&1)ans=(ll)ans*a%P;
+    for(; b; b>>= 1, a= (ll)a * a % P)
+        if(b & 1)
+            ans= (ll)ans * a % P;
     return ans;
 }
 
@@ -116,11 +118,25 @@ vector<int> exponential(const vector<int> &a,int n)
 }
 
 // 以下扩展共用本文件 mul/inverse/ln/exp：固定模 998244353，系数已归一化，n<P。
-int power_u64(int a,unsigned long long e){int z=1;for(;e;e>>=1,a=(ll)a*a%P)if(e&1)z=(ll)z*a%P;return z;}
+int power_u64(int a, unsigned long long e)
+{
+    int z= 1;
+    for(; e; e>>= 1, a= (ll)a * a % P)
+        if(e & 1)
+            z= (ll)z * a % P;
+    return z;
+}
 // a^k mod x^n：分离零前缀、首项常数，再 exp(k*ln(a))；k=0 返回 1，O(n log n)。
 vector<int> polynomial_power(const vector<int> &a,unsigned long long k,int n)
 {
-    if(n<=0)return {};vector<int> ans(n);if(!k){ans[0]=1;return ans;}
+    if(n <= 0)
+        return {};
+    vector<int> ans(n);
+    if(!k)
+    {
+        ans[0]= 1;
+        return ans;
+    }
     int lead=0;while(lead<(int)a.size()&&!a[lead])lead++;
     if(lead==(int)a.size()||(lead&&k>=(unsigned long long)(n+lead-1)/lead))return ans;
     int shift=lead*k,len=n-shift;vector<int> b(len);int inv=qpow(a[lead],P-2);
@@ -131,28 +147,81 @@ vector<int> polynomial_power(const vector<int> &a,unsigned long long k,int n)
 // Tonelli–Shanks，固定奇素数 P；非剩余返回 -1，选择两个根中较小者。
 int scalar_sqrt(int a)
 {
-    if(!a)return 0;if(qpow(a,(P-1)/2)!=1)return -1;
-    int q=P-1,m=0;while(!(q&1))q>>=1,m++;int z=2;while(qpow(z,(P-1)/2)==1)z++;
+    if(!a)
+        return 0;
+    if(qpow(a, (P - 1) / 2) != 1)
+        return -1;
+    int q= P - 1, m= 0;
+    while(!(q & 1))
+        q>>= 1, m++;
+    int z= 2;
+    while(qpow(z, (P - 1) / 2) == 1)
+        z++;
     int c=qpow(z,q),x=qpow(a,(q+1)/2),t=qpow(a,q);
-    while(t!=1){int i=0,u=t;while(u!=1)u=(ll)u*u%P,i++;int b=qpow(c,1<<(m-i-1));x=(ll)x*b%P;c=(ll)b*b%P;t=(ll)t*c%P;m=i;}
+    while(t != 1)
+    {
+        int i= 0, u= t;
+        while(u != 1)
+            u= (ll)u * u % P, i++;
+        int b= qpow(c, 1 << (m - i - 1));
+        x= (ll)x * b % P;
+        c= (ll)b * b % P;
+        t= (ll)t * c % P;
+        m= i;
+    }
     return min(x,P-x);
 }
 // b²=a mod x^n；非零首项次数必须为偶数且系数为二次剩余。false 无解，O(n log n)。
 bool polynomial_sqrt(const vector<int> &a,int n,vector<int> &ans)
 {
-    ans.assign(n,0);if(!n)return true;int lead=0;while(lead<min(n,(int)a.size())&&!a[lead])lead++;
-    if(lead==min(n,(int)a.size()))return true;if(lead&1)return false;int x=scalar_sqrt(a[lead]);if(x<0)return false;
-    int len=n-lead;vector<int> f(len);for(int i=0;i<len&&lead+i<(int)a.size();i++)f[i]=a[lead+i];vector<int>b={x};
-    while((int)b.size()<len){int k=min(len,2*(int)b.size());vector<int> c(f.begin(),f.begin()+k);c=mul(c,inverse(b,k),k);b.resize(k);for(int i=0;i<k;i++)b[i]=(ll)(b[i]+c[i])*((P+1)/2)%P;}
+    ans.assign(n, 0);
+    if(!n)
+        return true;
+    int lead= 0;
+    while(lead < min(n, (int)a.size()) && !a[lead])
+        lead++;
+    if(lead == min(n, (int)a.size()))
+        return true;
+    if(lead & 1)
+        return false;
+    int x= scalar_sqrt(a[lead]);
+    if(x < 0)
+        return false;
+    int len= n - lead;
+    vector<int> f(len);
+    for(int i= 0; i < len && lead + i < (int)a.size(); i++)
+        f[i]= a[lead + i];
+    vector<int> b= {x};
+    while((int)b.size() < len)
+    {
+        int k= min(len, 2 * (int)b.size());
+        vector<int> c(f.begin(), f.begin() + k);
+        c= mul(c, inverse(b, k), k);
+        b.resize(k);
+        for(int i= 0; i < k; i++)
+            b[i]= (ll)(b[i] + c[i]) * ((P + 1) / 2) % P;
+    }
     for(int i=0;i<len;i++)ans[lead/2+i]=b[i];return true;
 }
-void trim_poly(vector<int> &a){while(!a.empty()&&!a.back())a.pop_back();}
+void trim_poly(vector<int> &a)
+{
+    while(!a.empty() && !a.back())
+        a.pop_back();
+}
 // 商和余数：a=b*q+r，deg r<deg b；零多项式用空 vector，b 不能为零。O(n log n)。
 pair<vector<int>,vector<int>> polynomial_divmod(vector<int> a,vector<int> b)
 {
-    trim_poly(a);trim_poly(b);assert(!b.empty());if(a.size()<b.size())return {{},a};
+    trim_poly(a);
+    trim_poly(b);
+    assert(!b.empty());
+    if(a.size() < b.size())
+        return {{}, a};
     int k=a.size()-b.size()+1;vector<int> ra=a,rb=b;reverse(ra.begin(),ra.end());reverse(rb.begin(),rb.end());ra.resize(k);rb.resize(min(k,(int)rb.size()));
-    auto q=mul(ra,inverse(rb,k),k);reverse(q.begin(),q.end());auto c=mul(b,q,a.size());for(int i=0;i<(int)a.size();i++)a[i]=(a[i]-c[i]+P)%P;
+    auto q= mul(ra, inverse(rb, k), k);
+    reverse(q.begin(), q.end());
+    auto c= mul(b, q, a.size());
+    for(int i= 0; i < (int)a.size(); i++)
+        a[i]= (a[i] - c[i] + P) % P;
     a.resize(b.size()-1);trim_poly(a);trim_poly(q);return {q,a};
 }
 // 乘积树：多点求值与快速插值 O((n+m)log²(n+m))；点数 m，所有点在 [0,P)。
@@ -160,23 +229,89 @@ pair<vector<int>,vector<int>> polynomial_divmod(vector<int> a,vector<int> b)
 struct PolynomialPoints
 {
     int n;vector<int> x;vector<vector<int>> tree;
-    PolynomialPoints(vector<int> x):n(x.size()),x(x),tree(max(1,4*n)){if(n)build(1,0,n);}
-    void build(int p,int l,int r){if(r-l==1){tree[p]={(P-x[l])%P,1};return;}int m=(l+r)/2;build(p*2,l,m);build(p*2+1,m,r);tree[p]=mul(tree[p*2],tree[p*2+1],r-l+1);}
+    PolynomialPoints(vector<int> x) : n(x.size()), x(x), tree(max(1, 4 * n))
+    {
+        if(n)
+            build(1, 0, n);
+    }
+    void build(int p, int l, int r)
+    {
+        if(r - l == 1)
+        {
+            tree[p]= {(P - x[l]) % P, 1};
+            return;
+        }
+        int m= (l + r) / 2;
+        build(p * 2, l, m);
+        build(p * 2 + 1, m, r);
+        tree[p]= mul(tree[p * 2], tree[p * 2 + 1], r - l + 1);
+    }
     void evaluate(int p,int l,int r,const vector<int> &a,vector<int> &ans)const
-    {auto rem=polynomial_divmod(a,tree[p]).second;if(r-l==1){ans[l]=rem.empty()?0:rem[0];return;}int m=(l+r)/2;evaluate(p*2,l,m,rem,ans);evaluate(p*2+1,m,r,rem,ans);}
-    vector<int> evaluate(const vector<int> &a)const{vector<int>ans(n);if(n)evaluate(1,0,n,a,ans);return ans;}
+    {
+        auto rem= polynomial_divmod(a, tree[p]).second;
+        if(r - l == 1)
+        {
+            ans[l]= rem.empty() ? 0 : rem[0];
+            return;
+        }
+        int m= (l + r) / 2;
+        evaluate(p * 2, l, m, rem, ans);
+        evaluate(p * 2 + 1, m, r, rem, ans);
+    }
+    vector<int> evaluate(const vector<int> &a) const
+    {
+        vector<int> ans(n);
+        if(n)
+            evaluate(1, 0, n, a, ans);
+        return ans;
+    }
     vector<int> combine(int p,int l,int r,const vector<int>&w)const
-    {if(r-l==1)return {w[l]};int m=(l+r)/2;auto a=mul(combine(p*2,l,m,w),tree[p*2+1],r-l),b=mul(combine(p*2+1,m,r,w),tree[p*2],r-l);for(int i=0;i<r-l;i++)a[i]=(a[i]+b[i])%P;return a;}
+    {
+        if(r - l == 1)
+            return {w[l]};
+        int m= (l + r) / 2;
+        auto a= mul(combine(p * 2, l, m, w), tree[p * 2 + 1], r - l),
+             b= mul(combine(p * 2 + 1, m, r, w), tree[p * 2], r - l);
+        for(int i= 0; i < r - l; i++)
+            a[i]= (a[i] + b[i]) % P;
+        return a;
+    }
     vector<int> interpolate(const vector<int> &y)const
-    {assert(y.size()==x.size());if(!n)return {};vector<int>d(n);for(int i=1;i<=n;i++)d[i-1]=(ll)tree[1][i]*i%P;auto w=evaluate(d);for(int i=0;i<n;i++){assert(w[i]);w[i]=(ll)y[i]*qpow(w[i],P-2)%P;}return combine(1,0,n,w);}
+    {
+        assert(y.size() == x.size());
+        if(!n)
+            return {};
+        vector<int> d(n);
+        for(int i= 1; i <= n; i++)
+            d[i - 1]= (ll)tree[1][i] * i % P;
+        auto w= evaluate(d);
+        for(int i= 0; i < n; i++)
+        {
+            assert(w[i]);
+            w[i]= (ll)y[i] * qpow(w[i], P - 2) % P;
+        }
+        return combine(1, 0, n, w);
+    }
 };
 // a(b(x)) mod x^n，b[0]=0。分块复合（Brent–Kung 的朴素线性组合版）。
 // O(n² + sqrt(n)*M(n))，M 为卷积成本；比 Horner 的 n 次 NTT 少，但不是最新准线性算法。
 vector<int> polynomial_compose(vector<int> a,vector<int> b,int n)
 {
-    if(!n)return {};assert(b.empty()||b[0]==0);a.resize(n);b.resize(n);int block=max(1,(int)sqrt(n));
+    if(!n)
+        return {};
+    assert(b.empty() || b[0] == 0);
+    a.resize(n);
+    b.resize(n);
+    int block= max(1, (int)sqrt(n));
     vector<vector<int>> baby(block+1,vector<int>(n));baby[0][0]=1;for(int j=1;j<=block;j++)baby[j]=mul(baby[j-1],b,n);
     vector<int> ans(n);
-    for(int l=(n-1)/block*block;l>=0;l-=block){ans=mul(ans,baby[block],n);for(int j=0;j<block&&l+j<n;j++)if(a[l+j])for(int i=0;i<n;i++)ans[i]=(ans[i]+(ll)a[l+j]*baby[j][i])%P;}
+    for(int l= (n - 1) / block * block; l >= 0; l-= block)
+    {
+        ans= mul(ans, baby[block], n);
+        for(int j= 0; j < block && l + j < n; j++)
+            if(a[l + j])
+                for(int i= 0; i < n; i++)
+                    ans[i]= (ans[i] + (ll)a[l + j] * baby[j][i]) % P;
+    }
     return ans;
 }

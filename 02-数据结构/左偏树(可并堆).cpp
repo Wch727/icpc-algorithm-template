@@ -27,7 +27,11 @@ struct LeftistHeap
         tr.push_back({x,0,0,1});
         return merge(root,p);
     }
-    ll top(int root){assert(root);return tr[root].val;}
+    ll top(int root)
+    {
+        assert(root);
+        return tr[root].val;
+    }
     int pop(int root)
     {
         assert(root);

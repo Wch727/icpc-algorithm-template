@@ -9,6 +9,19 @@ vector<long long> residue_shortest_path(vector<long long> coin)
     using ll=long long;const ll INF=LLONG_MAX/4;assert(!coin.empty());sort(coin.begin(),coin.end());assert(coin[0]>0&&coin[0]<=INT_MAX);
     coin.erase(unique(coin.begin(),coin.end()),coin.end());int m=coin[0];vector<ll>d(m,INF);d[0]=0;
     priority_queue<pair<ll,int>,vector<pair<ll,int>>,greater<pair<ll,int>>>q;q.push({0,0});
-    while(!q.empty()){auto [x,u]=q.top();q.pop();if(x!=d[u])continue;for(ll a:coin)if(a<=INF-x){int v=(u+a%m)%m;if(x+a<d[v])d[v]=x+a,q.push({d[v],v});}}
+    while(!q.empty())
+    {
+        auto [x, u]= q.top();
+        q.pop();
+        if(x != d[u])
+            continue;
+        for(ll a : coin)
+            if(a <= INF - x)
+            {
+                int v= (u + a % m) % m;
+                if(x + a < d[v])
+                    d[v]= x + a, q.push({d[v], v});
+            }
+    }
     return d;
 }

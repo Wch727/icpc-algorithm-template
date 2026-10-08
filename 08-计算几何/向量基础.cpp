@@ -47,8 +47,16 @@ bool on_segment(Point a,Point b,Point p)
 Point line_intersect(Point a,Point b,Point c,Point d,bool &ok)
 {
     double s1=cross(b-a,c-a),s2=cross(b-a,d-a);
-    if(sgn(s1-s2)==0&&sgn(s1)==0){ok=false;return Point();}//共线，无穷多交点
-    if(sgn(s1-s2)==0){ok=false;return Point();}//平行
+    if(sgn(s1 - s2) == 0 && sgn(s1) == 0)
+    {
+        ok= false;
+        return Point();
+    } //共线，无穷多交点
+    if(sgn(s1 - s2) == 0)
+    {
+        ok= false;
+        return Point();
+    } //平行
     ok=true;
     return c+(d-c)*(s1/(s1-s2));
 }

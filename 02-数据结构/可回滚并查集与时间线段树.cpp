@@ -8,7 +8,12 @@ struct RollbackDSU
     vector<int> fa,sz;
     vector<pair<int,int>> history;// 被挂的根、挂接前父根大小
     RollbackDSU(int n):fa(n+1),sz(n+1,1){iota(fa.begin(),fa.end(),0);}
-    int find(int x){while(fa[x]!=x)x=fa[x];return x;}
+    int find(int x)
+    {
+        while(fa[x] != x)
+            x= fa[x];
+        return x;
+    }
     int snapshot(){return history.size();}
     bool merge(int x,int y)
     {
@@ -38,12 +43,17 @@ vector<array<int,3>> ops;
 vector<int> dynamic_connectivity()
 {
     int q=ops.size();
-    if(!q)return {};
+    if(!q)
+        return {};
     vector<vector<pair<int,int>>> seg(4*q);
     auto put=[&](auto &&self,int p,int l,int r,int L,int R,pair<int,int> e)->void
     {
         if(R<=l||r<=L)return;
-        if(L<=l&&r<=R){seg[p].push_back(e);return;}
+        if(L <= l && r <= R)
+        {
+            seg[p].push_back(e);
+            return;
+        }
         int m=(l+r)/2;
         self(self,p*2,l,m,L,R,e),self(self,p*2+1,m,r,L,R,e);
     };
@@ -55,14 +65,21 @@ vector<int> dynamic_connectivity()
         if(type==2)continue;
         if(u>v)swap(u,v);
         auto &a=active[{u,v}];
-        if(type==0){if(a.first++==0)a.second=t;}
+        if(type == 0)
+        {
+            if(a.first++ == 0)
+                a.second= t;
+        }
         else
         {
             assert(a.first>0);
-            if(--a.first==0)put(put,1,0,q,a.second,t,{u,v});
+            if(--a.first == 0)
+                put(put, 1, 0, q, a.second, t, {u, v});
         }
     }
-    for(auto [e,a]:active)if(a.first)put(put,1,0,q,a.second,q,e);
+    for(auto [e, a] : active)
+        if(a.first)
+            put(put, 1, 0, q, a.second, q, e);
     RollbackDSU d(n);
     vector<int> ans;
     auto dfs=[&](auto &&self,int p,int l,int r)->void

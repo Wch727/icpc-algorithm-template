@@ -27,12 +27,23 @@ void fwt(vector<ll> &a,int type,bool inverse=false)
 // O(L log L)，返回补到 L 项后的卷积；XOR 逆变换要求 2 在模数下可逆。
 vector<ll> bit_convolution(vector<ll> a,vector<ll> b,int type)
 {
-    if(a.empty()||b.empty())return {};
+    if(a.empty() || b.empty())
+        return {};
     int n=1;
     while(n<(int)max(a.size(),b.size()))n*=2;
     a.resize(n),b.resize(n);
-    for(ll &x:a){x%=MOD;if(x<0)x+=MOD;}
-    for(ll &x:b){x%=MOD;if(x<0)x+=MOD;}
+    for(ll &x : a)
+    {
+        x%= MOD;
+        if(x < 0)
+            x+= MOD;
+    }
+    for(ll &x : b)
+    {
+        x%= MOD;
+        if(x < 0)
+            x+= MOD;
+    }
     fwt(a,type),fwt(b,type);
     for(int i=0;i<n;i++)a[i]=a[i]*b[i]%MOD;
     fwt(a,type,true);

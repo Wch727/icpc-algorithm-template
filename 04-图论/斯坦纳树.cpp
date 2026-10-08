@@ -15,14 +15,20 @@ ll steiner_tree()
     for(int i=0;i<k;i++)dp[1<<i][terminal[i]]=0;
     for(int s=1;s<lim;s++)
     {
-        for(int a=(s-1)&s;a;a=(a-1)&s)if(a<(s^a))
-            for(int v=0;v<n;v++)dp[s][v]=min(dp[s][v],dp[a][v]+dp[s^a][v]);
+        for(int a= (s - 1) & s; a; a= (a - 1) & s)
+            if(a < (s ^ a))
+                for(int v= 0; v < n; v++)
+                    dp[s][v]= min(dp[s][v], dp[a][v] + dp[s ^ a][v]);
         priority_queue<pair<ll,int>,vector<pair<ll,int>>,greater<pair<ll,int>>> q;
-        for(int v=0;v<n;v++)if(dp[s][v]<INF)q.push({dp[s][v],v});
+        for(int v= 0; v < n; v++)
+            if(dp[s][v] < INF)
+                q.push({dp[s][v], v});
         while(!q.empty())
         {
             auto [d,u]=q.top();q.pop();if(d!=dp[s][u])continue;
-            for(auto [v,w]:g[u])if(w<=INF-d&&d+w<dp[s][v])dp[s][v]=d+w,q.push({d+w,v});
+            for(auto [v, w] : g[u])
+                if(w <= INF - d && d + w < dp[s][v])
+                    dp[s][v]= d + w, q.push({d + w, v});
         }
     }
     return dp.back()[terminal[0]];

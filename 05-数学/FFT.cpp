@@ -34,13 +34,16 @@ void fft(vector<complex<double> > &a,int inv)
             }
         }
     }
-    if(inv==-1)for(complex<double> &x:a)x/=n;
+    if(inv == -1)
+        for(complex<double> &x : a)
+            x/= n;
 }
 
 // O(L log L)，输出 a.size()+b.size()-1 个整数系数；点乘频域等价于时域卷积。
 vector<ll> multiply(vector<ll> a,vector<ll> b)
 {
-    if(a.empty()||b.empty())return {};
+    if(a.empty() || b.empty())
+        return {};
     int sz=a.size()+b.size()-1,n=1;
     while(n<sz)n<<=1;
     vector<complex<double> > x(n),y(n);

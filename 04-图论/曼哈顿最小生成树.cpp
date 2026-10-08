@@ -10,7 +10,12 @@ vector<array<ll,3>> manhattan_edges(vector<pair<ll,ll>> p)
     vector<array<ll,3>> e;
     for(int k=0;k<4;k++)
     {
-        sort(id.begin(),id.end(),[&](int a,int b){return (__int128)p[a].first+p[a].second<(__int128)p[b].first+p[b].second;});
+        sort(id.begin(), id.end(),
+             [&](int a, int b)
+             {
+                 return (__int128)p[a].first + p[a].second <
+                        (__int128)p[b].first + p[b].second;
+             });
         map<ll,int> sweep;
         for(int i:id)
         {
@@ -22,7 +27,11 @@ vector<array<ll,3>> manhattan_edges(vector<pair<ll,ll>> p)
             }
             sweep[-p[i].second]=i;
         }
-        for(auto &[x,y]:p)if(k&1)x=-x;else swap(x,y);
+        for(auto &[x, y] : p)
+            if(k & 1)
+                x= -x;
+            else
+                swap(x, y);
     }
     return e;
 }

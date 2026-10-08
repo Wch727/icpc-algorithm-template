@@ -12,10 +12,7 @@ struct Node
     int l,r;
     mutable ll v;
     Node(int l,int r,ll v):l(l),r(r),v(v){}
-    bool operator<(const Node &o)const
-    {
-        return l<o.l;
-    }
+    bool operator<(const Node &o)const{return l<o.l;}
 };
 
 int n;
@@ -74,7 +71,8 @@ ll query_kth(int l,int r,int k)
 {
     vector<pair<ll,int>> tmp;
     auto itr=split(r+1),itl=split(l);
-    for(auto it=itl;it!=itr;++it)tmp.push_back({it->v,it->r-it->l+1});
+    for(auto it= itl; it != itr; ++it)
+        tmp.push_back({it->v, it->r - it->l + 1});
     sort(tmp.begin(),tmp.end());
     for(auto &x:tmp)
     {

@@ -14,11 +14,12 @@ vector<ll> dominance()
     int n=a.size();
     vector<int> order(n),group(n),zs;
     iota(order.begin(),order.end(),0);
-    sort(order.begin(),order.end(),[&](int i,int j){return a[i]<a[j];});
+    sort(order.begin(), order.end(), [&](int i, int j) { return a[i] < a[j]; });
     vector<Node> p;
     for(int i:order)
     {
-        if(p.empty()||array<int,3>{p.back().x,p.back().y,p.back().z}!=a[i])
+        if(p.empty() ||
+           array<int, 3>{p.back().x, p.back().y, p.back().z} != a[i])
             p.push_back({a[i][0],a[i][1],a[i][2],0,(int)p.size(),0});
         ++p.back().w,group[i]=p.back().id;
     }
@@ -27,8 +28,18 @@ vector<ll> dominance()
     zs.erase(unique(zs.begin(),zs.end()),zs.end());
     for(auto &v:p)v.z=lower_bound(zs.begin(),zs.end(),v.z)-zs.begin()+1;
     vector<int> bit(zs.size()+1);
-    auto add=[&](int x,int v){for(;x<(int)bit.size();x+=x&-x)bit[x]+=v;};
-    auto sum=[&](int x){int s=0;for(;x;x-=x&-x)s+=bit[x];return s;};
+    auto add= [&](int x, int v)
+    {
+        for(; x < (int)bit.size(); x+= x & -x)
+            bit[x]+= v;
+    };
+    auto sum= [&](int x)
+    {
+        int s= 0;
+        for(; x; x-= x & -x)
+            s+= bit[x];
+        return s;
+    };
     auto cdq=[&](auto &&self,int l,int r)->void
     {
         if(r-l<=1)return;
@@ -41,8 +52,8 @@ vector<ll> dominance()
             p[j].ans+=sum(p[j].z);
         }
         for(int j=l;j<i;j++)add(p[j].z,-p[j].w);
-        inplace_merge(p.begin()+l,p.begin()+m,p.begin()+r,
-            [](Node a,Node b){return a.y<b.y;});
+        inplace_merge(p.begin() + l, p.begin() + m, p.begin() + r,
+                      [](Node a, Node b) { return a.y < b.y; });
     };
     cdq(cdq,0,p.size());
     vector<ll> count(p.size()),ans(n);

@@ -13,7 +13,8 @@ pair<int,int> two_sum(int target)
     while(l<r)
     {
         long long sum=(long long)a[l]+a[r];
-        if(sum==target)return {l,r};
+        if(sum == target)
+            return {l, r};
         if(sum<target)l++;
         else r--;
     }

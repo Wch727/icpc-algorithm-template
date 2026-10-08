@@ -7,17 +7,22 @@ using namespace std;
 vector<int> tree_centroids(const vector<vector<int>> &adj)
 {
     int n=(int)adj.size()-1;
-    if(!n)return {};
+    if(!n)
+        return {};
     vector<int> fa(n+1),sz(n+1,1),order{1},ans;
     for(int i=0;i<(int)order.size();i++)
     {
         int u=order[i];
-        for(int v:adj[u])if(v!=fa[u])fa[v]=u,order.push_back(v);
+        for(int v : adj[u])
+            if(v != fa[u])
+                fa[v]= u, order.push_back(v);
     }
     for(int i=n-1;i>=0;i--)
     {
         int u=order[i],mx=0;
-        for(int v:adj[u])if(v!=fa[u])sz[u]+=sz[v],mx=max(mx,sz[v]);
+        for(int v : adj[u])
+            if(v != fa[u])
+                sz[u]+= sz[v], mx= max(mx, sz[v]);
         if(max(mx,n-sz[u])<=n/2)ans.push_back(u);
     }
     return ans;
@@ -30,13 +35,17 @@ int tree_code(const vector<vector<int>> &adj,int root,map<vector<int>,int> &ids)
     for(int i=0;i<n;i++)
     {
         int u=order[i];
-        for(int v:adj[u])if(v!=fa[u])fa[v]=u,order.push_back(v);
+        for(int v : adj[u])
+            if(v != fa[u])
+                fa[v]= u, order.push_back(v);
     }
     for(int i=n-1;i>=0;i--)
     {
         int u=order[i];
         vector<int> children;
-        for(int v:adj[u])if(v!=fa[u])children.push_back(code[v]);
+        for(int v : adj[u])
+            if(v != fa[u])
+                children.push_back(code[v]);
         sort(children.begin(),children.end());
         auto [it,inserted]=ids.emplace(move(children),ids.size()+1);
         code[u]=it->second;
@@ -53,6 +62,8 @@ bool same_tree(const vector<vector<int>> &a,const vector<vector<int>> &b)
     if(ca.size()!=cb.size())return false;
     map<vector<int>,int> ids;
     int x=tree_code(a,ca[0],ids);
-    for(int root:cb)if(tree_code(b,root,ids)==x)return true;
+    for(int root : cb)
+        if(tree_code(b, root, ids) == x)
+            return true;
     return false;
 }

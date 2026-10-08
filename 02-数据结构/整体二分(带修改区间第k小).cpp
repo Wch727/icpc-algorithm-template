@@ -14,13 +14,17 @@ vector<int> range_kth()
     int n=(int)a.size()-1;
     assert(n>=0);
     vector<int> value(a.begin()+1,a.end());
-    for(auto e:ops)if(e.type==0)value.push_back(e.y);
+    for(auto e : ops)
+        if(e.type == 0)
+            value.push_back(e.y);
     sort(value.begin(),value.end());
     value.erase(unique(value.begin(),value.end()),value.end());
-    auto id=[&](int x){return lower_bound(value.begin(),value.end(),x)-value.begin();};
+    auto id= [&](int x)
+    { return lower_bound(value.begin(), value.end(), x) - value.begin(); };
     struct Event{int type,x,y,k,delta,id;};
     vector<Event> events;
-    for(int i=1;i<=n;i++)events.push_back({0,i,(int)id(a[i]),0,1,0});
+    for(int i= 1; i <= n; i++)
+        events.push_back({0, i, (int)id(a[i]), 0, 1, 0});
     int queries=0;
     for(auto e:ops)
     {
@@ -39,12 +43,29 @@ vector<int> range_kth()
     }
     vector<int> ans(queries),bit(n+1);
     if(!queries)return ans;
-    auto add=[&](int x,int v){for(;x<=n;x+=x&-x)bit[x]+=v;};
-    auto sum=[&](int x){int s=0;for(;x;x-=x&-x)s+=bit[x];return s;};
+    auto add= [&](int x, int v)
+    {
+        for(; x <= n; x+= x & -x)
+            bit[x]+= v;
+    };
+    auto sum= [&](int x)
+    {
+        int s= 0;
+        for(; x; x-= x & -x)
+            s+= bit[x];
+        return s;
+    };
     auto solve=[&](auto &&self,int l,int r,vector<Event> e)->void
     {
         if(e.empty())return;
-        if(l==r){for(auto t:e)if(t.type==1)ans[t.id]=value[l];return;}
+        if(l==r)
+        {
+            for(auto t:e)
+            {
+                if(t.type==1)ans[t.id]=value[l];
+            }
+            return;
+        }
         int m=(l+r)/2;
         vector<Event> left,right;
         for(auto t:e)
@@ -61,7 +82,9 @@ vector<int> range_kth()
                 else t.k-=count,right.push_back(t);
             }
         }
-        for(auto t:left)if(t.type==0)add(t.x,-t.delta);
+        for(auto t : left)
+            if(t.type == 0)
+                add(t.x, -t.delta);
         vector<Event>().swap(e);
         self(self,l,m,move(left)),self(self,m+1,r,move(right));
     };

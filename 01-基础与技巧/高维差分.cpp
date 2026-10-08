@@ -10,12 +10,18 @@ ll d[N][N][N]; // 1-indexed；各维预留 0 和右端点+1，按题目调整大
 // 建差分沿每一维倒序做相邻相减，避免覆盖尚未使用的原值。
 void build()
 {
-    for(int x=n;x>=1;x--)for(int y=1;y<=m;y++)for(int z=1;z<=k;z++)
-        d[x][y][z]-=d[x-1][y][z];
-    for(int x=1;x<=n;x++)for(int y=m;y>=1;y--)for(int z=1;z<=k;z++)
-        d[x][y][z]-=d[x][y-1][z];
-    for(int x=1;x<=n;x++)for(int y=1;y<=m;y++)for(int z=k;z>=1;z--)
-        d[x][y][z]-=d[x][y][z-1];
+    for(int x= n; x >= 1; x--)
+        for(int y= 1; y <= m; y++)
+            for(int z= 1; z <= k; z++)
+                d[x][y][z]-= d[x - 1][y][z];
+    for(int x= 1; x <= n; x++)
+        for(int y= m; y >= 1; y--)
+            for(int z= 1; z <= k; z++)
+                d[x][y][z]-= d[x][y - 1][z];
+    for(int x= 1; x <= n; x++)
+        for(int y= 1; y <= m; y++)
+            for(int z= k; z >= 1; z--)
+                d[x][y][z]-= d[x][y][z - 1];
 }
 
 // 闭长方体 [x1,x2] × [y1,y2] × [z1,z2] 加 v，修改八个角点。
@@ -32,12 +38,18 @@ void add(int x1,int y1,int z1,int x2,int y2,int z2,ll v)
 // 修改结束后，沿每一维正序做前缀和；结果仍在 d，只还原一次。
 void restore()
 {
-    for(int x=1;x<=n;x++)for(int y=1;y<=m;y++)for(int z=1;z<=k;z++)
-        d[x][y][z]+=d[x-1][y][z];
-    for(int x=1;x<=n;x++)for(int y=1;y<=m;y++)for(int z=1;z<=k;z++)
-        d[x][y][z]+=d[x][y-1][z];
-    for(int x=1;x<=n;x++)for(int y=1;y<=m;y++)for(int z=1;z<=k;z++)
-        d[x][y][z]+=d[x][y][z-1];
+    for(int x= 1; x <= n; x++)
+        for(int y= 1; y <= m; y++)
+            for(int z= 1; z <= k; z++)
+                d[x][y][z]+= d[x - 1][y][z];
+    for(int x= 1; x <= n; x++)
+        for(int y= 1; y <= m; y++)
+            for(int z= 1; z <= k; z++)
+                d[x][y][z]+= d[x][y - 1][z];
+    for(int x= 1; x <= n; x++)
+        for(int y= 1; y <= m; y++)
+            for(int z= 1; z <= k; z++)
+                d[x][y][z]+= d[x][y][z - 1];
 }
 // 三维建表/还原 O(nmk)，修改 O(1)；D 维建表/还原 O(D*S)，S 为格数。
 // 空间随各维长度相乘；这里静态数组约 8.8 MiB，须保证 n+1,m+1,k+1<N。

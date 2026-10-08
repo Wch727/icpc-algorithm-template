@@ -77,7 +77,11 @@ struct SegmentTree{
     void build(int l,int r,int p)
     {
         lazy[p]=0;
-        if(l==r){tr[p]=val[rnk[l]];return;}
+        if(l == r)
+        {
+            tr[p]= val[rnk[l]];
+            return;
+        }
         build(l,mid,lp),build(mid+1,r,rp);
         tr[p]=tr[lp]+tr[rp];
     }
@@ -90,7 +94,11 @@ struct SegmentTree{
     }
     void update(int L,int R,ll k,int l,int r,int p)
     {
-        if(L<=l&&r<=R){tr[p]+=k*(r-l+1),lazy[p]+=k;return;}
+        if(L <= l && r <= R)
+        {
+            tr[p]+= k * (r - l + 1), lazy[p]+= k;
+            return;
+        }
         push_down(l,r,p);
         if(L<=mid)update(L,R,k,l,mid,lp);
         if(R>mid)update(L,R,k,mid+1,r,rp);

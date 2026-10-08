@@ -35,16 +35,20 @@ struct PushRelabel {
         for (Edge& e : g[s]) addFlow(e, e.c);
 
         for (int hi = 0;;) {
-            while (hs[hi].empty()) if (!hi--) return -ec[s];
+            while(hs[hi].empty())
+                if(!hi--)
+                    return -ec[s];
             int u = hs[hi].back(); hs[hi].pop_back();
             while (ec[u] > 0)  // discharge u
                 if (cur[u] == g[u].data() + (int)g[u].size()) {
                     H[u] = 1e9;
-                    for (Edge& e : g[u]) if (e.c && H[u] > H[e.dest]+1)
-                        H[u] = H[e.dest]+1, cur[u] = &e;
+                    for(Edge &e : g[u])
+                        if(e.c && H[u] > H[e.dest] + 1)
+                            H[u]= H[e.dest] + 1, cur[u]= &e;
                     if (++co[H[u]], !--co[hi] && hi < v)
-                        for(int i=0;i<v;i++) if (hi < H[i] && H[i] < v)
-                            --co[H[i]], H[i] = v + 1;
+                        for(int i= 0; i < v; i++)
+                            if(hi < H[i] && H[i] < v)
+                                --co[H[i]], H[i]= v + 1;
                     hi = H[u];
                 } else if (cur[u]->c && H[u] == H[cur[u]->dest]+1)
                     addFlow(*cur[u], min(ec[u], cur[u]->c));

@@ -2,7 +2,6 @@
 #include<bits/stdc++.h>
 using namespace std;
 const int N=513;
-
 // @code knapsack
 vector<int> a;
 bitset<N> f;
@@ -17,7 +16,6 @@ bitset<N> subset_sum()
     }
     return f;
 }
-
 // @code closure
 vector<bitset<N>> g;
 void closure()
@@ -26,6 +24,8 @@ void closure()
     assert(n<=N);
     for(int i=0;i<n;i++)g[i][i]=1;
     for(int k=0;k<n;k++)
-        for(int i=0;i<n;i++)if(g[i][k])g[i]|=g[k];
+        for(int i= 0; i < n; i++)
+            if(g[i][k])
+                g[i]|= g[k];
 }
 

@@ -16,10 +16,7 @@ struct Point
     bool operator<(Point b)const{return x!=b.x?x<b.x:y<b.y;}
     bool operator==(Point b)const{return x==b.x&&y==b.y;}
 };
-__int128 cross(Point a,Point b)
-{
-    return (__int128)a.x*b.y-(__int128)a.y*b.x;
-}
+__int128 cross(Point a,Point b){return (__int128)a.x*b.y-(__int128)a.y*b.x;}
 // O(n log n)，去重并删除共线中间点；坐标加减须不溢出 ll，叉积用 __int128。
 vector<Point> hull(vector<Point> a)
 {
@@ -44,14 +41,17 @@ vector<Point> hull(vector<Point> a)
 void rotate_low(vector<Point> &a)
 {
     int k=0;
-    for(int i=1;i<(int)a.size();i++)if(a[i].y<a[k].y||(a[i].y==a[k].y&&a[i].x<a[k].x))k=i;
+    for(int i= 1; i < (int)a.size(); i++)
+        if(a[i].y < a[k].y || (a[i].y == a[k].y && a[i].x < a[k].x))
+            k= i;
     rotate(a.begin(),a.begin()+k,a.end());
 }
 // O(n+m)，输入逆时针严格凸包（无重复首点）；单点/线段也支持。
 // 任意点集先调用 hull；空集的和仍为空集。
 vector<Point> minkowski(vector<Point> a,vector<Point> b)
 {
-    if(a.empty()||b.empty())return {};
+    if(a.empty() || b.empty())
+        return {};
     rotate_low(a),rotate_low(b);
     int n=a.size(),m=b.size(),i=0,j=0;
     Point p=a[0]+b[0];

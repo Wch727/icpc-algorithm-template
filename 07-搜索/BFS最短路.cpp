@@ -164,7 +164,7 @@ ll flip(ll s,int p,int q)
 // 八数码最少步数（标准 123456780 为目标），无解返回 -1，O(状态数*4)
 int bfs_puzzle(int st[3][3])
 {
-    int goal[3][3]={{1,2,3},{4,5,6},{7,8,0}};
+    int goal[3][3]= {{1, 2, 3}, {4, 5, 6}, {7, 8, 0}};
     const ll T=encode(goal);//目标态编码 = 0x123456780
     ll S=encode(st);
     if(S==T)return 0;

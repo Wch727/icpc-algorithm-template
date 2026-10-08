@@ -3,11 +3,17 @@ using namespace std;
 
 typedef long long ll;
 const ll MOD=998244353;
-ll mod_norm(ll x){x%=MOD;return x<0?x+MOD:x;}
+ll mod_norm(ll x)
+{
+    x%= MOD;
+    return x < 0 ? x + MOD : x;
+}
 ll qpow(ll a,ll b)
 {
     ll r=1;
-    for(;b;b>>=1,a=a*a%MOD)if(b&1)r=r*a%MOD;
+    for(; b; b>>= 1, a= a * a % MOD)
+        if(b & 1)
+            r= r * a % MOD;
     return r;
 }
 
@@ -17,14 +23,18 @@ ll qpow(ll a,ll b)
 vector<ll> berlekamp_massey(vector<ll> a)
 {
     for(ll &x:a)x=mod_norm(x);
-    vector<ll> c{1},b{1};
+    vector<ll> c{1}, b{1};
     int k=0,m=1;
     ll last=1;
     for(int n=0;n<(int)a.size();n++)
     {
         ll d=a[n];
         for(int i=1;i<=k;i++)d=(d+c[i]*a[n-i])%MOD;
-        if(!d){++m;continue;}
+        if(!d)
+        {
+            ++m;
+            continue;
+        }
         auto old=c;
         ll coef=d*qpow(last,MOD-2)%MOD;
         c.resize(max(c.size(),b.size()+m));
@@ -51,7 +61,9 @@ ll linear_nth(vector<ll> init,vector<ll> c,unsigned long long n)
     auto mul=[&](const vector<ll> &a,const vector<ll> &b)
     {
         vector<ll> t(2*k-1);
-        for(int i=0;i<k;i++)for(int j=0;j<k;j++)t[i+j]=(t[i+j]+a[i]*b[j])%MOD;
+        for(int i= 0; i < k; i++)
+            for(int j= 0; j < k; j++)
+                t[i + j]= (t[i + j] + a[i] * b[j]) % MOD;
         for(int i=2*k-2;i>=k;i--)
             for(int j=1;j<=k;j++)t[i-j]=(t[i-j]+t[i]*c[j-1])%MOD;
         t.resize(k);return t;
@@ -59,7 +71,9 @@ ll linear_nth(vector<ll> init,vector<ll> c,unsigned long long n)
     vector<ll> a(k),b(k);
     a[0]=1;
     if(k==1)b[0]=c[0];else b[1]=1;
-    for(;n;n>>=1,b=mul(b,b))if(n&1)a=mul(a,b);
+    for(; n; n>>= 1, b= mul(b, b))
+        if(n & 1)
+            a= mul(a, b);
     ll ans=0;
     for(int i=0;i<k;i++)ans=(ans+a[i]*init[i])%MOD;
     return ans;

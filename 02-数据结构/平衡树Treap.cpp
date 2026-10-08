@@ -46,7 +46,11 @@ struct Treap{
     }
     void insert(int &p,int x)
     {
-        if(p==0){p=new_node(x);return;}
+        if(p == 0)
+        {
+            p= new_node(x);
+            return;
+        }
         if(x<val[p])
         {
             int &q=ls[p];                  // 先绑引用，旋转后 ls[p] 会变

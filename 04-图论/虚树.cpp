@@ -40,26 +40,25 @@ struct VirtualTree
             st.push_back({v,0});
         }
     }
-    bool anc(int u,int v)
-    {
-        return dfn[u]<=dfn[v]&&ed[v]<=ed[u];
-    }
+    bool anc(int u,int v){return dfn[u]<=dfn[v]&&ed[v]<=ed[u];}
     int lca(int u,int v)
     {
         if(anc(u,v))return u;
-        for(int j=lg-1;j>=0;j--)if(up[j][u]&&!anc(up[j][u],v))u=up[j][u];
+        for(int j= lg - 1; j >= 0; j--)
+            if(up[j][u] && !anc(up[j][u], v))
+                u= up[j][u];
         return up[0][u];
     }
     // 栈构建虚树，DP 求所有关键点对距离和；O(k log k+k log n)
     ll query(vector<int> a)
     {
         if(a.empty())return 0;
-        sort(a.begin(),a.end(),[&](int u,int v){return dfn[u]<dfn[v];});
+        sort(a.begin(), a.end(), [&](int u, int v) { return dfn[u] < dfn[v]; });
         a.erase(unique(a.begin(),a.end()),a.end());
         int k=a.size();
         for(int u:a)mark[u]=1;
         for(int i=1;i<k;i++)a.push_back(lca(a[i-1],a[i]));
-        sort(a.begin(),a.end(),[&](int u,int v){return dfn[u]<dfn[v];});
+        sort(a.begin(), a.end(), [&](int u, int v) { return dfn[u] < dfn[v]; });
         a.erase(unique(a.begin(),a.end()),a.end());
         vector<int> st;
         for(int u:a)tr[u].clear(),cnt[u]=0;

@@ -72,12 +72,20 @@ struct Splay{
     // 插入一个值 v
     void insert(int v)
     {
-        if(!root){root=new_node(v,0);return;}
+        if(!root)
+        {
+            root= new_node(v, 0);
+            return;
+        }
         int p=root,f=0;
         while(p)
         {
             push_down(p);
-            if(val[p]==v){num[p]++,push_up(p),splay(p);return;}
+            if(val[p] == v)
+            {
+                num[p]++, push_up(p), splay(p);
+                return;
+            }
             f=p,p=ch[p][v>val[p]];
         }
         p=new_node(v,f),ch[f][v>val[f]]=p,splay(p);
@@ -88,11 +96,27 @@ struct Splay{
         int p=find_node(v);
         if(!p)return;                                // 不存在
         splay(p);
-        if(num[p]>1){num[p]--,push_up(p);return;}
+        if(num[p] > 1)
+        {
+            num[p]--, push_up(p);
+            return;
+        }
         int l=ch[p][0],r=ch[p][1];
-        if(!l&&!r){root=0;return;}
-        if(!l){fa[r]=0,ch[p][1]=0,root=r;return;}
-        if(!r){fa[l]=0,ch[p][0]=0,root=l;return;}
+        if(!l && !r)
+        {
+            root= 0;
+            return;
+        }
+        if(!l)
+        {
+            fa[r]= 0, ch[p][1]= 0, root= r;
+            return;
+        }
+        if(!r)
+        {
+            fa[l]= 0, ch[p][0]= 0, root= l;
+            return;
+        }
         // 关键：左右子树的根要同时从 p 上摘下来（fa 和 ch 都清），
         // 否则 splay(q) 旋转时会顺着没摘干净的那条边把 r 又转进来，结点就丢了
         fa[l]=fa[r]=0,ch[p][0]=ch[p][1]=0;
@@ -109,7 +133,11 @@ struct Splay{
         while(p)
         {
             push_down(p); last=p;
-            if(val[p]==v){splay(p); return p;}
+            if(val[p] == v)
+            {
+                splay(p);
+                return p;
+            }
             p=ch[p][v>val[p]];
         }
         if(last)splay(last);
@@ -138,7 +166,12 @@ struct Splay{
         {
             push_down(p);
             if(k<=sz[ch[p][0]])p=ch[p][0];
-            else if(k<=sz[ch[p][0]]+num[p]){int v=val[p]; splay(p); return v;}
+            else if(k <= sz[ch[p][0]] + num[p])
+            {
+                int v= val[p];
+                splay(p);
+                return v;
+            }
             else k-=sz[ch[p][0]]+num[p],p=ch[p][1];
         }
         return 0;
